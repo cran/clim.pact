@@ -51,7 +51,19 @@ cdfextract <- function(filename,varname,x.rng=NULL,y.rng=NULL,t.rng=NULL,
     if (is.na(dd0)) dd0  <- 15
   }
   print(paste("Time origin: (year-month-day)",yy0,"-",mm0,"-",dd0))
-  
+  if (yy0==0) {
+    print('There is no year zero (Press et al., Numerical recipies)')
+    print("'> print(julday(1,1,1)-julday(1,1,-1))' gives 365")
+    print('julday wont work unless the time is fixed')
+    print("year0 is set to 1, and 365 days is subtracted from tim")
+    if (substr(lower.case(t.unit),1,4)=="hour") tim <- tim - 365*24
+    if (substr(lower.case(t.unit),1,3)=="day") tim <- tim - 365
+    if (substr(lower.case(t.unit),1,5)=="month") tim <- tim - 12
+    if (substr(lower.case(t.unit),1,5)=="year") tim <- tim - 1
+    yy0 <- 1
+  }
+  print(c(mm0,dd0,yy0))
+    
   print(paste("Time unit:",lower.case(t.unit)))
   if (substr(lower.case(t.unit),1,5)=="month") {
     tim <- floor(tim)

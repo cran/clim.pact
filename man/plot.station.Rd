@@ -8,7 +8,8 @@
   station records available (in a given subdirectory).
 }
 \usage{plotStation(obs,l.anom=TRUE,mon=NULL,
-                          leps=FALSE,out.dir="output")}
+                        leps=FALSE,out.dir="output",what="b",
+                        type="l",pch=26,col="black",lwd=3,lty=3,add=FALSE)}
 
 \arguments{
   \item{obs}{A climate station series. }
@@ -17,6 +18,13 @@
     months. mon=c(12,1,2) plots the DJF mean.  }
   \item{leps}{Flag: T -> produce EPS files (hard copy). }
   \item{out.dir}{Directory where to store hard copies.}
+  \item{what}{"t"=timeseries; "d"=distribution; "b"=both.}
+  \item{type}{same as in \code{link{plot}}.}
+  \item{pch}{same as in \code{link{plot}}.}
+  \item{col}{colour, same as in \code{link{plot}}.}
+  \item{lwd}{line width, same as in \code{link{plot}}.}
+  \item{lty}{line type, same as in \code{link{plot}}.}
+  \item{add}{TRUE adds a time series to previous  (see \code{link{grd.box.ts}}).}
 }
 \value{a <- list of "monthly.station.record" class:
   \tabular{ll}{

@@ -11,7 +11,7 @@
 # R.E. Benestad
 
 getdnmi <- function(location,ele.c='101',silent = FALSE,
-                    direc="/home/kareb/data/stations/") {
+                    direc="data/stations/") {
 
 if (!silent) print(paste("GETDNMI:",location,ele.c))
 row<-switch(as.character(ele.c),

@@ -150,7 +150,7 @@ if ( (ny < 20) | (sum(is.na(dat$yy))>0) ) {
   if (!silent) print("You may want to try another location or different dataset")
 }
 
-if (class(dat)[2]=="monthly.station.record") {
+if (class(dat)[2]=="monthly.station.record"){
   yy.o<-sort(rep(dat$yy,12))
   mm.o<-rep(seq(1,12,by=1),ny)
   dd.o <- rep(15,length(yy.o))
@@ -211,7 +211,7 @@ dd.o<- dd.o[is.element(mm.o,mon)]
 mm.o<- mm.o[is.element(mm.o,mon)]
 
 if (is.null(cal.id)) cal.id<- preds$id.t[1]
-#print("Calibration predictors:")
+#print(paste("Calibration predictors:",cal.id))
 #print(sum(preds$id.t==cal.id & !is.na(preds$PC[,1])))
 #print(range(preds$yy[preds$id.t==cal.id & !is.na(preds$PC[,1])]))
 X.cal<-  preds$PC[preds$id.t==cal.id & !is.na(preds$PC[,1]),]
@@ -220,6 +220,7 @@ mm.cal<- preds$mm[preds$id.t==cal.id & !is.na(preds$PC[,1])]
 dd.cal<- preds$dd[preds$id.t==cal.id & !is.na(preds$PC[,1])]
 
 if (!silent) print("------------Match times---------------- ")
+#print(range(yy.cal))
 X.cal<-  X.cal[is.element(mm.cal,mon),]
 yy.cal<- yy.cal[is.element(mm.cal,mon)]
 dd.cal<- dd.cal[is.element(mm.cal,mon)]
@@ -246,7 +247,8 @@ if (sum((preds$id.t!=cal.id) & !is.na(preds$PC[,1]))>0) {
 
 # Find the common period:
 
-if (class(preds)[2]=="monthly.field.object") {
+if ((class(preds)[2]=="monthly.field.object") |
+    (class(preds)[3]=="monthly.field.object")) {
   i1<-is.element(yy.o,yy.cal)
   i2<-is.element(yy.cal,yy.o)
 } else {
@@ -258,7 +260,10 @@ if (class(preds)[2]=="monthly.field.object") {
 
 # Extract the predictand & predictors:
 
-#print(c(sum(i1),sum(i2)))
+if (!silent) print(paste("Number of coinciding obs:",sum(i1),",",sum(i2)))
+if (!silent) print(summary(yy.o))
+if (!silent) print(summary(yy.cal))
+
 y.o<-y.o[i1] ; mm.o<-mm.o[i1]; yy.o<-yy.o[i1]; dd.o<-dd.o[i1]
 X.cal<-X.cal[i2,]; mm.cal<-mm.cal[i2]; yy.cal<-yy.cal[i2]; dd.cal<-dd.cal[i2]
 
@@ -340,11 +345,14 @@ if (method!="anm") exprn <- paste(exprn,xtr.args,")",sep="") else
 if (!silent) print(paste("Model: ",exprn))
 expr <- parse(text=exprn)
 lm.mod <- eval(expr)
+lm.mod$coefficients[!is.finite(lm.mod$coefficients)] <- 0
+
 meths <- methods(class(lm.mod))
 if (!silent) print("Stepwise..")
 if ((swsm!="none") & !is.null(swsm)) {
   step.wise <- eval(parse(text=paste(swsm,"(lm.mod,trace=0)",sep="")))
 }  else step.wise<-lm.mod
+step.wise$coefficients[!is.finite(step.wise$coefficients)] <- 0
 
 #print("ANOVA from step-wise regression:")
 
@@ -361,7 +369,8 @@ if (length(step.wise$coefficients)>1) {
     r2 <- round(100*r2.stat$estimate^2,2)
     p.val <- round(100*r2.stat$p.value,2)
   } else {
-    r2.stat <- eval(parse(text=paste("r2.stat <- cor.test(y,",predm,"(lm.mod))",sep="")))
+    r2.stat <- eval(parse(text=paste("r2.stat <- cor.test(y,",
+                            predm,"(lm.mod))",sep="")))
     r2 <- round(100*r2.stat$estimate^2,2)
     p.val <- round(100*r2.stat$p.value,2)
   }
@@ -388,6 +397,10 @@ detach(calibrate)
 attach(scen.gcm)
 #pre.gcm<-predict(step.wise,newdata=scen.gcm)
 pre.gcm <- eval(parse(text=paste(predm,"(step.wise,newdata=scen.gcm)",sep="")))
+
+if (!silent) print("Downscaled anomalies:")
+if (!silent) print(summary(pre.gcm))
+
 detach(scen.gcm)
 if (!silent) print(summary(step.wise))
 
@@ -440,12 +453,22 @@ if ((class(dat)[2]=="daily.station.record") & (rmac)) {
 }
 
 if (method!="anm") {
-  pre.y   <- pre.y   - mean(pre.y,na.rm=TRUE) + mean(y.o,na.rm=TRUE)
-  pre.gcm <- pre.gcm - mean(pre.gcm[yy.gcm<2010],na.rm=TRUE) +
-                     mean(y.o[yy.o>1980],na.rm=TRUE)
+  ii1 <- is.element(yy.gcm,yy.o)
+  ii2 <- is.element(yy.o,yy.gcm)
+  cal.mean <- mean(pre.y,na.rm=TRUE)
+  gcm.mean <- mean(pre.gcm[ii1],na.rm=TRUE)
+  obs.mean <- mean(y.o[ii2],na.rm=TRUE)
+  obs.mean2 <- mean(y.o,na.rm=TRUE)
+  if (!is.finite(gcm.mean)) gcm.mean  <- 0
+  if (!is.finite(obs.mean)) obs.mean  <- 0 
+  if (!is.finite(cal.mean)) cal.mean  <- 0
+  if (!is.finite(obs.mean2)) obs.mean2  <- 0 
+  pre.y   <- pre.y   - cal.mean + obs.mean2
+  pre.gcm <- pre.gcm - gcm.mean + obs.mean
+                       
 }
-
-if (!silent) print(summary(pre.gcm))
+#print("Check#3:")
+#print(summary(pre.gcm))  # TEST
 
 if ( (regexpr("precip",lower.case(dat$obs.name)) > 0) |
      (regexpr("rain",lower.case(dat$obs.name)) > 0) ) {
@@ -483,7 +506,6 @@ if (length(dims) > 2) dim(preds2D)<-c(dims[1],dims[2]*dims[3])
 
 if (!silent) print("Reconstruct the spatial patterns")
 if (!silent) print(lm.coe)
-
 i.last <- 0
 list.expr <- "list("
 id <- row.names(table(preds$id.x))

@@ -148,7 +148,8 @@ print(preds.id)
 vnames <- fields$v.name[1]
 if (length(fields$v.name)>1) for (i in 2:length(fields$v.name)) vnames <- paste(vnames,"+",fields$v.name[i],sep="")
 fname<-paste(direc,"eof_", preds.id,scen,"_",vnames,"_",region,"_",
-       c.mon,'_',lower.case(substr(attr(fields$tim,"unit"),1,3)),".Rdata",sep="")
+       c.mon,'_',lower.case(substr(attr(fields$tim,"unit"),1,3)),
+             ".Rdata",sep="")
 print(paste("File name:",fname,"sum(i.mm)=",sum(i.mm)))
 
 #-------------------------------------------------------------------------

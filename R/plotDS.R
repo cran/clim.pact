@@ -21,6 +21,9 @@ pred.descr <- paste("Empirical Downscaling (",id.1,"[")
 
 lons <- lon.loc
 lats <- lat.loc
+if (!is.finite(lons)) lons <- mean(ds.obj$lon,na.rm=TRUE)
+if (!is.finite(lats)) lats <- mean(ds.obj$lat,na.rm=TRUE)
+
 for (i in 1:n.fld) {
   eval(parse(text=paste("x.srt<-order(lon.",i,")",sep="")))
   eval(parse(text=paste("y.srt<-order(lat.",i,")",sep="")))
@@ -38,7 +41,7 @@ subtitle <- paste("Calibration: ",month," ",v.name," at ",ds.obj$location,
 print(paste("subtitle:",subtitle))
 
 
-y.lim.tr <- range(c(y.o,pre.y,pre.gcm))
+y.lim.tr <- range(c(y.o,pre.y,pre.gcm),na.rm=TRUE)
 yymm.o<-yy.o + (mm.o-0.5)/12 + (dd.o-0.5)/365.25
 yymm.gcm<-yy.gcm + (mm.gcm-0.5)/12 + (dd.gcm-0.5)/365.25
 

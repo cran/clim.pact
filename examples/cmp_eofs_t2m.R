@@ -10,13 +10,13 @@
 rm(list=ls())
 library(clim.pact)
 
-do <- FALSE
+do <- TRUE
 cmon<-c("Jan","Feb","Mar","Apr","May","Jun",
         "Jul","Aug","Sep","Oct","Nov","Dec")
 
 #domains <- c("D2","D4","D9","D10","D1","D3","D5","D6","D7","D8","D11")
 #analyses  <- c("NCEP","DNMI")
-domains <- c("D9")
+domains <- c("D15","D16","D17")
 analyses  <- c("NCEP")
 
 for (domain in domains) {
@@ -28,12 +28,18 @@ x.domain <- switch(domain,
                 "D3"=list(x.rng=c(-40,40),y.rng=c(50,70)),
                 "D4"=list(x.rng=c(-20,40),y.rng=c(50,70)),
                 "D5"=list(x.rng=c(  0,35),y.rng=c(55,70)),
-                "D6"=list(x.rng=c( 10,50),y.rng=c(60,75)),
+                "D6"=list(x.rng=c( -10,50),y.rng=c(50,75)),
                 "D7"=list(x.rng=c(-20,20),y.rng=c(55,65)),
                 "D8"=list(x.rng=c(-40,20),y.rng=c(65,85)),
                 "D9"=list(x.rng=c(-60,-40),y.rng=c(40,70)),
-                "D10"=list(x.rng=c(-70,-40),y.rng=c(50,78)),
-                "D11"=list(x.rng=c(-40,40),y.rng=c(50,80)))
+                "D10"=list(x.rng=c(-90,-30),y.rng=c(60,80)),
+                "D11"=list(x.rng=c(-40,40),y.rng=c(50,80)),
+                "D12"=list(x.rng=c(-70,0),y.rng=c(60,80)),
+                "D13"=list(x.rng=c(-90,-30),y.rng=c(50,80)),
+                "D14"=list(x.rng=c(0,50),y.rng=c(60,83)),
+                "D15"=list(x.rng=c(-20,70),y.rng=c(50,83)),
+                "D16"=list(x.rng=c(0,50),y.rng=c(50,83)),
+                "D17"=list(x.rng=c(-20,50),y.rng=c(30,75)))
 x.rng <- x.domain$x.rng
 y.rng <- x.domain$y.rng
 
@@ -137,6 +143,7 @@ for (im in 1:12) {
   EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
+
 ##################### ECHAM4/OPYC3: A2 ########################
 
 print("### ECHAM4/OPYC3 A2: ###")
@@ -152,6 +159,7 @@ for (im in 1:12) {
   XX <- mixFields(XX.t2m,XX.slp)
   EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
+
 
 
 ##################### ECHAM4/OPYC3: GSDIO ########################
@@ -170,8 +178,8 @@ for (im in 1:12) {
   EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
-
 if (do) {  # REB 30.09.03
+
   
 ##################### CSIRO: B2 ########################
 

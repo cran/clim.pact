@@ -88,7 +88,8 @@ grid()
 dev.copy2eps(file=paste("plotEOF_2.eps",sep=""))
 
 newFig()
-yymm<-yy + (mm-0.5)/12 + (dd-0.5)/365.25
+yymm<-x$yy + (x$mm-0.5)/12 + (x$dd-0.5)/365.25
+#print(c(length(yy),length(mm),length(dd),length(yymm),length(PC[,i.eof])))
 plot(yymm,PC[,i.eof],pch=20,cex=0.7,
      main=title.3,,col="grey70",sub=sub)
 

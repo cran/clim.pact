@@ -4,7 +4,8 @@
 # PLot data from NORDKLIMstations.
 
 plotStation <- function(obs,l.anom=TRUE,mon=NULL,
-                         leps=FALSE,out.dir="output") {
+                        leps=FALSE,out.dir="output",what="b",
+                        type="l",pch=26,col="black",lwd=3,lty=3,add=FALSE) {
 
 if (class(obs)[2]!="monthly.station.record") {
   stop(paste("The predictand must be a 'monthly.station.record'",
@@ -101,37 +102,48 @@ if (!is.null(mon)) {
   if (!leps) {
     
 #  par(ask=TRUE)
-  newFig()
-  par(cex.sub=0.8)
-  plot(yy,value,type="l",lwd=3,
-       main=paste(obs$location,obs$obs.name),
-       sub=sub.tit,xlab="Time",ylab=obs$unit)
-  lines(yy,pre.p.fit,col="red")
-  lines(c(min(yy),max(yy)),rep(mean(value,na.rm=TRUE)+
-                               1.96*sd(value,na.rm=TRUE),2),
-        lty=2,col="grey")
-  lines(c(min(yy),max(yy)),rep(mean(value,na.rm=TRUE)-
-                               1.96*sd(value,na.rm=TRUE),2),
-        lty=2,col="grey")
-  grid()
+    if ((what=="t") | (what=="b")) {
+      newFig()
+      par(cex.sub=0.8)
+      if (!add) plot(yy,value,type="l",lwd=lwd,col=col,pch=pch,lty=lty,
+                     main=paste(obs$location,obs$obs.name),
+                     sub=sub.tit,xlab="Time",ylab=obs$unit) else
+                lines(yy,value,lwd=lwd,col=col,pch=pch,lty=lty)
+      lines(yy,pre.p.fit,col="red") 
+      lines(c(min(yy),max(yy)),rep(mean(value,na.rm=TRUE)+
+                                   1.96*sd(value,na.rm=TRUE),2),
+                                   lty=2,col="grey")
+      lines(c(min(yy),max(yy)),rep(mean(value,na.rm=TRUE)-
+                                   1.96*sd(value,na.rm=TRUE),2),
+                                   lty=2,col="grey")
+      grid()
+    }
 
-  newFig()
-  par(cex.sub=0.8)
-  histo <- hist(value[!is.na(value)],breaks=15,lwd=3,freq=FALSE,
-       main=paste(obs$location,obs$obs.name),
-       sub=paste(min(round(yy,2)),"--",max(round(yy,2)),
-         ":",sub.tit,xlab=obs$unit))
+    if ((what=="d") | (what=="b")) {
+      newFig()
+      par(cex.sub=0.8)
+      histo <- hist(value[!is.na(value)],breaks=15,lwd=3,freq=FALSE,
+         main=paste(obs$location,obs$obs.name),
+         sub=paste(min(round(yy,2)),"--",max(round(yy,2)),
+           ":",sub.tit,xlab=obs$unit))
 
-  x.dist <- seq(min(histo$mids),max(histo$mids),length=101)
-  y.dist <- dnorm(x.dist,
-                  mean=mean(value,na.rm=TRUE),
-                  sd=sd(value,na.rm=TRUE))
-  lines(x.dist,y.dist,col="red")
-  lines(x.dist,dgamma(x.dist-min(x.dist),
-        shape=mean((value-min(x.dist))^2,na.rm=TRUE)/sd(value^2,na.rm=TRUE),
-        scale=sd(value^2,na.rm=TRUE)/mean(value-min(x.dist),na.rm=TRUE)),
-        col="blue",lty=3)
-  grid()
+      x.dist <- seq(min(histo$mids),max(histo$mids),length=101)
+      y.dist <- dnorm(x.dist,
+                      mean=mean(value,na.rm=TRUE),
+                      sd=sd(value,na.rm=TRUE))
+      lines(x.dist,y.dist,col="red")
+      lines(x.dist,dgamma(x.dist-min(x.dist),
+            shape=mean((value-min(x.dist))^2,na.rm=TRUE)/sd(value^2,na.rm=TRUE),
+            scale=sd(value^2,na.rm=TRUE)/mean(value-min(x.dist),na.rm=TRUE)),
+            col="blue",lty=3)
+      grid()
+    } else  {
+      histo <- hist(value[!is.na(value)],breaks=15,lwd=3,freq=FALSE,plot=FALSE)
+      x.dist <- seq(min(histo$mids),max(histo$mids),length=101)
+      y.dist <- dnorm(x.dist,
+                      mean=mean(value,na.rm=TRUE),
+                      sd=sd(value,na.rm=TRUE))
+    }
 
   } else  {
     
@@ -178,6 +190,6 @@ if (!is.null(mon)) {
   }
 
   plotStation <- list(yy=yy,mm=mm,value=value,loc=obs$location,
-                        histo=histo,x.dist=x.dist,y.dist=y.dist)
+                      histo=histo,x.dist=x.dist,y.dist=y.dist)
   invisible(plotStation)
 }

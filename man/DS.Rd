@@ -31,8 +31,13 @@
   structures may not be appropriate. It is furthermore important to
   experiment with predictors covering different regions [ref: Benestad
   (2001), "A comparison between two empirical downscaling strategies",
-  \emph{Int. J. Climatology}, \bold{vol 21}, Issue 13, pp.1645-1668. DOI
-  10.1002/joc.703]. 
+  \emph{Int. J. Climatology}, \bold{vol 21}, Issue 13, pp.1645--1668. DOI
+  10.1002/joc.703]. There is a cautionary tale for how the results can
+  be misleading if the predictor domain in not appropriate: domain for
+  northern Europe used for sites in Greenland [ref: Benestad (2002),
+  "Empirically downscaled temperature scenarios for northern Europe
+  based on a multi-model ensemble", \emph{Climate Research}, \bold{vol
+  21 (2)}, pp.105--125. \url{http://www.int-res.com/abstracts/cr/v21/n2/index.html}]
 
   The function \code{ds()} is a generic routine which in principle works for
   when there is any real statistical relationship between the predictor

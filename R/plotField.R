@@ -1,5 +1,6 @@
 plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
-                       col="black",col.coast="grey",lty=1,lwd=1,what="ano") {
+                      col="black",col.coast="grey",lty=1,lwd=1,what="ano",
+                      type="s",pch=26,my.col=NULL,add=FALSE) {
 
   if ((class(x)[1]!="field") & (class(x)[1]!="monthly.field.object") &
       (class(x)[1]!="daily.field.object")){
@@ -7,7 +8,7 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
   }
 
   if (is.null(lon) & is.null(lat) & is.null(tim)) {
-    stop("At least one of lon/lat/tim must be specified for 2D plots.")
+    stop("At least one of lon/lat/tim must be specified for 1D or 2D plots.")
   }
   
  cmon<-c('Jan','Feb','Mar','Apr','May','Jun',
@@ -31,6 +32,7 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
   tim.lat=FALSE
   lon.lat=FALSE
   time.ts=FALSE
+
   if (!is.null(lon) & is.null(lat) & is.null(tim)) {
 #    print("Time-lat")
     dx <- mean(diff(x$lon),na.rm=TRUE)
@@ -94,13 +96,17 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
   }
   # Time series - call lower level plot function:
   if (!is.null(lon) & !is.null(lat)) {
-#    print("Time-series")
-    results <- grd.box.ts(x,lon,lat,what=what,col=col,lty=lty,lwd=lwd)
+#    print("plotField: Time-series")
+    results <- grd.box.ts(x,lon,lat,what=what,col=col,
+                          lty=lty,lwd=lwd,pch=pch,type=type,add=add)
+#    Z <- results$t2m
     time.ts <- TRUE
+#    print("Now, try to exit this...")
   } 
 
-  clim <- Z*0
   if ((tim.lat) | (lon.tim)) {
+    print("Hovmuller diagrams")
+    clim <- Z*0
     if (is.null(mon) & (what=="ano")) {
       if ( (x$mm[2]-x$mm[1]>=1) & (x$dd[2]==x$dd[1]) ) {
       for (im in 1:12) {
@@ -110,7 +116,8 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
            if (lon.tim) clim[ip,it] <- mean(Z[ip,it],na.rm=TRUE)
         }
       }
-    } else {
+    } else if (lon.lat) {
+      print("Longitude-latitude map")
         ac.mod<-matrix(rep(NA,nt*6),nt,6)
         ac.mod[,1]<-cos(2*pi*x$tim/365.25); ac.mod[,2]<-sin(2*pi*x$tim/365.25)
         ac.mod[,3]<-cos(4*pi*x$tim/365.25); ac.mod[,4]<-sin(4*pi*x$tim/365.25)
@@ -126,21 +133,26 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
           }
         }
       }
+    }
+  }
 
-     if (!time.ts) Z <- switch(lower.case(substr(what,1,3)),
+  if (!time.ts) {
+    print("2D-plots")
+    Z <- switch(lower.case(substr(what,1,3)),
                               "ano"=Z - clim,
                               "cli"=clim,
                               "abs"=Z)
-      }
-    }
+ 
+
     
     if (is.null(val.rng)) {
       z.levs <- seq(min(abs(as.vector(Z)),na.rm=TRUE),
                     max(abs(as.vector(Z)),na.rm=TRUE),length=21)
     } else z.levs <- seq(val.rng[1],val.rng[2],length=21)
-    my.col <- rgb(c(seq(0,1,length=10),rep(1,11)),
-                  c(abs(sin((0:20)*pi/20))),
-                  c(c(rep(1,11),seq(1,0,length=10))))
+    
+    if (is.null(my.col)) my.col <- rgb(c(seq(0,1,length=10),rep(1,11)),
+                                       c(abs(sin((0:20)*pi/20))),
+                                       c(c(rep(1,11),seq(1,0,length=10))))
     filled.contour(X,Y,Z,
                    col = my.col,levels=z.levs,
                    main=paste(attributes(x$dat)$"long_name"),
@@ -165,6 +177,7 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
   class(results) <- "2D field"
   attr(results,"long_name") <- attr(x$dat,"long_name")
   attr(results,"descr") <- "plotField"
-  invisible(results)
-}  
+  }
+invisible(results)
+}
 

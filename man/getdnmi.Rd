@@ -6,7 +6,7 @@
   \url{http://www.met.no}. Also see \code{\link{getnacd}} and
   \code{\link{getnordklim}}.
 }
-\usage{getdnmi(location="prompt",ele.c='101',silent = FALSE,direc)}
+\usage{getdnmi(location,ele.c='101',silent = FALSE,direc="data/stations/")}
 
 \arguments{
   \item{location}{name of climate station location.}

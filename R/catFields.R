@@ -3,6 +3,7 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
                        interval.2=NULL,mon=NULL,demean=TRUE) {
   library(akima)
   l.one=FALSE
+  l.newgrid <- FALSE
   if (is.null(field.2)) {
     l.one <- TRUE
     field.2 <- field.1
@@ -74,7 +75,9 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
   nt.2 <- length(field.2$tim)
   nx.2 <- length(field.2$lon)
   ny.2 <- length(field.2$lat)
-
+  
+#  print(paste("Field1: ",nt.1,nx.1,ny.1,"   Field2: ",nt.2,nx.2,ny.2))
+  
   if (xor(min(field.1$lon)<0,min(field.2$lon)<0)) {
     if (min(field.2$lon)<0) {
       field.1$lon[field.1$lon > 180] <- field.1$lon[field.1$lon > 180]-360
@@ -104,8 +107,9 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
     } 
   }
   if (!is.null(lat) & !is.null(lon)) {
+    
     print("interpolate 1st field - please be patient :-)")
-
+    l.newgrid <- TRUE
     lat.x<-rep(field.1$lat,length(field.1$lon))
     lon.x<-sort(rep(field.1$lon,length(field.1$lat)))
     dat.1<-matrix(nrow=nt.1,ncol=ny.1*nx.1)
@@ -122,8 +126,7 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
         addland()
         grid()
       }
-    }
-    
+    }    
   } else {
     lat <- field.1$lat
     lon <- field.1$lon
@@ -136,7 +139,16 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
   lon.x<-sort(rep(field.2$lon,length(field.2$lat)))
   dat.2<-matrix(nrow=nt.2,ncol=ny.1*nx.1)
   dim(dat.2)<-c(nt.2,ny.1,nx.1)
-  if (!l.one) {
+  l.different <- TRUE
+  if ( (ny.1==ny.2) & (nx.1==nx.2) ) {
+    if ( (sum(field.1$lat==field.2$lat)==ny.1) &
+         (sum(field.1$lon==field.2$lon)==nx.1) ) l.different <- FALSE
+  }
+
+#  print(c(l.one,l.different,l.newgrid))
+  
+  if (l.one | l.different | l.newgrid) {
+    
     print("Interpolate 2nd field - please be patient :-)")
     for (it in 1:nt.2) {
       Z.in<-as.matrix(field.2$dat[it,,])
@@ -152,7 +164,9 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
       }
     }
   }
-  
+
+#  print(dim(dat.1));  print(dim(dat.2))
+
   dim(dat.1)<-c(nt.1,ny.1*nx.1)
   dim(dat.2)<-c(nt.2,ny.1*nx.1)
   if (!l.one) {

@@ -29,7 +29,7 @@ station.obj <- function(x,yy,obs.name,unit,ele=NULL,mm=NULL,
       for (i in 1:ny) {
         x.i <- x[yy==yrs[i]]
         m.i <- mm[yy==yrs[i]]
-        print(c(m.i,x.i))
+#        print(c(m.i,x.i))
         x.2D[i,m.i] <- x.i
       }
     }
@@ -48,5 +48,5 @@ station.obj <- function(x,yy,obs.name,unit,ele=NULL,mm=NULL,
                     found=TRUE,
                     ref=ref)
   class(station.obj) <- c("station","monthly.station.record")
-  station.obj 
+  invisible(station.obj )
 }

@@ -7,7 +7,7 @@
 \usage{
 grd.box.ts(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
                        col="grey10",lwd=1,lty=1,pch=26,add=FALSE,
-                       filter=NULL)
+                       filter=NULL,type="s")
 }
 \arguments{
     \item{x}{A field object.}
@@ -24,6 +24,7 @@ grd.box.ts(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
     \item{add}{'TRUE' adds curve to old plot.}
     \item{filter}{If not NULL, this is a vector specifying window
       weighting argument of same name in \code{link{filter}}.}
+    \item{type}{same as in plot(), only works for single time series.}
 }
 \value{A station object with interpolated values (see \code{\link{station.obj}} and
   \code{\link{station.obj.dm}}) that can be plotted using eg \code{\link{plotStation}}.    

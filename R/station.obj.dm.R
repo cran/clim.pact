@@ -25,5 +25,5 @@ station.obj.dm <- function(t2m,precip,dd,mm,yy,
                     start=start,yy0=yy0,country=country,
                     found=TRUE,ref=ref)
   class(station.obj.dm) <- c("station","daily.station.record")
-  station.obj.dm 
+  invisible(station.obj.dm)
 }

@@ -1,6 +1,6 @@
 grd.box.ts <- function(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
                        col="grey10",lwd=1,lty=1,pch=26,add=FALSE,
-                       filter=NULL) {
+                       filter=NULL,type="s") {
 
   library(akima)
   library(ts)
@@ -45,9 +45,14 @@ grd.box.ts <- function(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
     y[it] <- Z.out$z
   }
 
+#  print("time unit")
+  
 if (!is.null(attributes(x$tim)$unit)) {
   attr(x$tim,"units") <- attributes(x$tim)$unit
 }
+#  print(attributes(x$tim)$units)
+#  print(attributes(x$tim)$unit)
+
   if (lower.case(substr(attributes(x$tim)$units,1,5))== "month") {
     clim <- y
     for (im in 1:12) {
@@ -63,7 +68,8 @@ if (!is.null(attributes(x$tim)$unit)) {
     ac.mod[,5]<-cos(6*pi*jtime/365.25); ac.mod[,6]<-sin(6*pi*jtime/365.25)
     ac.fit<-lm(y ~ ac.mod); clim <- ac.fit$fit
   } 
-    
+
+#  print("what?")
   ts <- switch(lower.case(substr(what,1,3)),
                 "ano"=y - clim,
                 "cli"=clim,
@@ -76,21 +82,24 @@ if (!is.null(attributes(x$tim)$unit)) {
   if (!is.null(filter)) ts <- filter(ts,filter)
   if (!add) {
 
-     plot(x$yy+(x$mm-0.5)/12,ts,type="s",
+     plot(x$yy+(x$mm-0.5)/12,ts,type=type,pch=pch,
        main=x$v.name,
           sub=paste("Interpolated at ",lon,"E, ",lat,"N ",date,sep=""),
        xlab="Time",ylab=attributes(x$dat)$unit,col=col,lwd=lwd,lty=lty)
 
      points(x$yy+(x$mm-0.5)/12,ts,pch=pch,col=col)
    } else {
-     lines(x$yy+(x$mm-0.5)/12,ts,type="s",col=col,lwd=lwd,lty=lty)
+     if (type!='p') lines(x$yy+(x$mm-0.5)/12,ts,type=type,col=col,lwd=lwd,lty=lty)
      points(x$yy+(x$mm-0.5)/12,ts,pch=pch,col=col)
    }
   grid()
-
-
-  if (lower.case(substr(attr(x$tim,"unit"),1,5))=="month") {
-    print("Monthly")
+#  print("plotted")
+  
+  dd.rng <- range(x$dd)
+  if (is.null(attr(x$tim,"units"))) attr(x$tim,"units") <- "unknown"
+  if ( (lower.case(substr(attr(x$tim,"units"),1,5))=="month") |
+       ((dd.rng[2]-dd.rng[1]<4) & (x$mm[2]-x$mm[1]>0)) ) {
+#    print("Monthly")
     results <- station.obj(ts,yy=x$yy,obs.name=x$v.name,unit=attr(x$dat,"unit"),
                            ele=NA,mm=x$mm,
                            station=NA,lat=round(lat,4),lon==round(lon,4),alt=NA,
@@ -106,7 +115,8 @@ if (!is.null(attributes(x$tim)$unit)) {
                               start=min(x$yy),yy0=attr(x$tim,"time_origin"),country=NA,
                               ref="grd.box.ts.R (clim.pact)")
   }
-  
+
+#  print("exit grd.box.ts()")
   invisible(results)
 }
 

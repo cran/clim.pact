@@ -3,8 +3,8 @@
 \title{netCDF names and dimensions.}
 \description{Obtains the variable names and dimension names from a
   netCDF file. This routine provides some of the information returned by
-  \code{\link{names.netCDF}}, however this function does not depend on
-  the \code{netCDF} library.}
+  \code{\link[netCDF]{names.netCDF}}, however this function does not depend on
+  the \code{netCDF} package.}
 \usage{cdfcont(filename)}
 \arguments{
     \item{filename}{name of netCDF file.}

@@ -8,11 +8,15 @@ mapField <- function(x,l=NULL,greenwich=TRUE,
       (class(x)[2]!="daily.field.object") & (class(x)[1]!="field")) {
       stop("Need a field.object") }
   if (is.null(l)) l <- length(x$tim)
+#  print("here")
   nx <- length(x$lon)
   ny <- length(x$lat)
   nt <- length(x$tim)
   clim <- x$dat[l,,]
-  if ( (x$mm[2]-x$mm[1]>=1) & (x$dd[2]==x$dd[1]) ) {
+  dd.rng <- range(x$dd)
+  if (is.null(attr(x$tim,"units"))) attr(x$tim,"units") <- "unknown"
+  if ( (lower.case(substr(attr(x$tim,"units"),1,5))=="month") |
+       ((dd.rng[2]-dd.rng[1]<4) & (x$mm[2]-x$mm[1]>0)) ) {
     it <- mod(1:nt,12)==mod(l,12)
     for (j in 1:ny) {
       for (i in 1:nx) {
@@ -38,6 +42,7 @@ mapField <- function(x,l=NULL,greenwich=TRUE,
       dim(clim) <- c(ny,nx)
     }
 
+#  print("here")
   cmon<-c('Jan','Feb','Mar','Apr','May','Jun',
           'Jul','Aug','Sep','Oct','Nov','Dec')
   
@@ -69,14 +74,32 @@ mapField <- function(x,l=NULL,greenwich=TRUE,
                 "cli"="climatological",
                 "abs"="absolute value")
   if (is.null(val.rng)) {
-  z.levs <- seq(-max(abs(as.vector(map)),na.rm=TRUE),
-                 max(abs(as.vector(map)),na.rm=TRUE),length=41)
-  } else z.levs <- seq(val.rng[1],val.rng[2],length=41)
-  my.col <- rgb(c(seq(0,1,length=20),rep(1,21)),
-                c(abs(sin((0:40)*pi/40))),
-                c(c(rep(1,21),seq(1,0,length=20))))
+    print("set range")
+    nn <- floor(-max(abs(as.vector(map)),na.rm=TRUE))
+    xx <- ceiling(max(abs(as.vector(map)),na.rm=TRUE))
+    nl <- xx-nn
+    while (nl > 20) {
+      nl <- nl/10
+    }
+    while (nl < 5) {
+      nl <- nl*2
+    }
+    scl <- 10^floor(log(max(abs(as.vector(map)),na.rm=TRUE))/log(10))
+#    print(scl)
+    z.levs <- round(seq(nn,xx,length=nl)/scl,2)*scl
+#    print(z.levs)
+    my.col <- rgb(c(seq(0,1,length=floor(nl/2)),rep(1,ceiling(nl/2))),
+                  c(abs(sin((0:(nl-1))*pi/(nl-1)))),
+                  c(c(rep(1,ceiling(nl/2)),seq(1,0,length=floor(nl/2)))))
+#    print(nl)
+  } else {
+    z.levs <- seq(val.rng[1],val.rng[2],length=41)
+    my.col <- rgb(c(seq(0,1,length=20),rep(1,21)),
+                  c(abs(sin((0:40)*pi/40))),
+                  c(c(rep(1,21),seq(1,0,length=20))))
+  }
   if ((!add) & (method!="nice")) {
-        image(x$lon,x$lat,t(map),levels=z.levs,
+        image(x$lon,x$lat,t(map),levels=seq(nn,xx,length=101),
         main=paste(attributes(x$dat)$"long_name",descr),
         sub=date,xlab="Longitude",ylab="Latitude")
        } else if (!add) {

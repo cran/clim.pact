@@ -34,7 +34,7 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
     contour(x$lon,x$lat,map,add=TRUE,col=col,lwd=lwd,lty=lty)
     addland()
   }
-  results <- list(lon=x$lon,lat=x$lat,map=map,
+  results <- list(lon=x$lon,lat=x$lat,map=map,v.name=,x$v.name,
                   tim=NULL,date=NULL,attributes=x$attributes)
   class(results) <- "map"
 #  attr(results) <- attr(x)

@@ -8,7 +8,10 @@ anomaly.station         Anomaly.station
 avail.elem              Available elements
 bergen.dm               Daily Bergen record.
 bergen.t2m              Monthly mean temperature in Bergen.
+caldat                  Converts Julian days to month, day, and year
 catFields               catFields
+cdfcont                 netCDF names and dimensions.
+cdfextract              Extract a subfield from a netCDF file.
 composite.field         Composite maps
 corEOF                  Field correlation
 corField                Field correlation
@@ -28,6 +31,8 @@ getnordklim             Retrieve station record from the Nordklima set.
 grd.box.ts              Grid box time series
 helsinki.t2m            Monthly mean temperature in Helsinki.
 instring                instring
+julday                  Converts from month, day, and year to Julian
+                        days
 km2lat                  Convert long-lat to km-km
 km2lon                  Convert long-lat to km-km
 koebenhavn.t2m          Monthly mean temperature in Copenhagen.
@@ -35,7 +40,7 @@ lower.case              convert to lower case
 map                     Produce a map
 map.eof                 Map eof
 mapField                MapField
-meanField               Optimal interpolation
+meanField               Mean field
 mergeStation            Merge climate station series.
 mixFields               mixFields
 mod                     Modulus of a division.
@@ -44,6 +49,7 @@ num2str                 Convert numbers to string and format
 optint                  Optimum interpolation
 oslo.dm                 Daily Oslo record.
 oslo.t2m                Monthly mean temperature in Oslo.
+patternIndex            Create a Index for a spatial pattern
 plotStation             Plots monthly station records.
 plotDS                  Plot downscaled results
 plotEOF                 Plot EOFs

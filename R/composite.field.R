@@ -105,8 +105,8 @@ if (class(y)[1]=="station") {
     points(y$lon,y$lat,pch=20,col="white",cex=1.2)
     points(y$lon,y$lat,pch=20,col="black",cex=0.9)
   }
-  results <- list(map=t(map),lon=x$lon,lat=x$lat,tim=x$tim,
-                  date=date,description=descr,
+  results <- list(map=t(map),lon=x$lon,lat=x$lat,tim=NULL,
+                  date=date,description=descr,v.name=,x$v.name,
                   yy.plus=yy.plus,yy.mins=yy.minus)
   class(results) <- "map"
   attr(results,"long_name") <- attr(x$dat,"long_name")

@@ -1,12 +1,22 @@
+# NCAR PCM A2 :      1980-2099 (Jan-Feb 1980 empty)
+# NCAR PCM B2 :      2000-2099
+# NCAR CSM A2 :      2000-2099
+# CSIRO A1/B1/A2/B2: 1961-2100
+# CCCma A2/B2:       1900-2100
+# ECHAM4 A2/B2:      1990-2100
+# HadCM3 A2/B2:      1950-2099
+
+
 rm(list=ls())
 library(clim.pact)
 
+do <- FALSE
 cmon<-c("Jan","Feb","Mar","Apr","May","Jun",
         "Jul","Aug","Sep","Oct","Nov","Dec")
 
-#domains <- c("D2","D4","D9","D10","D1","D3","D5","D6","D7","D8")
+#domains <- c("D2","D4","D9","D10","D1","D3","D5","D6","D7","D8","D11")
 #analyses  <- c("NCEP","DNMI")
-domains <- c("D8","D11")
+domains <- c("D9")
 analyses  <- c("NCEP")
 
 for (domain in domains) {
@@ -50,11 +60,13 @@ if (analysis=="DNMI") {
 
 ##################### HadCM3: B2 ########################
 
+if (do) {  # REB 30.09.03
+
 print("### HadCM3 B2: ###")
 gcm.t2m <- retrieve.nc("/home/kareb/data/ipcc_sres/HADCM3_B2_tem.nc",
-                       x.rng=x.rng,y.rng=y.rng,t.rng=t.rng)
+                       x.rng=x.rng,y.rng=y.rng,t.rng=c(1950,2099))
 gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/HADCM3_B2_slp.nc",
-                       x.rng=x.rng,y.rng=y.rng,t.rng=t.rng)
+                       x.rng=x.rng,y.rng=y.rng,t.rng=c(1950,2099))
 
 for (im in 1:12) {
   print("catFields")
@@ -67,6 +79,9 @@ for (im in 1:12) {
   print("mixFields EOF")
   EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
+
+gcm.t2m.0 <- gcm.t2m
+gcm.slp.0 <- gcm.slp
 
 ##################### HadCM3: A2 ########################
 
@@ -76,6 +91,11 @@ gcm.t2m <- retrieve.nc("/home/kareb/data/ipcc_sres/HADCM3_A2_tem.nc",
 gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/HADCM3_A2_slp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(2000,2099))
 
+gcm.t2m <- catFields(gcm.t2m.0,gcm.t2m,
+                     interval.1=c(1950,1999),interval.2=c(2000,2099))
+gcm.slp <- catFields(gcm.slp.0,gcm.slp,
+                     interval.1=c(1950,1999),interval.2=c(2000,2099))
+
 for (im in 1:12) {
   print("catFields")
   XX.t2m <- catFields(obs.t2m,gcm.t2m,mon=im)
@@ -88,6 +108,16 @@ for (im in 1:12) {
   EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
+} # REB
+
+##################### ECHAM4/OPYC3: GSDIO ########################
+
+print("### ECHAM4/OPYC3 GSDIO: ###")
+gcm.t2m.0 <- retrieve.nc("/home/kareb/data/mpi/mpi-gsdio_t2m.nc",
+                       x.rng=x.rng,y.rng=y.rng,t.rng=c(1860,1990))
+gcm.slp.0 <- retrieve.nc("/home/kareb/data/mpi/mpi-gsdio_slp.nc",
+                       x.rng=x.rng,y.rng=y.rng,t.rng=c(1860,1990))
+
 ##################### ECHAM4/OPYC3: B2 ########################
 
 print("### ECHAM4/OPYC3 B2: ###")
@@ -95,6 +125,9 @@ gcm.t2m <- retrieve.nc("/home/kareb/data/ipcc_sres/EH4OPYC_B2_temp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(2001,2099))
 gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/EH4OPYC_B2_slp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(2001,2099))
+gcm.t2m <- catFields(gcm.t2m.0,gcm.t2m)
+gcm.slp <- catFields(gcm.slp.0,gcm.slp)
+
 for (im in 1:12) {
   XX.t2m <- catFields(obs.t2m,gcm.t2m,mon=im)
   EOF.t2m <- EOF(XX.t2m,plot=FALSE)
@@ -137,6 +170,9 @@ for (im in 1:12) {
   EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
+
+if (do) {  # REB 30.09.03
+  
 ##################### CSIRO: B2 ########################
 
 
@@ -286,7 +322,12 @@ for (im in 1:12) {
 #  EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
+} # end do REB 30.09.03
+do <- TRUE
+
+
+
 }
 }
 
-#source("cmp_eofs_rr.R")
+#source("cmp_eofs_gsdio.R")

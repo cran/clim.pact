@@ -15,7 +15,7 @@
 
 #------------------------------------------------------------------------
 
-plotEOF<-function(x,i.eof=1,nlevs=5,
+plotEOF<-function(x,i.eof=1,nlevs=5,sub=NULL,
                    col=c("red","blue","darkgreen","steelblue")) {
 
 if (class(x)!= "eof") stop ("The argument must be an 'eof' object") 
@@ -28,14 +28,16 @@ if (length(dims)==3) dim(EOF) <- c(dims[1],dims[2]*dims[3])
 title.1 <- paste("EOF pattern #",i.eof,"(",class(x)[2],")",sep="")
 title.2 <- "The fraction of variance accounted by the EOFs"
 title.3 <- paste("Principal component (",class(x)[2],")",sep="")
+vnames <- x$v.name[1]
+for (i in 2:length(vnames)) vnames <- paste(vnames,"+",x$v.name[i])
+if (is.null(sub)) sub <- paste(vnames," (",c.mon,")")
 i.last <- 0
 id <- row.names(table(id.x))
 #par(ask=TRUE)
 newFig()
 plot(c(floor(min(lon)),ceiling(max(lon))),
      c(floor(min(lat)),ceiling(max(lat))),
-     type="n",main=title.1,
-     sub=paste(x$f.name," (",c.mon,")"),
+     type="n",main=title.1,sub=sub,
      xlab="Longitude",ylab="Latitude")
 if (range(lon)[2]-range(lon)[1] > 360) {
   xy.cont <- COn0E65N(lon.cont, lat.cont)
@@ -70,8 +72,7 @@ dev.copy2eps(file=paste("plotEOF_1.eps",sep=""))
 
 newFig()
 plot(100*(W+dW)^2/tot.var,main=title.2,type="n",
-     ylab="Variance (%)",xlab="EOF order",
-     sub=paste(f.name," (",c.mon,")"))
+     ylab="Variance (%)",xlab="EOF order",sub=sub)
 lines(var.eof,lty=3)
 for (i in 1:length(var.eof)) {
   lines(rep(i,2),100*c((W[i]+dW[i])^2/tot.var,(W[i]-dW[i])^2/tot.var),
@@ -89,8 +90,7 @@ dev.copy2eps(file=paste("plotEOF_2.eps",sep=""))
 newFig()
 yymm<-yy + (mm-0.5)/12 + (dd-0.5)/365.25
 plot(yymm,PC[,i.eof],pch=20,cex=0.7,
-     main=title.3,,col="grey70",
-     sub=paste(f.name," (",c.mon,")"))
+     main=title.3,,col="grey70",sub=sub)
 
 lines(yymm[id.t==id.t[1]],PC[id.t==id.t[1],i.eof],col="red",lty=2,lwd=2)
 if (sum(id.t!=id.t[1])>0) lines(yymm[id.t!=id.t[1]],

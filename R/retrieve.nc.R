@@ -92,8 +92,6 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
     return()
   }
 #  print("Found all variables")
-  slash <- instring("/",f.name)
-  dot <- instring(".",f.name)
   nx <- length(lon)
   ny <- length(lat)
   nt <- length(tim)
@@ -263,6 +261,9 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
   }
   v.nam <- substr(v.nam,1,eos)
   id.x <- matrix(rep(v.nam,ny*nx),ny,nx)
+  slash <- instring("/",f.name)
+  dot <- instring(".",f.name)
+
   id.t <- rep(substr(f.name,slash[length(slash)]+1,
                      dot[length(dot)]-1),nt)              
   dat.att$time.unit <- t.unit

@@ -118,33 +118,38 @@ if (class(fields)[2]=="monthly.field.object") {
       i.mm <- is.finite(mm) 
 }
 
-preds.names <- row.names(table(lower.case(fields$id.t)))
-for (i.pred in 1:length(preds.names)) {
-  if (preds.names[i.pred]=="t2m") preds.names[i.pred] <- tem
-  if (preds.names[i.pred]=="psl") preds.names[i.pred] <- slp
-}
-preds.names <- row.names(table(preds.names))
+# Decide the name of the file containting EOF
+#print("file name...")
 
-preds.id <- ""
+preds.names <- row.names(table(lower.case(fields$id.t)))
+preds.id <- ""; scen <- ""
+if (sum(grep("gsdio",preds.names))>0) scen <- "-gsdio"
+if (sum(grep("is92a",preds.names))>0) scen <- "-is92a"
+if (sum(grep("b1",preds.names))>0) scen <- "-b1"
+if (sum(grep("a1",preds.names))>0) scen <- "-a1"
+if (sum(grep("b2",preds.names))>0) scen <- "-b2"
+if (sum(grep("a2",preds.names))>0) scen <- "-a2"
+
 for (i.pred in 1:length(preds.names)) {
   eos <- nchar(preds.names[i.pred])
 
   if (instring("_",preds.names[i.pred])> 0) {
     eos <- instring("_",preds.names[i.pred])-1
-    if (length(eos) > 1) eos <- eos[2]
+    if (length(eos) > 1) eos <- eos[1]
   } else if (instring("-",preds.names[i.pred])> 0) {
     eos <- instring("-",preds.names[i.pred])-1
-    if (length(eos) > 1) eos <- eos[2]
+    if (length(eos) > 1) eos <- eos[1]
   } 
   preds.id  <- paste(preds.id,substr(preds.names[i.pred],1,eos),
                      "+",sep="")
 }
+
 print(preds.id)
-preds.id <- substr(preds.id,1,nchar(preds.id)-1)
-fname<-paste(direc,"eof_", preds.id,"_",fields$v.name,"_",region,"_",
-       c.mon,'_',substr(attr(fields$tim,"unit"),1,3),".Rdata",sep="")
-print(paste("File name:",fname,
-            "sum(i.mm)=",sum(i.mm)))
+vnames <- fields$v.name[1]
+if (length(fields$v.name)>1) for (i in 2:length(fields$v.name)) vnames <- paste(vnames,"+",fields$v.name[i],sep="")
+fname<-paste(direc,"eof_", preds.id,scen,"_",vnames,"_",region,"_",
+       c.mon,'_',lower.case(substr(attr(fields$tim,"unit"),1,3)),".Rdata",sep="")
+print(paste("File name:",fname,"sum(i.mm)=",sum(i.mm)))
 
 #-------------------------------------------------------------------------
 

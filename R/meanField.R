@@ -47,7 +47,7 @@ meanField <- function(x,lon.rng=NULL,lat.rng=NULL,t.rng=NULL,mon=NULL) {
     }
   }
   
-  results <- list(lon=lons,lat=lats,map=map,
+  results <- list(lon=lons,lat=lats,map=map,v.name=,x$v.name,
                   tim=month,date=t.rng)
   class(results) <- "map"
 #  attr(results) <- attr(x)

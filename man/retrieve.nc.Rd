@@ -3,7 +3,8 @@
 \alias{field.object}
 \title{Retrieve data from a netCDF file}
 \description{Reads a netCDF file and picks out vectors that look like
-  lngitude, latitude and time. Returns the first 3-D field in the file.}
+  lngitude, latitude and time. Returns the first 3-D field in the file.
+  See also \code{\link{cdfextract}} (large data files).}
 \usage{retrieve.nc(f.name="data/ncep_t2m.nc",v.nam="AUTO",
                         l.scale=TRUE,greenwich=TRUE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
@@ -49,6 +50,16 @@ X.1 <- retrieve.nc("data/mpi-gsdio_t2m.nc",
                    x.rng=c(-60,40),y.rng=c(50,75))
 X.2 <- retrieve.nc("data/mpi-gsdio_slp.nc",
                    x.rng=c(-60,40),y.rng=c(50,75))
+
+# The definition of a 'field' object is:
+ny<-length(slp$lat); nx<-length(slp$lon)
+slp  <- list(dat=X.2$dat,lon=X.2$lon,lat=X.2$lat,tim=X.2$tim,lev=X.2$lev,
+             v.name=X.2$v.nam,id.x=X.2$id.x,id.t=X.2$id.t,
+             yy=X.2$yy,mm=X.2$mm,dd=X.2$dd,n.fld=1,
+             id.lon=rep(X.2$v.name,nx),id.lat=rep(X.2$v.name,ny),
+             attributes=dat.att)
+ class(slp) <- c("field")
+
 }
 }
-\keyword{models}
+\keyword{file}

@@ -7,9 +7,10 @@
   function. \code{plot.field} is a high level command that utilises
   \code{\link{mapField}} or \code{\link{grd.box.ts}} whenever appropriate.}  
 \usage{plotField(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
-                       col="black",col.coast="grey",lty=1,lwd=1,what="ano",
-                       type="s",pch=26,my.col=NULL,add=FALSE,
-                       main=NULL,sub=NULL,xlab=NULL,ylab=NULL)}
+                      col="black",col.coast="grey",lty=1,lwd=1,what="ano",
+                      type="l",pch=26,my.col=NULL,add=FALSE,
+                      main=NULL,sub=NULL,xlab=NULL,ylab=NULL,
+                      xlim=NULL,ylim=NULL)}
 \arguments{
   \item{x}{A field object.}
   \item{lon}{Position for longitude. One of \code{lon, lat, tim} must be set.}
@@ -31,6 +32,8 @@
   \item{sub}{subtitle}
   \item{xlab}{x label}
   \item{ylab}{y label}
+  \item{xlim}{see \code{\link{plot}}}
+  \item{ylim}{see \code{\link{plot}}}
 }
 \value{}
 \author{R.E. Benestad}}

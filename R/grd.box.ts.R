@@ -1,6 +1,7 @@
 grd.box.ts <- function(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
                        col="grey10",lwd=1,lty=1,pch=26,add=FALSE,
-                       filter=NULL,type="s",main=NULL,sub=NULL,xlab=NULL,ylab=NULL) {
+                       filter=NULL,type="l",main=NULL,sub=NULL,xlab=NULL,ylab=NULL,
+                       xlim=NULL,ylim=NULL) {
 
   library(akima)
   library(ts)
@@ -14,7 +15,7 @@ grd.box.ts <- function(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
     x$lon <- x$lon[x.srt]
     x$dat <- x$dat[,,x.srt]
   }
-
+  daysayear <- 365.25
   cmon<-c('Jan','Feb','Mar','Apr','May','Jun',
           'Jul','Aug','Sep','Oct','Nov','Dec')
   descr <- "Interpolated value"
@@ -68,9 +69,11 @@ if (!is.null(attributes(x$tim)$unit)) {
     ac.mod<-matrix(rep(NA,nt*6),nt,6)
     if (tunit=="day") jtime <- x$tim
     if (tunit=="hou")  jtime <- x$tim/24
-    ac.mod[,1]<-cos(2*pi*jtime/365.25); ac.mod[,2]<-sin(2*pi*jtime/365.25)
-    ac.mod[,3]<-cos(4*pi*jtime/365.25); ac.mod[,4]<-sin(4*pi*jtime/365.25)
-    ac.mod[,5]<-cos(6*pi*jtime/365.25); ac.mod[,6]<-sin(6*pi*jtime/365.25)
+    if (!is.null(x$attributes$daysayear)) daysayear <- x$attributes$daysayear else
+                                          daysayear <- 365.25
+    ac.mod[,1]<-cos(2*pi*jtime/daysayear); ac.mod[,2]<-sin(2*pi*jtime/daysayear)
+    ac.mod[,3]<-cos(4*pi*jtime/daysayear); ac.mod[,4]<-sin(4*pi*jtime/daysayear)
+    ac.mod[,5]<-cos(6*pi*jtime/daysayear); ac.mod[,6]<-sin(6*pi*jtime/daysayear)
     ac.fit<-lm(y ~ ac.mod); clim <- ac.fit$fit
   } 
 
@@ -90,16 +93,14 @@ if (!is.null(attributes(x$tim)$unit)) {
   if (is.null(xlab)) xlab <- "Time"
   if (is.null(ylab)) ylab <- attributes(x$dat)$unit
 
-
   if (!add) {
 
-     plot(x$yy+(x$mm-0.5)/12,ts,type=type,pch=pch,
+     plot(x$yy+x$mm/12+x$dd/daysayear,ts,type=type,pch=pch,xlim=xlim,ylim=ylim,
        main=main,sub=sub,xlab=xlab,ylab=ylab,col=col,lwd=lwd,lty=lty)
-
-     points(x$yy+(x$mm-0.5)/12,ts,pch=pch,col=col)
+     points(x$yy+x$mm/12+x$dd/daysayear,ts,pch=pch,col=col)
    } else {
-     if (type!='p') lines(x$yy+(x$mm-0.5)/12,ts,type=type,col=col,lwd=lwd,lty=lty)
-     points(x$yy+(x$mm-0.5)/12,ts,pch=pch,col=col)
+     if (type!='p') lines(x$yy+x$mm/12+x$dd/daysayear,ts,type=type,col=col,lwd=lwd,lty=lty)
+     points(x$yy+x$mm/12+x$dd/daysayear,ts,pch=pch,col=col)
    }
   grid()
 #  print("plotted")
@@ -116,6 +117,7 @@ if (!is.null(attributes(x$tim)$unit)) {
                            start=min(x$yy),yy0=attr(x$tim,"time_origin"),country=NA,
                            ref="grd.box.ts.R (clim.pact)")
   } else {
+    attr(x$tim,"daysayear") <- daysayear
     results <- station.obj.dm(t2m=ts,precip=rep(NA,length(ts)),
                               dd=x$dd,mm=x$mm,yy=x$yy,
                               obs.name=x$v.name,unit=attr(x$dat,"unit"),ele=NA,

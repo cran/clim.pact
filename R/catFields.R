@@ -78,7 +78,7 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
   nx.2 <- length(field.2$lon)
   ny.2 <- length(field.2$lat)
   
-#  print(paste("Field1: ",nt.1,nx.1,ny.1,"   Field2: ",nt.2,nx.2,ny.2))
+  #print(paste("Field1: ",nt.1,nx.1,ny.1,"   Field2: ",nt.2,nx.2,ny.2))
   
   if (xor(min(field.1$lon)<0,min(field.2$lon)<0)) {
     if (min(field.2$lon)<0) {
@@ -96,7 +96,15 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
   field.1$dat[!is.finite(field.1$dat)] <- 0
   field.2$dat[!is.finite(field.2$dat)] <- 0
 
-  if (demean) {
+  if ((demean) & !l.one) {
+    print("Subtracting mean values...")
+#    dim(field.1$dat) <- c(nt.1,ny.1*nx.1)
+#    field.1$dat <- field.1$dat - colMeans(field.1$dat)
+#    dim(field.1$dat) <- c(nt.1,ny.1,nx.1)
+#    dim(field.2$dat) <- c(nt.2,ny.2*nx.2)
+#    field.2$dat <- field.2$dat - colMeans(field.2$dat)
+#    dim(field.2$dat) <- c(nt.2,ny.2,nx.2)
+### Slow...
     for (j in 1:ny.1) {
       for (i in 1:nx.1) {
         field.1$dat[,j,i] <- field.1$dat[,j,i]-mean(field.1$dat[,j,i])
@@ -136,6 +144,7 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
     }
     
   } else {
+    print("Use the grid of first field - no interpolation :-)")
     lat <- field.1$lat
     lon <- field.1$lon
     dat.1 <- field.1$dat
@@ -155,7 +164,7 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
 
 #  print(c(l.one,l.different,l.newgrid))
   
-  if (l.one | l.different | l.newgrid) {
+  if (!l.one & (l.different | l.newgrid)) {
     
     print("Interpolate 2nd field - please be patient :-)")
     for (it in 1:nt.2) {
@@ -171,6 +180,9 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
         grid()
       }
     }
+  } else {
+    #print("Identical spatial grids :-)")
+    dat.2 <- field.2$dat
   }
 
 #  print(dim(dat.1));  print(dim(dat.2))

@@ -28,12 +28,14 @@ anomaly.field <- function(x,period=NULL) {
     nt <- sum(i.yy)
 #    time <- julian(x$mm,x$dd,x$yy)
     time <- julday(x$mm,x$dd,x$yy)
-    x.1<-cos(2*pi*time/365.25)
-    x.2<-sin(2*pi*time/365.25)
-    x.3<-cos(4*pi*time/365.25)
-    x.4<-sin(4*pi*time/365.25)
-    x.5<-cos(6*pi*time/365.25)
-    x.6<-sin(6*pi*time/365.25)
+    if (!is.null(x$attributes$daysayear)) daysayear <- x$attributes$daysayear else
+                                          daysayear <- 365.25
+    x.1<-cos(2*pi*time/daysayear)
+    x.2<-sin(2*pi*time/daysayear)
+    x.3<-cos(4*pi*time/daysayear)
+    x.4<-sin(4*pi*time/daysayear)
+    x.5<-cos(6*pi*time/daysayear)
+    x.6<-sin(6*pi*time/daysayear)
     dim(x$dat) <- c(nt,ny*nx)
     for (ip in seq(1,ny*nx,by=1)) {
       if (sum(is.finite(x$dat[,ip])) > 0) {

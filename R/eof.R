@@ -8,7 +8,7 @@
 EOF<-function(fields,l.wght=TRUE,lc180e=FALSE,direc="data/",
               lon=NULL,lat=NULL,l.stndrd=TRUE,las=1,
               mon=NULL,plot=TRUE,neofs=20,l.rm.ac=TRUE,lsave=TRUE,
-              LINPACK=TRUE) {
+              LINPACK=TRUE,silent=FALSE) {
 
 #=========================================================================
 library(ts)
@@ -23,11 +23,11 @@ if ((class(fields)[2]!="monthly.field.object") &
 
 dir.0<-getwd()
 if (!file.exists(direc)){
-  print(paste("The directory",direc,"does not exists.. Creates it.."))
+  if (!silent) print(paste("The directory",direc,"does not exists.. Creates it.."))
   dir.create(direc)
 }
 
-if (is.null(attr(fields$tim,"units"))) attr(fields$tim,"units") <- fields$attributes$time.unit 
+if (is.null(attr(fields$tim,"unit"))) attr(fields$tim,"unit") <- fields$attributes$time.unit 
 tunit <- attr(fields$tim,"unit")
 if (is.null(attr(fields$tim,"time_origin"))) attr(fields$tim,"time_origin") <- fields$attributes$time.origin
 tim.torg <- attr(fields$tim,"time_origin")
@@ -36,9 +36,11 @@ if (!is.null(attr(fields$tim,"unit"))) {
 } else tunit <- "mon"
 
 dims <- dim(fields$dat) 
-if (length(dims)==3) dim(fields$dat) <- c(dims[1],dims[2]*dims[3])
-clim <- rep(NA,dims[2]*dims[3])
-
+if (length(dims)==3) {
+  dim(fields$dat) <- c(dims[1],dims[2]*dims[3])
+  clim <- rep(NA,dims[2]*dims[3])
+} else clim <- rep(NA,dims[2])
+  
 # For naming the files containing the results
 
 if (is.null(lon)) lon <- fields$lon
@@ -67,8 +69,12 @@ dims <- dim(dat)
 nt <- dims[1]
 np <- dims[2]
 c.mon <- ""
+
+if (!is.null(fields$attributes$daysayear)) daysayear <- fields$attributes$daysayear else
+                                           daysayear <- 365.25
+
 if (class(fields)[2]=="monthly.field.object") {
-  print("monthly.field.object")
+  if (!silent) print("monthly.field.object")
   if (is.null(mon))  {
       if (min(mm)==max(mm)) c.mon <- months[mm[1]]  else
                c.mon<-paste(months[min(mm)],"-",months[max(mm)],sep="")
@@ -84,14 +90,15 @@ if (class(fields)[2]=="monthly.field.object") {
       tim <- tim[i.mm]
     }
 } else if (class(fields)[2]=="daily.field.object") {
-  print("daily.field.object")
+  if (!silent) print("daily.field.object")
+
   ac.mod<-matrix(rep(NA,nt*6),nt,6)
-  ac.mod[,1]<-cos(2*pi*fields$tim/365.25)
-  ac.mod[,2]<-sin(2*pi*fields$tim/365.25)
-  ac.mod[,3]<-cos(4*pi*fields$tim/365.25)
-  ac.mod[,4]<-sin(4*pi*fields$tim/365.25)
-  ac.mod[,5]<-cos(6*pi*fields$tim/365.25)
-  ac.mod[,6]<-sin(6*pi*fields$tim/365.25)
+  ac.mod[,1]<-cos(2*pi*tim/daysayear)
+  ac.mod[,2]<-sin(2*pi*tim/daysayear)
+  ac.mod[,3]<-cos(4*pi*tim/daysayear)
+  ac.mod[,4]<-sin(4*pi*tim/daysayear)
+  ac.mod[,5]<-cos(6*pi*tim/daysayear)
+  ac.mod[,6]<-sin(6*pi*tim/daysayear)
   if (l.rm.ac) {
     for (ip in seq(1,np,by=1)) {
       ac.fit<-lm(dat[,ip] ~ ac.mod)
@@ -108,6 +115,7 @@ if (class(fields)[2]=="monthly.field.object") {
   } else {
     mon <- mod(mon-1,4)+1
     c.mon<-season.c[mon+1]
+#    print(season[,mon])
     mon <- season[,mon]
     i.mm <- is.element(mm,mon)
     dat <- dat[i.mm,]
@@ -115,15 +123,14 @@ if (class(fields)[2]=="monthly.field.object") {
     mm <- mm[i.mm]
     dd <- dd[i.mm]
     id.t <- id.t[i.mm]
-    tim <- fields$tim[i.mm]
-#    print(season[,mon])
+    tim <- tim[i.mm]
   }
 #  print("Months:")
 #  print(table(mm))
 #  print(paste("Season:",mon))
 #  print(season)
 } else if (tunit=="mon") {
-     print("Field with unspecified time unit - set to month")
+     if (!silent) print("Field with unspecified time unit - set to month")
      c.mon<-months[as.numeric(row.names(table(mm)))]
      i.mm <- is.finite(mm) 
 } else {
@@ -166,11 +173,11 @@ vnames <- substr(fields$v.name[1],1,min(nchar(fields$v.name[1]),4))
 #if (length(fields$v.name)>1) {
 #  for (i in 2:length(fields$v.name)) vnames <- paste(vnames,"+",strip(fields$v.name[i]),sep="")
 #}
-print(c("pred.names=",preds.names,"scen=",scen,"preds.id=",preds.id,"vnames=",vnames))
+if (!silent) print(c("pred.names=",preds.names,"scen=",scen,"preds.id=",preds.id,"vnames=",vnames))
 fname<-paste(direc,"eof_", preds.id,scen,"_",vnames,"_",region,"_",
        c.mon,'_',tunit,".Rdata",sep="")
-print(paste("File name:",fname,"sum(i.mm)=",sum(i.mm)))
-#print(dim(fields$dat))
+if (!silent) print(paste("File name:",fname,"sum(i.mm)=",sum(i.mm)))
+#print(dim(dat))
 
 #-------------------------------------------------------------------------
 
@@ -186,46 +193,46 @@ stdv <- rep(0,fields$n.fld)
 ixy <- 0
 for (i in 1:fields$n.fld) {
   ii <- fields$id.x == id[i]
-#  print(paste("id.x: ",sum(ii)))
+  #print(paste("id.x: ",sum(ii)))
   id.lon <- fields$id.lon
   id.lat <- fields$id.lat
-#  print("i.lon/i.lat:")
+  #print("i.lon/i.lat:")
   i.lon <- fields$id.lon == id[i]
   i.lat <- fields$id.lat == id[i]
-#  print("lonx/latx:")
+  #print("lonx/latx:")
   lon.x <- fields$lon[i.lon]
   lat.x <- fields$lat[i.lat]
-#  print("id.lon/id.lat:")
-  id.lon <- fields$id.lon[i.lon]
-  id.lat <- fields$id.lat[i.lat]
-#  print("nx/ny:")
+  #print("id.lon/id.lat:")
+  id.lon <- id.lon[i.lon]
+  id.lat <- id.lat[i.lat]
+  #print("nx/ny:")
   nx <- length(lon.x)
   ny <- length(lat.x)
-#  print("dat:")
-#  print(dim(fields$dat))
-  dat.x <- fields$dat[,ii]
-#  print("ix/iy:")
+  #print("dat:")
+  #print(dim(dat))
+  dat.x <- dat[,ii]
+  #print("ix/iy:")
   ix <- ((lon.x >= min(lon)) & (lon.x <= max(lon)))
   iy <- ((lat.x >= min(lat)) & (lat.x <= max(lat)))
-#  print("new lonx/latx:")
+  #print("new lonx/latx:")
   lon.x <- lon.x[ix]
   lat.x <- lat.x[iy]
-#  print("new id.lon/id.lat:")
+  #print("new id.lon/id.lat:")
   id.lon  <- id.lon[ix]
   id.lat  <- id.lat[iy]
-#  print(dim(dat.x))
-#  print(c(length(yy),ny,nx,sum(ix),sum(iy)))
+  #print(dim(dat.x))
+  #print(c(length(yy),ny,nx,sum(iy),sum(ix),nt))
 
   dim(dat.x) <- c(length(yy),ny,nx)
   dat.x <- dat.x[,iy,ix]
 
-#  print("Stdv[i]")  
+  #print("Stdv[i]")  
   ny <- length(lat.x)
   nx <- length(lon.x)
   nt <- length(yy)
   stdv[i] <- sd(dat.x,na.rm=TRUE)
 
-#  print("Remove mean values at each grid point")
+  if (!silent) print("Remove mean values at each grid point")
   for (j.y in 1:ny) {
     for (i.x in 1:nx) {
       ixy <- ixy + 1
@@ -234,14 +241,15 @@ for (i in 1:fields$n.fld) {
     }
   }
 
-#  print("Add geographical weighting")
+  #print("Add geographical weighting")
   if (l.wght) {
-    print(paste("Weighting according to area. Field",i))
+    if (!silent) print(paste("Weighting according to area. Field",i))
     Wght <-matrix(nrow=ny,ncol=nx)
     for (j in 1:nx)  Wght[,j]<-sqrt(abs(cos(pi*lat.x/180)))
     Wght[Wght < 0.01]<-NA     
+    #print(c(dim(dat.x),NA,dim(Wght),NA,stdv,NA,nt))
     for (it in 1:nt) dat.x[it,,] <- dat.x[it,,]*Wght/stdv[i]
-#    print(paste("Wght.",i,"<-Wght",sep=""))
+    if (!silent) print(paste("Wght.",i,"<-Wght",sep=""))
     eval(parse(text=paste("Wght.",i,"<-Wght",sep="")))
   }
   
@@ -278,7 +286,7 @@ for (i in 1:fields$n.fld) {
   }
 }
 
-if (sum(is.na(dat.d2))>0) print(paste(sum(is.na(dat.d2)),
+if ((sum(is.na(dat.d2))>0) & (!silent)) print(paste(sum(is.na(dat.d2)),
                             ' missing values of ',nx*ny*nt))
 aver <- 0
 # print(paste("Find max autocorr in",ny*nx,"grid boxes."))
@@ -292,13 +300,13 @@ for (i in 1:(ny*nx)) {
 }
 
 n.eff <- round(nt * (1.0-aver)/(1.0+aver))  
-print(paste("mean AR(1) =",aver, "n.eff=",n.eff))
+if (!silent) print(paste("mean AR(1) =",aver, "n.eff=",n.eff))
 
 # Apply the PCA:       
-print(paste("Singular Value Decomposition: ",sum(is.na(dat.d2)),
+if (!silent) print(paste("Singular Value Decomposition: ",sum(is.na(dat.d2)),
             ' NA-values -> set to zero of ',length(dat.d2)))
 dat.d2[!is.finite(dat.d2)]<-0
-print(paste("Data range:",min(dat.d2),"-",max(dat.d2)," dimensions=",
+if (!silent) print(paste("Data range:",min(dat.d2),"-",max(dat.d2)," dimensions=",
             dim(dat.d2)[1],"x",dim(dat.d2)[2],"  std=",stdv))
 
 if (LINPACK) pca<-svd(t(dat.d2)) else 
@@ -364,6 +372,7 @@ for (i in 1:fields$n.fld) {
 }
 
 attr(tim,"unit") <- fields$attributes$time.unit
+attr(tim,"daysayear") <- daysayear
 attr(tim,"time_origin") <- fields$attributes$time.origin
 
 #print("Construct list object")

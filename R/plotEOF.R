@@ -60,7 +60,7 @@ grid()
 col.tab <- col[1:length(id)]
 neofs <- length(x$var)
 i.last <- 0
-print(paste("plotEOF: n.fld=",n.fld))
+#print(paste("plotEOF: n.fld=",n.fld))
 for (i in 1:n.fld) {
   i.fld <- seq(i.last+1,i.last+x$size[2,i]*x$size[3,i],by=1)
   i.last <- max(i.fld)
@@ -68,11 +68,12 @@ for (i in 1:n.fld) {
   EOF.1 <- x$EOF[,i.fld]
   dim(EOF.1)<-c(dim(x$EOF)[1],size[2,i],size[3,i])
   eof.patt<-t(EOF.1[i.eof,,])
-  i.lon <- x$id.lon == id[i]
-  i.lat <- x$id.lat == id[i]
+  i.lon <- is.element(x$id.lon,id[i])
+  i.lat <- is.element(x$id.lat,id[i])
   lon.x <- x$lon[i.lon]
   lat.x <- x$lat[i.lat]
-  #print(c(size[,i],NA,length(lon.x),length(lat.x),NA,dim(eof.patt),id[i]))
+  #print(lon.x); print(lat.x)
+  #print(c(size[,i],NA,length(lon.x),length(lat.x),NA,dim(eof.patt),id[i])); print("---")
   contour(lon.x,lat.x,eof.patt,
           nlevels=nlevs,add=TRUE,lwd=2,col=col.tab[i])
 }

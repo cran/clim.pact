@@ -7,7 +7,8 @@
 \usage{
 grd.box.ts(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
                        col="grey10",lwd=1,lty=1,pch=26,add=FALSE,
-                       filter=NULL,type="s",main=NULL,sub=NULL,xlab=NULL,ylab=NULL)
+                       filter=NULL,type="l",main=NULL,sub=NULL,xlab=NULL,ylab=NULL,
+                       xlim=NULL,ylim=NULL)
 }
 \arguments{
     \item{x}{A field object.}
@@ -29,6 +30,9 @@ grd.box.ts(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
     \item{sub}{subtitle}
     \item{xlab}{x label}
     \item{ylab}{y label}
+    \item{xlim}{see \code{\link{plot}}}
+    \item{ylim}{see \code{\link{plot}}}
+
 }
 \value{A station object with interpolated values (see \code{\link{station.obj}} and
   \code{\link{station.obj.dm}}) that can be plotted using eg \code{\link{plotStation}}.    

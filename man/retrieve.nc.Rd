@@ -1,20 +1,32 @@
 \name{retrieve.nc}
 \alias{retrieve.nc}
 \alias{field.object}
+\alias{fixField}
+\alias{monthly}
 \title{Retrieve data from a netCDF file}
-\description{Reads a netCDF file and picks out vectors that look like
+\description{\code{retrieve.nc} reads a netCDF file and picks out vectors that look like
   lngitude, latitude and time. Returns the first 3-D field in the file.
   See also \code{\link{cdfextract}} (large data files). 
 
 This version uses \code{\link{cdfcont}} to obtain vital meta data for
 handling the data in the netCDF file and constructing a 'field' object.
 
-This routine unfortunately only currently works on Linux platforms since the 
-\code{\link[ncdf]{ncdf}}-package is only available for Linux systems.}
-\usage{retrieve.nc(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
-                        l.scale=TRUE,greenwich=TRUE,
+This routine reequres the \code{\link[ncdf]{ncdf}}-package is currently only available for Linux systems at the CRAN web sites, but the Windows version can can be obtained from \url{http://www.stats.ox.ac.uk/pub/RWin/}.
+
+\code{fixField} is a function for eg changing the time stamp if the given time origin is wrong.
+}
+
+\usage{
+       retrieve.nc(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
+                        l.scale=TRUE,greenwich=TRUE,silent=FALSE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
-                        x.rng=NULL,y.rng=NULL,t.rng=NULL,force.chron=TRUE)
+                        x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,force.chron=TRUE,
+                        force365.25=FALSE)
+       fixField(x,torg=NULL,t.unit=NULL,scal=NULL,offs=NULL, 
+                     x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,greenwich=TRUE)
+       monthly(x,param="t2m")
+}
+
 }
 \arguments{
     \item{filename}{name of netCDF file.}
@@ -27,9 +39,18 @@ This routine unfortunately only currently works on Linux platforms since the
     \item{t.nam}{Name of time-axis.}
     \item{x.rng}{Region to extract.}
     \item{y.rng}{Region to extract.}
-    \item{t.rng}{Time interval to extract.}
+    \item{z.rng}{Region to extract.}
+    \item{t.rng}{Time interval to extract.Numerical values are used to identify indeces, e.g. \code{as.numeric(1)} refers to first field, \code{as.numeric(2)} the second field, etc. Character strings, on the other hand, refers to date. E.g. "1-Jan-1990", or "1990" (see \code{\link{datestr2num}} for various formats).}
     \item{force.chron}{Check for monotonic chronological order (no
       jumping back and forth in time).}
+    \item{force365.25}{TRUE forces a natural 365.25 day year as opposed to a 360-day model year.}
+    \item{x}{a field object.}
+    \item{torg}{time origin.}
+    \item{t.unit}{tim unit}
+    \item{scal}{scaling factor}
+    \item{offs}{constant offset}
+    \item{silent}{To turn off printing to console.}
+    \item{param}{Parameter to convert to monthly value}
   }
   \value{A "field.object" list:
     \tabular{ll}{

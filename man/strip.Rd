@@ -3,8 +3,8 @@
 \title{String operation functions}
 \description{The function strips off trailing space (strips the
   strings by cutting off at the first space).}
-\usage{strip(string.array})}
-\arguments{\item{string.array}{Strings or arrays of strings.}}
+\usage{strip(in.str)}
+\arguments{\item{in.str}{Strings or arrays of strings.}}
 \value{converted strings or arrays of strings.}
 \author{R.E. Benestad}}
 \examples{

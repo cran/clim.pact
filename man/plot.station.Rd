@@ -10,7 +10,7 @@
 \usage{plotStation(obs,l.anom=TRUE,mon=NULL,
                         leps=FALSE,out.dir="output",what="b",trend=TRUE,
                         type="l",pch=26,col="black",lwd=3,lty=3,add=FALSE,
-                        main=NULL,sub=NULL,xlab=NULL,ylab=NULL)}
+                        main=NULL,sub=NULL,xlab=NULL,ylab=NULL,normal.period=NULL)}
 
 \arguments{
   \item{obs}{A climate station series. }
@@ -21,17 +21,18 @@
   \item{out.dir}{Directory where to store hard copies.}
   \item{what}{"t"=timeseries; "d"=distribution; "b"=both.}
   \item{trend}{show best-fit polynomial (5th order) trend}
-  \item{type}{same as in \code{link{plot}}.}
-  \item{pch}{same as in \code{link{plot}}.}
-  \item{col}{colour, same as in \code{link{plot}}.}
-  \item{lwd}{line width, same as in \code{link{plot}}.}
-  \item{lty}{line type, same as in \code{link{plot}}.}
+  \item{type}{same as in \code{\link{plot}}.}
+  \item{pch}{same as in \code{\link{plot}}.}
+  \item{col}{colour, same as in \code{\link{plot}}.}
+  \item{lwd}{line width, same as in \code{\link{plot}}.}
+  \item{lty}{line type, same as in \code{\link{plot}}.}
   \item{add}{TRUE adds a time series to previous  (see
   \code{link{grd.box.ts}}).}
   \item{main}{Preset main title (see \code{\link{plot}}).}
   \item{sub}{subtitle}
   \item{xlab}{x label}
   \item{ylab}{y label}
+  \item{normal.period}{Normal period. NULL uses the entire data. Set to \code{c(1961,1990) for the last normal period.}}
 }
 \value{a <- list of "monthly.station.record" class:
   \tabular{ll}{

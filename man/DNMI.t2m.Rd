@@ -8,7 +8,8 @@ level pressure (SLP), and sea surface temperature (SST) analysis for the North
 Atlantic region covering the period 1873 -- 1998. The actual data is
 filtered though 20 EOFs (see \code{\link{EOF2field}}), and stored as eof products in order to save
 space. The lines listed in the example shows how these data have been
-generated (NB. old objects with the name 'eof' may be overwritten).}.
+generated (NB. old objects with the name \code{eof}, \code{xxx}, \code{climxxx}, and \code{i} 
+may be overwritten).}
 \usage{data(DNMI.t2m)
        data(DNMI.slp)
        data(DNMI.sst)}

@@ -150,6 +150,9 @@ if ( (ny < 20) | (sum(is.na(dat$yy))>0) ) {
   if (!silent) print("You may want to try another location or different dataset")
 }
 
+  if (!is.null(preds$attributes$daysayear)) daysayear <- preds$attributes$daysayear else
+                                            daysayear <- 365.25
+
 if (class(dat)[2]=="monthly.station.record"){
   yy.o<-sort(rep(dat$yy,12))
   mm.o<-rep(seq(1,12,by=1),ny)
@@ -175,9 +178,9 @@ if (class(dat)[2]=="monthly.station.record"){
   tim.o <- julday(mm.o, dd.o, yy.o) - julday(1,1,1970)
   nt <- length(tim.o)
   ac.mod<-matrix(rep(NA,nt*6),nt,6)
-  ac.mod[,1]<-cos(2*pi*tim.o/365.25); ac.mod[,2]<-sin(2*pi*tim.o/365.25)
-  ac.mod[,3]<-cos(4*pi*tim.o/365.25); ac.mod[,4]<-sin(4*pi*tim.o/365.25)
-  ac.mod[,5]<-cos(6*pi*tim.o/365.25); ac.mod[,6]<-sin(6*pi*tim.o/365.25)
+  ac.mod[,1]<-cos(2*pi*tim.o/daysayear); ac.mod[,2]<-sin(2*pi*tim.o/daysayear)
+  ac.mod[,3]<-cos(4*pi*tim.o/daysayear); ac.mod[,4]<-sin(4*pi*tim.o/daysayear)
+  ac.mod[,5]<-cos(6*pi*tim.o/daysayear); ac.mod[,6]<-sin(6*pi*tim.o/daysayear)
   ac.obs <- data.frame(y=y.o, X=ac.mod)
   ac.fit<-lm(y ~ X.1 + X.2 + X.3 + X.4 + X.5 + X.6,data=ac.obs)
   if (rmac) y.o <- ac.fit$residual
@@ -279,7 +282,7 @@ if (!silent) print(range(y.o))
 
 #--------------------------------------------------------
 # De-trend the data used for model calibration:
-print("de-trend:")
+if (!silent) print("de-trend:")
 
 if (ldetrnd) {
   for (i in 1:length(preds$var.eof)) {
@@ -308,7 +311,7 @@ if (ldetrnd) {
 #paste(scen.gcm.str,"X",ipre,"=X.gcm[,",ipre,"],",sep="")
  
 # Stepwise regression
-print("stepwise regression:")
+if (!silent) print("stepwise regression:")
 n.eofs<- min(c(length(preds$var.eof),length(i.eofs)))    
 scen.gcm.str <- "data.frame("
 calibrate.str <- "data.frame(y=y,"
@@ -333,7 +336,7 @@ calibrate.str <- paste(calibrate.str,"yy=as.vector(yy.cal),mm=as.vector(mm.cal),
 #print(calibrate.str)
 calibrate <- eval(parse(text=calibrate.str))
 
-print(summary(calibrate))
+#print(summary(calibrate))
 # Due to a bug in step, 'attatch' cannot be used, so it's done
 # in a more complicated way.
 attach(calibrate)
@@ -362,7 +365,7 @@ if ((swsm!="none") & !is.null(swsm)) {
 }  else step.wise<-lm.mod
 step.wise$coefficients[!is.finite(step.wise$coefficients)] <- 0
 
-print("ANOVA from step-wise regression:")
+if (!silent) print("ANOVA from step-wise regression:")
 
 stat <- summary(step.wise)
 if (length(step.wise$coefficients)>1) {
@@ -431,9 +434,9 @@ if ((class(dat)[2]=="daily.station.record") & (rmac)) {
   rm(ac.mod)
   nt.cal <- length(tim.cal)
   ac.mod<-matrix(rep(NA,nt.cal*6),nt.cal,6)
-  ac.mod[,1]<-cos(2*pi*tim.cal/365.25); ac.mod[,2]<-sin(2*pi*tim.cal/365.25)
-  ac.mod[,3]<-cos(4*pi*tim.cal/365.25); ac.mod[,4]<-sin(4*pi*tim.cal/365.25)
-  ac.mod[,5]<-cos(6*pi*tim.cal/365.25); ac.mod[,6]<-sin(6*pi*tim.cal/365.25)
+  ac.mod[,1]<-cos(2*pi*tim.cal/daysayear); ac.mod[,2]<-sin(2*pi*tim.cal/daysayear)
+  ac.mod[,3]<-cos(4*pi*tim.cal/daysayear); ac.mod[,4]<-sin(4*pi*tim.cal/daysayear)
+  ac.mod[,5]<-cos(6*pi*tim.cal/daysayear); ac.mod[,6]<-sin(6*pi*tim.cal/daysayear)
   ac.cal <- data.frame(X=ac.mod)
   rm(ac.mod)
 #  tim.gcm <- julian(mm.gcm,dd.gcm,yy.gcm,origin.=c(1,1,1970))
@@ -441,9 +444,9 @@ if ((class(dat)[2]=="daily.station.record") & (rmac)) {
   tim.gcm <- julday(mm.gcm, dd.gcm, yy.gcm) - julday(1,1,1970)
   nt.gcm <- length(tim.gcm)
   ac.mod<-matrix(rep(NA,nt.gcm*6),nt.gcm,6)
-  ac.mod[,1]<-cos(2*pi*tim.gcm/365.25); ac.mod[,2]<-sin(2*pi*tim.gcm/365.25)
-  ac.mod[,3]<-cos(4*pi*tim.gcm/365.25); ac.mod[,4]<-sin(4*pi*tim.gcm/365.25)
-  ac.mod[,5]<-cos(6*pi*tim.gcm/365.25); ac.mod[,6]<-sin(6*pi*tim.gcm/365.25)
+  ac.mod[,1]<-cos(2*pi*tim.gcm/daysayear); ac.mod[,2]<-sin(2*pi*tim.gcm/daysayear)
+  ac.mod[,3]<-cos(4*pi*tim.gcm/daysayear); ac.mod[,4]<-sin(4*pi*tim.gcm/daysayear)
+  ac.mod[,5]<-cos(6*pi*tim.gcm/daysayear); ac.mod[,6]<-sin(6*pi*tim.gcm/daysayear)
   ac.gcm <- data.frame(X=ac.mod)
   rm(ac.mod)
 #  tim.o <- julian(mm.o,dd.o,yy.o,origin.=c(1,1,1970))
@@ -451,9 +454,9 @@ if ((class(dat)[2]=="daily.station.record") & (rmac)) {
   tim.o <- julday(mm.o, dd.o, yy.o) - julday(1,1,1970)
   nt <- length(tim.o)
   ac.mod<-matrix(rep(NA,nt*6),nt,6)
-  ac.mod[,1]<-cos(2*pi*tim.o/365.25); ac.mod[,2]<-sin(2*pi*tim.o/365.25)
-  ac.mod[,3]<-cos(4*pi*tim.o/365.25); ac.mod[,4]<-sin(4*pi*tim.o/365.25)
-  ac.mod[,5]<-cos(6*pi*tim.o/365.25); ac.mod[,6]<-sin(6*pi*tim.o/365.25)
+  ac.mod[,1]<-cos(2*pi*tim.o/daysayear); ac.mod[,2]<-sin(2*pi*tim.o/daysayear)
+  ac.mod[,3]<-cos(4*pi*tim.o/daysayear); ac.mod[,4]<-sin(4*pi*tim.o/daysayear)
+  ac.mod[,5]<-cos(6*pi*tim.o/daysayear); ac.mod[,6]<-sin(6*pi*tim.o/daysayear)
   ac.obs <- data.frame(X=ac.mod)
   y.o <- y.o + predict(ac.fit,newdata=ac.obs)
   pre.y <- pre.y + predict(ac.fit,newdata=ac.cal)
@@ -470,9 +473,9 @@ if (method!="anm") {
   if (!is.finite(gcm.mean)) gcm.mean  <- 0
   if (!is.finite(obs.mean)) obs.mean  <- 0 
   if (!is.finite(cal.mean)) cal.mean  <- 0
-  if (!is.finite(obs.mean2)) obs.mean2  <- 0 
+  if (!is.finite(obs.mean2)) obs.mean2  <- obs.mean
   pre.y   <- pre.y   - cal.mean + obs.mean2
-  pre.gcm <- pre.gcm - gcm.mean + obs.mean
+  pre.gcm <- pre.gcm - gcm.mean + obs.mean2   # REB 26.08.2004: obs.mean replaced with obs.mean2
                        
 }
 #print("Check#3:")
@@ -593,15 +596,15 @@ if (!silent) print(paste("P-value of trend-fit for downscaled scenario",gcm.trnd
 
 #---------------------------------------------------
 
-print("Dignosis:")
-print(direc)
-print(preds.id)
-print(region)
-print(dat$location)
-print(dat$ele)
-print(preds$c.mon)
-print(attr(preds$tim,"unit"))
-print(method)
+if (!silent) print("Dignosis:")
+if (!silent) print(direc)
+if (!silent) print(preds.id)
+if (!silent) print(region)
+if (!silent) print(dat$location)
+if (!silent) print(dat$ele)
+if (!silent) print(preds$c.mon)
+if (!silent) print(attr(preds$tim,"unit"))
+if (!silent) print(method)
 
 #if ((method!="nnet") & (method!= "anm") & lsave) {
 #

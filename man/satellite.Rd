@@ -28,7 +28,7 @@
 \examples{
 \dontrun{
 x <- retrieve.nc("T2M_p.nc")
-a <- map.field(x)
+a <- mapField(x)
 satellite(a)
 }
 }

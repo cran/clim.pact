@@ -8,11 +8,10 @@
 
 \arguments{
     \item{result}{A 'objDS' object from \code{\link{objDS}}.}
-    \item{outdir}{Directory for storing EPS-files with figures}}.}
-    \item{figs}{Figs to plot: 1 - time series, 2 - time series of
-    residuals, 3 - distribution of residuals, 4 - rates of change.}.}
+    \item{outdir}{Directory for storing EPS-files with figures}
+    \item{figs}{Figs to plot: 1 - time series, 2 - time series of 
+    residuals, 3 - distribution of residuals, 4 - rates of change.}
 }
-
 \value{}
 }
 \author{R.E. Benestad}}

@@ -2,8 +2,11 @@
 \alias{mapField}
 \title{MapField}
 \description{Draws maps of fields in a field object, eg read using \code{\link{retrieve.nc}}.}
-\usage{mapField(x,l=NULL,greenwich=TRUE,what="ano",method="nice",val.rng=NULL,
-                       col="black",col.coast="grey",lwd=2,lty=1,add=FALSE,las = 1)}
+\usage{mapField(x,l=NULL,greenwich=TRUE,
+                     what="ano",method="nice",val.rng=NULL,
+                     col="black",col.coast="grey",lwd=2,lty=1,
+                     add=FALSE,las = 1,levels=NULL,xlim=NULL,ylim=NULL)
+}
 \arguments{
     \item{x}{ A field object. }
     \item{l}{The field to map. Default: the last field in the record.}
@@ -18,7 +21,10 @@
     \item{lwd}{Line width.}
     \item{lty}{Line type.}
     \item{add}{Adds map to old figure.}
-    \item{las}{See \link{par}}
+    \item{las}{See \code{\link{par}}}
+    \item{levels}{See \code{\link{contour}}}
+    \item{xlim}{see \code{\link{plot}}}
+    \item{ylim}{see \code{\link{plot}}}
   }
 \value{}
 \author{R.E. Benestad}}

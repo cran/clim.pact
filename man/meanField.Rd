@@ -7,7 +7,7 @@
     \item{x}{A field object.}
     \item{lon.rng}{Extract the longitude interval.}
     \item{lat.rng}{Extract the latitude interval.}
-    \item{t.rng}{Extract the time interval.}
+    \item{t.rng}{Extract the time interval. Can be numerical (year) or character (date, e.g. "01-Jan-1998"}
     \item{mon}{Month (1-12) or season (1-12) to extract if !is.null.}
  }
 \value{A map object}

@@ -3,41 +3,52 @@
 mapField <- function(x,l=NULL,greenwich=TRUE,
                      what="ano",method="nice",val.rng=NULL,
                      col="black",col.coast="grey",lwd=2,lty=1,
-                     add=FALSE,las = 1) {
+                     add=FALSE,las = 1,levels=NULL,xlim=NULL,ylim=NULL) {
   if ((class(x)[2]!="monthly.field.object") & (class(x)[2]!="field.object") &
       (class(x)[2]!="daily.field.object") & (class(x)[1]!="field")) {
       stop("Need a field.object") }
   if (is.null(l)) l <- length(x$tim)
 #  print("here")
-  nx <- length(x$lon)
-  ny <- length(x$lat)
-  nt <- length(x$tim)
+  nx <- length(x$lon); ny <- length(x$lat); nt <- length(x$tim)
   clim <- x$dat[l,,]
   dd.rng <- range(x$dd)
   if (is.null(attr(x$tim,"units"))) attr(x$tim,"units") <- x$attributes$time.unit
   if ( (lower.case(substr(attr(x$tim,"units"),1,5))=="month") |
        ((dd.rng[2]-dd.rng[1]<4) & (x$mm[2]-x$mm[1]>0)) ) {
     it <- mod(1:nt,12)==mod(l,12)
-    for (j in 1:ny) {
-      for (i in 1:nx) {
-        clim[j,i] <- mean(x$dat[it,j,i],na.rm=TRUE)
-      }
-    }
+    dim(clim) <- c(ny*nx)
+    #print(c(nt,ny,nx,NA,dim(x$dat)))
+    dim(x$dat) <- c(nt,ny*nx)
+    clim <- colMeans(x$dat)
+    dim(clim) <- c(ny,nx)
+    dim(x$dat) <- c(nt,ny,nx)
+# slow...
+#    for (j in 1:ny) {
+#      for (i in 1:nx) {
+#        clim[j,i] <- mean(x$dat[it,j,i],na.rm=TRUE)
+#      }
+#    }
   } else {
+
+      if (!is.null(x$attributes$daysayear)) daysayear <- x$attributes$daysayear else
+                                          daysayear <- 365.25
       ac.mod<-matrix(rep(NA,nt*6),nt,6)
       if (substr(lower.case(attributes(x$tim)$units),1,3)=="day") jtime <- x$tim
       if (substr(lower.case(attributes(x$tim)$units),1,4)=="hour")  jtime <- x$tim/24
-      ac.mod[,1]<-cos(2*pi*jtime/365.25); ac.mod[,2]<-sin(2*pi*jtime/365.25)
-      ac.mod[,3]<-cos(4*pi*jtime/365.25); ac.mod[,4]<-sin(4*pi*jtime/365.25)
-      ac.mod[,5]<-cos(6*pi*jtime/365.25); ac.mod[,6]<-sin(6*pi*jtime/365.25)               
+      ac.mod[,1]<-cos(2*pi*jtime/daysayear); ac.mod[,2]<-sin(2*pi*jtime/daysayear)
+      ac.mod[,3]<-cos(4*pi*jtime/daysayear); ac.mod[,4]<-sin(4*pi*jtime/daysayear)
+      ac.mod[,5]<-cos(6*pi*jtime/daysayear); ac.mod[,6]<-sin(6*pi*jtime/daysayear)               
       dim(x$dat) <- c(nt,ny*nx)
       dim(clim) <- c(ny*nx)
-      for (ip in seq(1,ny*nx,by=1)) {
-        if (sum(is.finite(x$dat[,ip])) > 0) {
-          ac.fit<-lm(x$dat[,ip] ~ ac.mod)
-          clim[ip]<-ac.fit$fit[l]
-        } else clim[ip]<- NA
-      }
+      ac.fit <- lm(x$dat ~ ac.mod)
+      clim<-ac.fit$fit[l,]
+# slow
+#      for (ip in seq(1,ny*nx,by=1)) {
+#        if (sum(is.finite(x$dat[,ip])) > 0) {
+#          ac.fit<-lm(x$dat[,ip] ~ ac.mod)
+#          clim[ip]<-ac.fit$fit[l]
+#        } else clim[ip]<- NA
+#      }
       dim(x$dat) <- c(nt,ny,nx)
       dim(clim) <- c(ny,nx)
     }
@@ -75,8 +86,8 @@ mapField <- function(x,l=NULL,greenwich=TRUE,
                 "abs"="absolute value")
   if (is.null(val.rng)) {
     print("set range")
-    nn <- floor(-max(abs(as.vector(map)),na.rm=TRUE))
-    xx <- ceiling(max(abs(as.vector(map)),na.rm=TRUE))
+    nn <- floor(-max(abs(as.vector(map[is.finite(map)]))))
+    xx <- ceiling(max(abs(as.vector(map[is.finite(map)]))))
     nl <- xx-nn
     while (nl > 20) {
       nl <- nl/10
@@ -84,9 +95,11 @@ mapField <- function(x,l=NULL,greenwich=TRUE,
     while (nl < 5) {
       nl <- nl*2
     }
-    scl <- 10^floor(log(max(abs(as.vector(map)),na.rm=TRUE))/log(10))
-#    print(scl)
-    z.levs <- round(seq(nn,xx,length=nl)/scl,2)*scl
+    scl <- 10^floor(log(max(abs(as.vector(map[is.finite(map)]))))/log(10))
+    print(paste("Scaling is",scl," and range of values is",min(as.vector(map[is.finite(map)])),
+                "-",max(as.vector(map[is.finite(map)])), "[PS. won't plot magnitudes less than 0.001]"))
+    if (is.null(levels)) z.levs <- round(seq(nn,xx,length=nl)/scl,2)*scl else {
+                         z.levs <- levels; nl <- length(z.levs) }
 #    print(z.levs)
     my.col <- rgb(c(seq(0,1,length=floor(nl/2)),rep(1,ceiling(nl/2))),
                   c(abs(sin((0:(nl-1))*pi/(nl-1)))),
@@ -100,13 +113,16 @@ mapField <- function(x,l=NULL,greenwich=TRUE,
   }
   if ((!add) & (method!="nice")) {
         newFig()
-        image(x$lon,x$lat,t(map),levels=seq(nn,xx,length=101),
+        image(x$lon,x$lat,t(round(map,3)),levels=seq(nn,xx,length=101),
         main=paste(attributes(x$dat)$"long_name",descr),
         sub=date,xlab="Longitude",ylab="Latitude")
        } else if (!add) {
          newFig()
-         filled.contour(x$lon,x$lat,t(map),
-                        col = my.col,levels=z.levs,
+         if (is.null(xlim)) xlim <- range(x$lon,na.rm=TRUE)
+         if (is.null(ylim)) ylim <- range(x$lat,na.rm=TRUE)
+
+         filled.contour(x$lon,x$lat,t(round(map,3)),
+                        col = my.col,levels=z.levs,xlim=xlim,ylim=ylim,
                         main=paste(attributes(x$dat)$"long_name",descr),
                         sub=date,xlab="Longitude",ylab="Latitude")
        }
@@ -122,9 +138,9 @@ mapField <- function(x,l=NULL,greenwich=TRUE,
   mar <- mar.orig
   mar[4] <- 1
   par(mar=mar)
-  contour(x$lon,x$lat,t(map),add=TRUE,col=col,lwd=lwd,lty=lty,levels=z.levs)
+  contour(x$lon,x$lat,t(round(map,3)),add=TRUE,col=col,lwd=lwd,lty=lty,levels=z.levs)
   addland(col=col.coast)
-  results <- list(map=t(map),lon=x$lon,lat=x$lat,tim=x$tim,
+  results <- list(map=t(round(map,3)),lon=x$lon,lat=x$lat,tim=x$tim,
                   date=date,description=descr,attributes=x$attributes)
   class(results) <- "map"
   attr(results,"long_name") <- attr(x$dat,"long_name")

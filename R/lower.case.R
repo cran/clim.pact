@@ -14,7 +14,7 @@ lower.case <- function(u.case) {
                                         # factor.
   
   if (is.factor(u.case)) { lfac <- TRUE }
-  
+  if (is.null(u.case)) return()
   str<-as.character(u.case)
 #  print(str)
   lower.case<-str

@@ -175,7 +175,7 @@ mergeEOF <- function(eof1,eof2,plot=TRUE,silent=FALSE,method="lm",
   }
 
 # Arrange the data
-print("Arrange the data")
+  #print("Arrange the data")
   eof <- eof2
   print(paste("cut-off=",cut.off))
   #print(dim(eof1$EOF))
@@ -185,7 +185,7 @@ print("Arrange the data")
   np1<- length(eof$EOF[1,]); np2 <- length(eof.match$EOF[1,])
   eof$EOF <- cbind(matrix(eof$EOF[1:cut.off,],cut.off,np1),
                    matrix(eof.match$EOF[1:cut.off,],cut.off,np2)) 
-  eof$PC <- rbind(matrix(eof.match$PC[,1:cut.off],nt1,cut.off),
+  eof$PC <-  rbind(matrix(eof.match$PC[,1:cut.off],nt1,cut.off),
                   matrix(eof2$PC[,1:cut.off],nt2,cut.off))
   eof$r.squared <- cbind(matrix(rep(r.squared[1:cut.off],nt1),cut.off,nt1),
                          matrix(rep(1,cut.off*nt2),cut.off,nt2))
@@ -201,23 +201,23 @@ print("Arrange the data")
   eof$var <- eof$var[1:cut.off]
   eof$W <- eof$W[1:cut.off]
   eof$dW <- eof$dW[1:cut.off]
-  eof$n.fld <- eof$n.fld + 1
+  eof$n.fld <- eof1$n.fld + eof2$n.fld
   eof$lon <- c(eof2$lon,eof.match$lon)
   eof$lat <- c(eof2$lat,eof.match$lat)
-  eof$size <- cbind(c(eof2$size[1:3]),c(sum(!i1),eof1$size[2:3]))
+  eof$size <- cbind(eof2$size,eof1$size)
   eof$yy <- c(eof1$yy[!i1],eof2$yy)
   eof$mm <- c(eof1$mm[!i1],eof2$mm)
   eof$dd <- c(eof1$mm[!i1],eof2$dd)
   eof$tim <- c(eof1$tim[!i1],eof2$tim) 
-  eof$id.t <- c(eof1$id.t[!i1],eof2$id.t)
+  eof$id.t <- c(eof1$id.t[!i1],paste(eof2$id.t,".merge",sep=""))
   class(eof) <- class(eof2)
   if (adjust) eof <- adjust.eof(eof)
   
-  #print(table(eof$id.x))
-  #print(table(eof$id.lon))
-  #print(table(eof$id.lat))
-  #print(dim(eof$EOF))
-  #print(eof$size)
+  print(table(eof$id.x))
+  print(table(eof$id.lon))
+  print(table(eof$id.lat))
+  print(dim(eof$EOF))
+  print(eof$size)
 
   if (plot) {
      plotEOF(eof)
@@ -228,8 +228,8 @@ print("Arrange the data")
  #   lines(eof2$yy + (eof2$mm-0.5)/12,eof2$PC[,1],lwd=2,lty=2,col="red")
   }
 
-#  print("mergeEOF: setting class of eof explicitly")
-#  print(class(eof))
+  print("mergeEOF: setting class of eof explicitly")
+  print(class(eof))
   invisible(eof)
 }
 
@@ -241,26 +241,29 @@ print("Arrange the data")
 
 
 adjust.eof <- function(x) {
+  options(width=150)
   rn <- row.names(table(x$id.t))
   ordr <- rep(NA,length(rn))
   for (i in 1:length(rn)) {
     ordr[i] <- min((1:length(x$id.t))[is.element(x$id.t,rn[i])])
   }
-  #print(ordr)
+  print(ordr)
   rn<-rn[order(ordr)]
-  #print(rn)
+  print(rn)
 
   dims <- dim(x$PC)
+  ical <- is.element(x$id.t,x$id.t[1])
   for (i in 1:dims[2]) {
-    mu <- mean(x$PC[x$id.t==x$id.t[1],i],na.rm=TRUE)
-    si <- sd(x$PC[x$id.t==x$id.t[1],i],na.rm=TRUE)
+    mu <- round(mean(x$PC[ical,i],na.rm=TRUE),2)
+    si <-   round(sd(x$PC[ical,i],na.rm=TRUE),2)
      for (ii in 2:length(rn)) {
-      i.cal <- (x$id.t==rn[ii])
-      mu.gcm <- mean(x$PC[i.cal,i],na.rm=TRUE)
-      si.gcm <- sd(x$PC[i.cal,i],na.rm=TRUE)
-       x$PC[x$id.t==rn[ii],i] <- (x$PC[x$id.t==rn[ii],i] -
-             mu.gcm)/si.gcm * si + mu
+      i.adj <- is.element(x$id.t,rn[ii])
+      mu.gcm <- round(mean(x$PC[i.adj,i],na.rm=TRUE),2)
+      si.gcm <- round(sd(x$PC[i.adj,i],na.rm=TRUE),2)
+      print(c(i,ii,NA,x$id.t[1],mu,si,NA,rn[ii],mu.gcm,si.gcm))
+       x$PC[i.adj,i] <- (x$PC[i.adj,i] - mu.gcm)/si.gcm*si + mu
     }
+    print(" ")
   }
   invisible(x)
 }
@@ -361,4 +364,67 @@ getgiss <- function(stnr=NULL,location=NULL,lon=NULL,lat=NULL,stations=NULL,sile
 }
 
 
+delta <- function(i,j) {
+  if (i==j) delta <- 1 else delta <- 0
+}
+
+
+datestr2num <- function(datestr,vec=TRUE) {
+    dsh <- instring("-",datestr)
+    spc <- instring(" ",datestr)
+    if (spc==0) spc <- nchar(datestr)
+    #print(c(datestr,dsh,NA,spc))
+    if (dsh[1]==3 & dsh[2]==7) {
+      yy0 <- as.numeric(substr(datestr,8,11))
+      mm0 <- switch(lower.case(substr(datestr,4,6)),
+                    "jan"=1,"feb"=2,"mar"=3,"apr"=4,"may"=5,"jun"=6,
+                    "jul"=7,"aug"=8,"sep"=9,"oct"=10,"nov"=11,"dec"=12)
+      dd0 <- as.numeric(substr(datestr,1,2))
+    }
+    if (dsh[1]==2 & dsh[2]==6) {
+      yy0 <- as.numeric(substr(datestr,7,11))
+      mm0 <- switch(lower.case(substr(datestr,3,5)),
+                    "jan"=1,"feb"=2,"mar"=3,"apr"=4,"may"=5,"jun"=6,
+                    "jul"=7,"aug"=8,"sep"=9,"oct"=10,"nov"=11,"dec"=12)
+      dd0 <- as.numeric(substr(datestr,1,1))
+    }
+    if (dsh[1]==5 & dsh[2]==9) {
+      yy0 <- as.numeric(substr(datestr,1,4))
+      mm0 <- switch(lower.case(substr(datestr,6,8)),
+                     "jan"=1,"feb"=2,"mar"=3,"apr"=4,"may"=5,"jun"=6,
+                    "jul"=7,"aug"=8,"sep"=9,"oct"=10,"nov"=11,"dec"=12)
+      dd0 <- as.numeric(substr(datestr,10,11))
+   }
+    if (dsh[1]==5 & dsh[2]==8) {
+      yy0 <- as.numeric(substr(datestr,1,4))
+      mm0 <- as.numeric(substr(datestr,6,7))
+      dd0 <- as.numeric(substr(datestr,9,10))
+      if (mm0 > 12) {
+         a <- mm0; mm0 <- mm0; dd0 <- a; rm(a) }
+    }
+    if (dsh[1]==3 & dsh[2]==6) {
+      yy0 <- as.numeric(substr(datestr,7,10))
+      mm0 <- as.numeric(substr(datestr,4,5))
+      dd0 <- as.numeric(substr(datestr,1,2))
+    }
+    if (dsh[1]==5 & dsh[2]==7) {
+      yy0 <- as.numeric(substr(datestr,1,4))
+      mm0 <- as.numeric(substr(datestr,6,6))
+      dd0 <- as.numeric(substr(datestr,8,9))
+    }
+    if (dsh[1]==2 & dsh[2]==4) {
+      dd0 <- as.numeric(substr(datestr,1,1))
+      mm0 <- as.numeric(substr(datestr,3,3))
+      yy0 <- as.numeric(substr(datestr,5,spc[1]))
+    }
+    if (dsh[1]==0) {
+      #print(paste("datestr2num:",datestr)) 
+      dd0 <- 1
+      mm0 <- 1
+      yy0 <- as.numeric(datestr)
+    }
+  if (vec) datestr2num <- c(yy0,mm0,dd0) else
+           datestr2num <- yy0 + mm0/12 + dd0/31
+  datestr2num
+}
 

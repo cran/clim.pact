@@ -1,7 +1,7 @@
 satellite <- function(map.obj,col="black",lwd=2,lty=1,add=FALSE,
                       las = 1,lon.0=NULL,lat.0=NULL,method="normal",
                       ni=100,nj=100, n.nearest=4,max.dist=3,landdata="addland2") {
-  if (class(map.obj)!="map")  stop("Need a map object (map.field)")
+  if (class(map.obj)!="map")  stop("Need a map object (mapField)")
 
   if (!is.null(map$map.1)) n.maps <- map$n.maps else n.maps <- 1
   

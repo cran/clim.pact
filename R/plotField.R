@@ -1,7 +1,8 @@
 plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
                       col="black",col.coast="grey",lty=1,lwd=1,what="ano",
-                      type="s",pch=26,my.col=NULL,add=FALSE,
-                      main=NULL,sub=NULL,xlab=NULL,ylab=NULL) {
+                      type="l",pch=26,my.col=NULL,add=FALSE,
+                      main=NULL,sub=NULL,xlab=NULL,ylab=NULL,
+                      xlim=NULL,ylim=NULL) {
 
   if ((class(x)[1]!="field") & (class(x)[1]!="monthly.field.object") &
       (class(x)[1]!="daily.field.object")){
@@ -86,7 +87,7 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
       l <- seq(1,dims[1],by=1)[ii]
 #      print(paste("l=",l,"date=",x$yy[ii],x$mm[ii],x$dd[ii]))
       results <- mapField(x,l=l,what=what,col=col,col.coast=col.coast,lty=lty,
-                          lwd=lwd,val.rng=val.rng)
+                          lwd=lwd,val.rng=val.rng,xlim=xlim,ylim=ylim)
     } else if (sum(ii) > 1) {
       map <- meanField(x,t.rng=range(x$yy[ii]))
       results <- mapField(x,col=col,col.coast=col.coast,lty=lty,lwd=lwd,val.rng=val.rng)
@@ -100,7 +101,7 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
 #    print("plotField: Time-series")
     results <- grd.box.ts(x,lon,lat,what=what,col=col,
                           lty=lty,lwd=lwd,pch=pch,type=type,add=add,
-                          main=main,sub=sub,xlab=xlab,ylab=ylab)
+                          main=main,sub=sub,xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim)
 #    Z <- results$t2m
     time.ts <- TRUE
 #    print("Now, try to exit this...")
@@ -125,15 +126,20 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
         ac.mod[,3]<-cos(4*pi*x$tim/365.25); ac.mod[,4]<-sin(4*pi*x$tim/365.25)
         ac.mod[,5]<-cos(6*pi*x$tim/365.25); ac.mod[,6]<-sin(6*pi*x$tim/365.25)
         dim(x$dat) <- c(nt,np)
-        for (ip in seq(1,np,by=1)) {
-          if (tim.lat) vec <- Z[,ip] else vec <- Z[ip,]
-          if (sum(is.finite(vec)) > 0) {
-            ac.fit<-lm(vec ~ ac.mod)
-            if (tim.lat) clim[,ip] <- ac.fit$fit else clim[ip,] <- ac.fit$fit
-          } else {
-            if (tim.lat) clim[,ip] <- NA else clim[ip,] <- NA
-          }
-        }
+        ac.fit<-lm(x$dat ~ ac.mod)
+        clim <- ac.fit$fit
+
+# slow ...
+#        for (ip in seq(1,np,by=1)) {
+#          if (tim.lat) vec <- Z[,ip] else vec <- Z[ip,]
+#          if (sum(is.finite(vec)) > 0) {
+#            ac.fit<-lm(vec ~ ac.mod)
+#            if (tim.lat) clim[,ip] <- ac.fit$fit else clim[ip,] <- ac.fit$fit
+#          } else {
+#            if (tim.lat) clim[,ip] <- NA else clim[ip,] <- NA
+#          }
+#        }
+#--------------------------------------------------------
       }
     }
   }
@@ -156,7 +162,9 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
     if (is.null(my.col)) my.col <- rgb(c(seq(0,1,length=10),rep(1,11)),
                                        c(abs(sin((0:20)*pi/20))),
                                        c(c(rep(1,11),seq(1,0,length=10))))
-    filled.contour(X,Y,Z,
+    if (is.null(xlim)) xlim <- range(X,na.rm=TRUE)
+    if (is.null(ylim)) ylim <- range(Y,na.rm=TRUE)
+    filled.contour(X,Y,Z,xlim=xlim,ylim=ylim,
                    col = my.col,levels=z.levs,
                    main=main,sub=sub,xlab=xlab,ylab=ylab)
 

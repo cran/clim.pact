@@ -3,7 +3,7 @@
 \alias{delta function}
 \title{Delta function}
 \description{The dirac delta function: delta (i,j) returns 1 if i==j, 0
-  otherwise. Used in \code{\link{optint}}.}
+  otherwise.}
 \usage{delta(i,j)}
 \arguments{
     \item{i}{first index.}

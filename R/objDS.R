@@ -93,21 +93,27 @@ if (!is.null(result$Jan$f.name)) {
 if (sum(is.element(figs,1))>0) {newFig()
 plot(range(yymm.obs,yymm.gcm,na.rm=TRUE),
      range(y.obs,y.gcm,y.cal,na.rm=TRUE),type="n",
-     main=paste("Downscaled ",result$Jan$v.name," anomalies at ",result$Jan$location,
-                "     (",round(result$Jan$lat.loc,2),"N/",round(result$Jan$lon.loc,2),"E)",sep=""),
-     sub=subtitle,xlab="Time",ylab=result$Jan$unit)
+     main="",sub=subtitle,xlab="Time",ylab=result$Jan$unit)
+#plot(range(yymm.obs,yymm.gcm,na.rm=TRUE),
+#     range(y.obs,y.gcm,y.cal,na.rm=TRUE),type="n",
+#     main=paste("Downscaled ",result$Jan$v.name," anomalies at ",result$Jan$location,
+#                "     (",round(result$Jan$lat.loc,2),"N/",round(result$Jan$lon.loc,2),"E)",sep=""),
+#     sub=subtitle,xlab="Time",ylab=result$Jan$unit)
 grid()
 points(yymm.obs+0.025,y.obs,pch=20,cex=1.2,col="grey60")
 points(yymm.obs,y.obs,pch=20,cex=1.2,col="black")
 lines(yymm.obs,y.obs,lty=3)
 lines(yymm.cal+0.0025,y.cal,lty=2,lwd=2,col="grey60")
 lines(yymm.cal,y.cal,lty=2,lwd=2,col="grey30")
-lines(yymm.gcm+0.0025,y.gcm,lty=1,lwd=2,col="darkblue")
-lines(yymm.gcm,y.gcm,lty=1,lwd=1,col="blue")
+lines(yymm.gcm+0.0025,y.gcm,lty=1,lwd=2,col="grey30")
+lines(yymm.gcm,y.gcm,lty=1,lwd=1,col="grey50")
+points(yymm.obs+0.025,y.obs,pch=20,cex=1.2,col="grey60")
+points(yymm.obs,y.obs,pch=20,cex=1.2,col="black")
 legend(min(yymm.obs,yymm.gcm,na.rm=TRUE),
        max(y.obs,y.gcm,y.cal,na.rm=TRUE),
-       c("Obs","Calibr.","Scenario"),col=c("black","grey30","blue"),
-       pch=c(20,26,26),lty=c(3,2,1),lwd=c(1,2,1),bg="wheat",cex=0.8)
+       c("Observations                  ","Calibr.                ","Scenario                   "),
+       col=c("black","grey30","grey50"),
+       pch=c(20,26,26),lty=c(3,2,1),lwd=c(1,2,1),bg="grey95",cex=0.7)
 if (lower.case(options()$device)=="x11") dev.copy2eps(file=paste(outdir,"/plotDSobj_1.eps",sep=""))
 }
 # Residuals:
@@ -269,9 +275,15 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     positive <- TRUE
   }
   for (imon in mon) {
+    par(cex.sub=0.6,cex.axis=0.6,cex.lab=0.6,fin=c(2.37,2.37))
     print(imon)
-    cormap <- corField(field.obs,station,mon=imon)
-    if (lower.case(options()$device)=="x11") dev.copy2eps(file=paste(direc,"/cormap_",cmon[imon],".eps",sep=""))
+    cormap <- corField(field.obs,station,mon=imon,main="")
+    if (lower.case(options()$device)=="x11") {
+       dev.copy2eps(file=paste(direc,"/cormap_",cmon[imon],".eps",sep=""))
+       #dev2bitmap(file=paste("cormap_",cmon[imon],".jpg",sep=""),type="jpeg",width=2.37,height=2.37,res=300)
+       dev2bitmap(file=paste("cormap_",cmon[imon],".jpg",sep=""),res=300)
+       dev.off()
+    }
 
     # Find optimal longitudes & latitudes:
     
@@ -294,9 +306,13 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     y.rng <- c(max(c(min(field.obs$lat),max(latx[latx < station$lat])), na.rm=TRUE),
                min(c(max(field.obs$lat),min(latx[latx > station$lat])), na.rm=TRUE))
     if (plot) {
+      par(cex.sub=0.6,cex.axis=0.6,cex.lab=0.6,fin=c(2.37,2.37),fig=c(0,1,0,1))
       plot(range(c(field.obs$lat,field.obs$lon)),range(cormap$map,na.rm=TRUE),type="n",
-           main=paste("Finding optimal domain for",cmon[imon]),xlab="deg N & deg E",
+           main="",xlab="deg N & deg E",ylab="",
            sub=paste(round(field.obs$lon[ix],2),"E/",round(field.obs$lat[iy],2),"N",sep=""))
+#      plot(range(c(field.obs$lat,field.obs$lon)),range(cormap$map,na.rm=TRUE),type="n",
+#           main=paste("Finding optimal domain for",cmon[imon]),xlab="deg N & deg E",
+#           sub=paste(round(field.obs$lon[ix],2),"E/",round(field.obs$lat[iy],2),"N",sep=""))
       grid()
       lines(range(c(field.obs$lat,field.obs$lon)),rep(0,2),lty=3)
       points(field.obs$lat,yprof)
@@ -308,7 +324,10 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
       lines(field.obs$lon,as.numeric(xhat),col="red",lwd=2)
       lines(rep(x.rng[1],2),range(cormap$map,na.rm=TRUE),lty=2,col="red")
       lines(rep(x.rng[2],2),range(cormap$map,na.rm=TRUE),lty=2,col="red")
-      if (lower.case(options()$device)=="x11") dev.copy2eps(file=paste(direc,"/objDS_",cmon[imon],"_1.eps",sep=""))
+      if (lower.case(options()$device)=="x11") {
+        dev.copy2eps(file=paste(direc,"/objDS_",cmon[imon],"_1.eps",sep=""))
+        dev2bitmap(file=paste("objDS_",cmon[imon],"_1.jpg",sep=""),type="jpeg",width=2.37,height=2.37,res=300)
+      }
     }
     print("catFields:")
 #    print(">>> Check REB 11.02.2004!")

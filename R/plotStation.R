@@ -4,14 +4,33 @@
 # PLot data from NORDKLIMstations.
 
 plotStation <- function(obs,l.anom=TRUE,mon=NULL,
-                        leps=FALSE,out.dir="output",what="b",
+                        leps=FALSE,out.dir="output",what="b",trend=TRUE,
                         type="l",pch=26,col="black",lwd=3,lty=3,add=FALSE) {
 
-if (class(obs)[2]!="monthly.station.record") {
+  
+if ( (class(obs)[2]!="monthly.station.record") &
+     (class(obs)[2]!="daily.station.record") ){
   stop(paste("The predictand must be a 'monthly.station.record'",
              "object - Use  station.obj()"))
 }
 
+if (class(obs)[2]=="daily.station.record") {
+  newFig()
+  plot(obs$yy + obs$mm/12 + obs$dd/365.25, obs$t2m,pch=20,cex=0.5,
+       main=obs$location,sub="met.no Klima DataVareHus",
+       xlab="Time",ylab="Temperature (deg C)")
+  grid()
+  lines(obs$yy + obs$mm/12 + obs$dd/365.25, obs$t2m,lty=3,col="grey")
+
+  newFig()
+  plot(obs$yy + obs$mm/12 + obs$dd/365.25, obs$precip,pch=20,cex=0.5,
+       main=obs$location,sub="met.no Klima DataVareHus",
+       xlab="Time",ylab="Precipitation (mm)")
+  grid()
+  lines(obs$yy + obs$mm/12 + obs$dd/365.25, obs$precip,lty=3,col="grey")
+  plotStation <- obs
+} else if (class(obs)[2]=="monthly.station.record") {
+  
 if ((!obs$found) | (sum(is.finite(obs$val))==0)) stop("No valid data!")
 
 cmon<-c("Jan","Feb","Mar","Apr","May","Jun",
@@ -103,13 +122,14 @@ if (!is.null(mon)) {
     
 #  par(ask=TRUE)
     if ((what=="t") | (what=="b")) {
-      newFig()
-      par(cex.sub=0.8)
-      if (!add) plot(yy,value,type="l",lwd=lwd,col=col,pch=pch,lty=lty,
+      if (!add) {
+        newFig()
+        par(cex.sub=0.8)
+        plot(yy,value,type="l",lwd=lwd,col=col,pch=pch,lty=lty,
                      main=paste(obs$location,obs$obs.name),
-                     sub=sub.tit,xlab="Time",ylab=obs$unit) else
-                lines(yy,value,lwd=lwd,col=col,pch=pch,lty=lty)
-      lines(yy,pre.p.fit,col="red") 
+                     sub=sub.tit,xlab="Time",ylab=obs$unit)
+      } else lines(yy,value,lwd=lwd,col=col,pch=pch,lty=lty)
+      if (trend) lines(yy,pre.p.fit,col="red") 
       lines(c(min(yy),max(yy)),rep(mean(value,na.rm=TRUE)+
                                    1.96*sd(value,na.rm=TRUE),2),
                                    lty=2,col="grey")
@@ -131,7 +151,7 @@ if (!is.null(mon)) {
       y.dist <- dnorm(x.dist,
                       mean=mean(value,na.rm=TRUE),
                       sd=sd(value,na.rm=TRUE))
-      lines(x.dist,y.dist,col="red")
+      if (trend) lines(x.dist,y.dist,col="red")
       lines(x.dist,dgamma(x.dist-min(x.dist),
             shape=mean((value-min(x.dist))^2,na.rm=TRUE)/sd(value^2,na.rm=TRUE),
             scale=sd(value^2,na.rm=TRUE)/mean(value-min(x.dist),na.rm=TRUE)),
@@ -156,7 +176,7 @@ if (!is.null(mon)) {
     plot(yy,value,type="l",lwd=3,
          main=paste(obs$location,obs$obs.name),
          sub=sub.tit,xlab="Time",ylab=obs$unit)
-    lines(yy[!is.na(y)],pre.p.fit,col="red")
+    if (trend) lines(yy[!is.na(y)],pre.p.fit,col="red")
     lines(c(min(yy),max(yy)),rep(mean(value,na.rm=TRUE)+
                                  1.96*sd(value,na.rm=TRUE),2),
           lty=2,col="grey")
@@ -178,7 +198,7 @@ if (!is.null(mon)) {
                        mean=mean(value,na.rm=TRUE),
                        sd=sd(value,na.rm=TRUE))
     
-    lines(x.dist,y.dist,col="red")
+    if (trend) lines(x.dist,y.dist,col="red")
     lines(x.dist,dgamma(x.dist-min(x.dist),
           shape=mean((value-min(x.dist))^2,na.rm=TRUE)/sd(value^2,na.rm=TRUE),
           scale=sd(value^2,na.rm=TRUE)/mean(value-min(x.dist),na.rm=TRUE)),
@@ -191,5 +211,7 @@ if (!is.null(mon)) {
 
   plotStation <- list(yy=yy,mm=mm,value=value,loc=obs$location,
                       histo=histo,x.dist=x.dist,y.dist=y.dist)
+}
   invisible(plotStation)
+
 }

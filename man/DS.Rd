@@ -1,8 +1,6 @@
 \name{DS}
-\alias{climate analysis}
 \alias{DS}
-\alias{downscaling}
-\title{Downscaling of monthly means}
+\title{Downscaling of monthly or daily means}
 \description{Identifies statistical relationships between large-scale
   spatial climate patterns and local climate variations for monthly and
   daily data series. Calibrates a linear regression model using
@@ -67,13 +65,15 @@ is: \deqn{y= c_1 + 2 c_2 x + 3 c_3 x^2 +  4 c_4 x^3 + 5 c_5 x^4.}{y= c1
 
   The course notes from Environmental statistics for climate researchers
   \url{http://www.gfi.uib.no/~nilsg/kurs/notes/course.html} is a useful
-  reference to statistical modelling and regression. 
+  reference to statistical modelling and regression.
+
+  DS provides the basis for an 'objective' downscaling though \code{\link{objDS}}.
 }
 \usage{DS(dat,preds,mon=NULL,direc="output/",cal.id=NULL,
               ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
               method="lm",plot=TRUE,leps=FALSE,param="t2m",
               plot.res=FALSE,plot.rate=FALSE,xtr.args="",
-              swsm="step",predm="predict",lsave=TRUE,rmac=TRUE,
+              swsm="step",predm="predict",lsave=FALSE,rmac=TRUE,
                silent=FALSE)}
 
 \arguments{
@@ -161,6 +161,92 @@ library(clim.pact)
 data("oslo.t2m")
 data("eof.mc")
 a<-DS(dat=oslo.t2m,preds=eof.mc,plot=FALSE)
+\dontrun{
+# Example 1: for computing common EOFs and using these as a basis for DS.
+slp.obs <- retrieve.nc("ncep_slp.nc",x.rng=c(-20,40),y.rng=c(50,70))
+                                              # Get gridded observations/analysis from NCEP
+slp.gcm <- retrieve.nc("EH4OPYC_B2_slp.nc")   # Get results from climate models
+slp <- catFields(slp.obs,slp.gcm)             # combine the fields.
+eof <- EOF(slp,mon=1)
+obs <- getnordklim("Stockholm")
+ds <- DS(preds=eof,obs)
+
+
+
+# Example 2:
+# A demonstration for the linear regression model: monthly values
+library(clim.pact)
+
+# Read the gridded netCDF data:
+
+t2m<-retrieve.nc("DNMI_t2m.nc")
+
+# Manipulate the data: assign one part as calibration and one part as independent data
+nt<-length(t2m$tim)
+t2m$id.t[1:floor(nt/2)]<-"calibrate"
+t2m$id.t[ceiling(nt/2):nt]<-"independent"
+
+# Compute EOFs
+eof<-EOF(t2m,mon=1,neofs=3)
+plotEOF(eof)
+
+# Get the predictand: a local station series
+obs<-getnordklim("Goeteborg",ele=101)
+
+# Apply the downscaling
+DS(preds=eof,obs)
+plotStation(obs,mon=1,add=TRUE,col="darkgreen",lwd=1,lty=2)
+
+
+
+# Example 3: A demonstration for the linear regression model: daily values
+# These files are not distributed with the clim.pact package, but
+# nevertheless demonstrate how the downscaling can be done with a few
+# clim.pact functions.
+
+library(clim.pact)
+data(eof.dc)
+list<-read.table("data/daily/station.list.good",header=TRUE)
+print(list)
+
+i<-as.numeric(readline("Which number? (1-37)"))
+obs1<-read.table(paste("data/daily/",list$file.name[i],sep=""))
+
+obs<-station.obj.dm(t2m=obs1$V5,precip=obs1$V6,yy=obs1$V4,mm=obs1$V3,dd=obs1$V2,
+                    station=obs1$V1[1],location=as.character(list$location[i]),
+                    lon=list$lon[i],lat=list$lat[i],alt=list$alt[i],
+                    obs.name<-c("t2m","precipitation"))
+
+plotStation(obs)
+DS(preds=eof.dc,obs)
+
+
+
+Example 4: A demonstration for the analog model: daily values
+
+library(clim.pact)
+library(anm)
+source("clim.R")
+data(eof.dc)
+list<-read.table("data/daily/station.list.good",header=TRUE)
+print(list)
+
+i<-as.numeric(readline("Which number? (1-37)"))
+obs1<-read.table(paste("data/daily/",list$file.name[i],sep=""))
+
+obs<-station.obj.dm(t2m=obs1$V5,precip=obs1$V6,yy=obs1$V4,mm=obs1$V3,dd=obs1$V2,
+                    station=obs1$V1[1],location=as.character(list$location[i]),
+                    lon=list$lon[i],lat=list$lat[i],alt=list$alt[i],
+                    obs.name<-c("t2m","precipitation"))
+
+plotStation(obs)
+
+print("Please be patient - this takes a while...")
+ds-anm<-DS(preds=eof.dc,obs,method="anm.weight",swsm="none",
+           predm="predict.anm",param="precip",
+           lsave=FALSE,ldetrnd=FALSE)
+
+}
 }
 \keyword{models}
 \keyword{multivariate}

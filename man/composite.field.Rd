@@ -9,9 +9,9 @@
   mean - sd.}
 \usage{
 composite.field(x,y,lsig.mask=TRUE,sig.lev=0.05,s=0.42,mon=NULL,
-                      lty=1,col="black",lwd=1)
+                      lty=1,col="black",lwd=1,main=NULL,sub=NULL)
 compositeField(x,y,lsig.mask=TRUE,sig.lev=0.05,s=0.42,mon=NULL,
-                      lty=1,col="black",lwd=1)
+                      lty=1,col="black",lwd=1,main=NULL,sub=NULL)
 }
 \arguments{
     \item{x}{A field object.}
@@ -26,6 +26,8 @@ compositeField(x,y,lsig.mask=TRUE,sig.lev=0.05,s=0.42,mon=NULL,
     \item{lty}{Contour line type.}
     \item{col}{Contour line colour.}
     \item{lwd}{Contour line width.}
+    \item{main}{Main title.}
+    \item{sub}{subtitle.}
  }
 \value{A map object.}
 \author{R.E. Benestad}}

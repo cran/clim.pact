@@ -19,7 +19,7 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
   descr <- 'Correlation:'
   date <- ""
   if (!is.null(mon)) {
-    im <- x$mm== mon
+    im <- is.element(x$mm,mon)
     x$dat <- x$dat[im,,]
     x$yy <- x$yy[im]
     x$mm <- x$mm[im]
@@ -78,6 +78,7 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
 #  print(c(sum(i1),sum(i2)))
 #  print(dim(x$dat[i2,,]))
 #  print(dim(y.ts[i1,,]))
+#  print(class(y)[1])
   for (j in 1:nj) {
     for (i in 1:ni) {
       if (class(y)[1]=="station") r.test <- cor.test(x$dat[i2,j,i],y.ts[i1]) else

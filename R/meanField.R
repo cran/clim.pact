@@ -51,6 +51,7 @@ meanField <- function(x,lon.rng=NULL,lat.rng=NULL,t.rng=NULL,mon=NULL) {
                   tim=month,date=t.rng)
   class(results) <- "map"
 #  attr(results) <- attr(x)
+  attr(results,"long_name")<- paste("Mean",x$v.name)   
   attr(results,"descr") <- "Mean values"
   invisible(results) 
 }

@@ -108,7 +108,7 @@ if (!is.null(attributes(x$tim)$unit)) {
                            ref="grd.box.ts.R (clim.pact)")
   } else {
     results <- station.obj.dm(t2m=ts,precip=rep(NA,length(ts)),
-                              x$dd,x$mm,x$yy,
+                              dd=x$dd,mm=x$mm,yy=x$yy,
                               obs.name=x$v.name,unit=attr(x$dat,"unit"),ele=NA,
                               station=NA,lat=round(lat,4),lon=round(lon,4),alt=NA,
                               location="interpolated",wmo.no=NA,

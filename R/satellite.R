@@ -54,8 +54,8 @@ satellite <- function(map.obj,col="black",lwd=2,lty=1,add=FALSE,
         r1 <- c(cos(phi)*cos(theta),
                 sin(phi),
                 cos(phi)*sin(theta))
-        y[i] <- acos(sum(r0*r1))
-        x[i] <- acos(sum(r*r1))
+        if (is.finite(r0*r1)) y[i] <- acos(sum(r0*r1)) else y[i] <- NA
+        if (is.finite(r*r1)) x[i] <- acos(sum(r*r1)) else x[i] <- NA
       }
       y[y>0.5*pi] <- NA; x[x>0.5*pi] <- NA
       x <- sin(x); y <- sin(y)
@@ -77,7 +77,7 @@ satellite <- function(map.obj,col="black",lwd=2,lty=1,add=FALSE,
                 cos(phi)*sin(theta))
         a <- r - r0
         b <- r1 - r0
-        newphi <- acos( sum(r*r0) )
+        if (is.finite(r*r0)) newphi <- acos( sum(r*r0) ) else newphi<-NA 
         newtheta <- acos(sum(a*b) / (sqrt(sum(a*a)) * sqrt(sum(b*b))) )
         if (lons[i]<lon.0) newtheta <- -newtheta
         d <- sin(newphi)
@@ -125,7 +125,7 @@ satellite <- function(map.obj,col="black",lwd=2,lty=1,add=FALSE,
                    col = my.col,levels=z.levs,
                    main=paste(attributes(map.obj)$"long_name",
                               attributes(map.obj)$"descr"),
-                   sub=date,xlab="",ylab="")
+                   sub=map.obj$date,xlab="",ylab="")
     par(col.lab="black")
   }
 # From filled.contour in base
@@ -206,7 +206,7 @@ satellite <- function(map.obj,col="black",lwd=2,lty=1,add=FALSE,
           a <- r - r0
           b <- r1 - r0
 
-          newphi <- acos( sum(r*r0) )
+          if (is.finite(r*r0)) newphi <- acos( sum(r*r0) ) else newphi<-NA  
           newtheta <- acos(sum(a*b) / (sqrt(sum(a*a)) * sqrt(sum(b*b))) )
 
           if (!is.finite(newphi))  newphi<- NA

@@ -10,13 +10,13 @@
 rm(list=ls())
 library(clim.pact)
 
-do <- TRUE
+do.all <- FALSE
 cmon<-c("Jan","Feb","Mar","Apr","May","Jun",
         "Jul","Aug","Sep","Oct","Nov","Dec")
 
 #domains <- c("D2","D4","D9","D10","D1","D3","D5","D6","D7","D8","D11")
 #analyses  <- c("NCEP","DNMI")
-domains <- c("D15","D16","D17")
+domains <- c("D14","D4","D17","D5","D11","D16")
 analyses  <- c("NCEP")
 
 for (domain in domains) {
@@ -39,7 +39,8 @@ x.domain <- switch(domain,
                 "D14"=list(x.rng=c(0,50),y.rng=c(60,83)),
                 "D15"=list(x.rng=c(-20,70),y.rng=c(50,83)),
                 "D16"=list(x.rng=c(0,50),y.rng=c(50,83)),
-                "D17"=list(x.rng=c(-20,50),y.rng=c(30,75)))
+                "D17"=list(x.rng=c(-20,50),y.rng=c(30,75)),
+                "D18"=list(x.rng=c(-35,40),y.rng=c(65,85)))
 x.rng <- x.domain$x.rng
 y.rng <- x.domain$y.rng
 
@@ -64,15 +65,15 @@ if (analysis=="DNMI") {
                          x.rng=x.rng,y.rng=y.rng,t.rng=t.rng)
 }
 
-##################### HadCM3: B2 ########################
-
-if (do) {  # REB 30.09.03
+##################### HadCM3: B2 ##############################
 
 print("### HadCM3 B2: ###")
 gcm.t2m <- retrieve.nc("/home/kareb/data/ipcc_sres/HADCM3_B2_tem.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(1950,2099))
 gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/HADCM3_B2_slp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(1950,2099))
+
+if (do.all) {  # REB 30.09.03
 
 for (im in 1:12) {
   print("catFields")
@@ -85,6 +86,8 @@ for (im in 1:12) {
   print("mixFields EOF")
   EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
+
+} # end do REB 30.09.03
 
 gcm.t2m.0 <- gcm.t2m
 gcm.slp.0 <- gcm.slp
@@ -114,8 +117,10 @@ for (im in 1:12) {
   EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
-} # REB
 
+if (do.all) {  # REB 30.09.03
+
+  
 ##################### ECHAM4/OPYC3: GSDIO ########################
 
 print("### ECHAM4/OPYC3 GSDIO: ###")
@@ -162,6 +167,7 @@ for (im in 1:12) {
 
 
 
+
 ##################### ECHAM4/OPYC3: GSDIO ########################
 
 print("### ECHAM4/OPYC3 GSDIO: ###")
@@ -178,7 +184,6 @@ for (im in 1:12) {
   EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
-if (do) {  # REB 30.09.03
 
   
 ##################### CSIRO: B2 ########################

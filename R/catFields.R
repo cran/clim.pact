@@ -107,7 +107,12 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
     } 
   }
   if (!is.null(lat) & !is.null(lon)) {
-    
+
+    if (length(lat)==2) lat <- field.1$lat[field.1$lat >= min(lat) & field.1$lat <= max(lat)]
+    if (length(lon)==2) lon <- field.1$lon[field.1$lon >= min(lon) & field.1$lon <= max(lon)]
+    ny.1 <- length(lat); nx.1 <- length(lon)
+    field.1$id.x <-  matrix(rep(field.1$v.nam,ny.1*nx.1),ny.1,nx.1)
+    field.1$id.lon <- rep(field.1$v.nam,nx.1); field.1$id.lat <- rep(field.1$v.nam,ny.1)
     print("interpolate 1st field - please be patient :-)")
     l.newgrid <- TRUE
     lat.x<-rep(field.1$lat,length(field.1$lon))
@@ -126,7 +131,8 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
         addland()
         grid()
       }
-    }    
+    }
+    
   } else {
     lat <- field.1$lat
     lon <- field.1$lon

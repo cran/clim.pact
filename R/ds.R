@@ -17,7 +17,7 @@ DS <- function(dat,preds,mon=NULL,direc="output/",cal.id=NULL,
                ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
                method="lm",plot=TRUE,leps=FALSE,param="t2m",
                plot.res=FALSE,plot.rate=FALSE,xtr.args="",
-               swsm="step",predm="predict",lsave=TRUE,rmac=TRUE,
+               swsm="step",predm="predict",lsave=FALSE,rmac=TRUE,
                silent=FALSE) {
 library(ts)
 library(ctest)
@@ -229,9 +229,9 @@ mm.cal<- mm.cal[is.element(mm.cal,mon)]
 
 if (sum((preds$id.t!=cal.id) & !is.na(preds$PC[,1]))>0) {
   X.gcm<-preds$PC[preds$id.t!=cal.id  & !is.na(preds$PC[,1]),]
-  yy.gcm<-preds$yy[preds$id.t!=cal.id & !is.na(preds$PC[,1])]
-  mm.gcm<-preds$mm[preds$id.t!=cal.id & !is.na(preds$PC[,1])]
-  dd.gcm<-preds$dd[preds$id.t!=cal.id & !is.na(preds$PC[,1])]
+  yy.gcm<-as.vector(preds$yy[preds$id.t!=cal.id & !is.na(preds$PC[,1])])
+  mm.gcm<-as.vector(preds$mm[preds$id.t!=cal.id & !is.na(preds$PC[,1])])
+  dd.gcm<-as.vector(preds$dd[preds$id.t!=cal.id & !is.na(preds$PC[,1])])
   
 #print("The scenarios:")
   X.gcm<-X.gcm[is.element(mm.gcm,mon),]
@@ -279,6 +279,7 @@ if (!silent) print(range(y.o))
 
 #--------------------------------------------------------
 # De-trend the data used for model calibration:
+print("de-trend:")
 
 if (ldetrnd) {
   for (i in 1:length(preds$var.eof)) {
@@ -307,9 +308,11 @@ if (ldetrnd) {
 #paste(scen.gcm.str,"X",ipre,"=X.gcm[,",ipre,"],",sep="")
  
 # Stepwise regression
+print("stepwise regression:")
+n.eofs<- min(c(length(preds$var.eof),length(i.eofs)))    
 scen.gcm.str <- "data.frame("
 calibrate.str <- "data.frame(y=y,"
-for (ipre in 1:length(preds$var.eof)) {
+for (ipre in 1:n.eofs) {
   scen.gcm.str <- paste(scen.gcm.str,"X",ipre,"=X.gcm[,",ipre,
                         "]* preds$W[",ipre,"],",sep="")
   if (method=="anm") {   # Analog model
@@ -320,11 +323,14 @@ for (ipre in 1:length(preds$var.eof)) {
   } else calibrate.str <- paste(calibrate.str,"X",ipre,"=X.cal[,",ipre,
                            "]* preds$W[",ipre,"],",sep="")
 }
-scen.gcm.str <- paste(scen.gcm.str,"yy=yy.gcm,mm=mm.gcm,dd=dd.gcm)",sep="")
+scen.gcm.str <- paste(scen.gcm.str,"yy=as.vector(yy.gcm),mm=as.vector(mm.gcm),dd=as.vector(dd.gcm))",sep="")
+#print("GCM:")
+#print(scen.gcm.str)
 scen.gcm <- eval(parse(text=scen.gcm.str))
 
-
-calibrate.str <- paste(calibrate.str,"yy=yy.cal,mm=mm.cal,dd=dd.cal)",sep="")
+calibrate.str <- paste(calibrate.str,"yy=as.vector(yy.cal),mm=as.vector(mm.cal),dd=as.vector(dd.cal))",sep="")
+#print("Calibration:")
+#print(calibrate.str)
 calibrate <- eval(parse(text=calibrate.str))
 
 #print(summary(calibrate))
@@ -332,11 +338,11 @@ calibrate <- eval(parse(text=calibrate.str))
 # in a more complicated way.
 attach(calibrate)
 exprn <- paste(method,"(y ~ 1",sep="")
-for (i.eof in 1:length(i.eofs)) {  
+for (i.eof in 1:n.eofs) {  
   eval(parse(text=
              paste("X",i.eofs[i.eof]," <- calibrate$X",i.eofs[i.eof],sep="")))
 }
-for (i.eof in 1:length(i.eofs)) {  
+for (i.eof in 1:n.eofs) {  
   exprn <- paste(exprn," + X",i.eofs[i.eof],sep="")
 }
 if (method!="anm") exprn <- paste(exprn,xtr.args,")",sep="") else 
@@ -585,28 +591,41 @@ if (!silent) print(paste("P-value of trend-fit for downscaled scenario",gcm.trnd
 
 #---------------------------------------------------
 
+print("Dignosis:")
+print(direc)
+print(preds.id)
+print(region)
+print(dat$location)
+print(dat$ele)
+print(preds$c.mon)
+print(attr(preds$tim,"unit"))
+print(method)
+
 if ((method!="nnet") & (method!= "anm") & lsave) {
-  
+
+print("Make LaTeX & HTML tables of model")  
 mod.name<-paste(direc,"ds.mod_",preds.id,"_",region,"_",
              substr(dat$location,1,eos),"_",dat$ele,"_",preds$c.mon,'_',
              substr(attr(preds$tim,"unit"),1,3),"_",method,
              ex.tag,sep="")
-
 mod.tab <- xtable(step.wise,
                   caption=paste("Calibration period: ",month,
                   " ",range(yy.cal)[1],"-",range(yy.cal)[2],
                     " using ",preds$id.t[cal.id],sep=""))
+print("Save LaTeX & HTML tables of model")  
 print.xtable(mod.tab,type="latex",
              file=paste(mod.name,".tex",sep=""))
 print.xtable(mod.tab,type="html",
              file=paste(mod.name,".html",sep=""))
 }
+
+print("Make LaTeX & HTML tables of downscaled results")
 sce.name<-paste(direc,"ds.res_",preds.id,"_",region,"_",
              substr(dat$location,1,eos),"_",dat$ele,"_",preds$c.mon,'_',
              substr(attr(preds$tim,"unit"),1,3),"_",method,
              ex.tag,sep="")
 
-scen.table<-xtable(data.frame(year=yy.gcm,
+scen.table<-xtable(data.frame(year=as.vector(yy.gcm),
                               downscaled=round(pre.gcm,2)),
                    caption=paste("Linear trend=",rate.ds,
                      ds.unit,"/decade over ",month," ",
@@ -615,8 +634,11 @@ scen.table<-xtable(data.frame(year=yy.gcm,
                      "; p-value for linear trend-fit=",
                      gcm.trnd.p,"%.",sep=""))
 
-if (lsave) print.xtable(scen.table,type="html",
+if (lsave) {
+  print("Save LaTeX & HTML tables of downscaled results")
+  print.xtable(scen.table,type="html",
            file=paste(sce.name,".html",sep=""))
+}
 
 pred.name <- row.names(table(preds$id.x))
 list.expr <- paste(list.expr,
@@ -632,7 +654,7 @@ list.expr <- paste(list.expr,
          "month=month,v.name=v.name, region=preds$region,",
          "id.1=cal.id,id.2=preds$id.t[preds$id.t!=cal.id][1],",
          "pre.fit=pre.fit,tr.est.p.fit=tr.est.p.fit,ex.tag=ex.tag,",
-         "pred.name=pred.name)",sep="")       
+         "pred.name=pred.name,sce.name=sce.name,preds.name=preds$f.name)",sep="")       
 #print(list.expr)
 ds<-eval(parse(text=list.expr))
 if (!silent) print(paste("File name:",fname))

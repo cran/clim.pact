@@ -46,11 +46,14 @@ agree <- lm(y ~ 1 + x, data=ovrlp)
 print(summary(agree))
 coefs <- agree$coefficients
 
+#print("New series")
 y <- c(y.1,coefs[1] + coefs[2]* y.2[!i.2])
+#print("Years")
 yy <- c(x.1$yy,as.numeric(row.names(table(floor(yymm.2[!i.2])))))
 ny <- length(yy)
 yymm <- sort(rep(yy,12)) + (rep(1:12,ny) - 0.5)/12
 
+#print("Plot?")
 if (plot) {
   plot(yymm.1,y.1,type="s",lwd=3,col="darkblue")
   lines(yymm.2,y.2,type="s",col="steelblue",lty=3,lwd=2)
@@ -58,6 +61,7 @@ if (plot) {
   grid()
 }
 
+#print("Change dimensions")
 dim(y) <- c(12,ny)
 
 x<- x.1

@@ -180,8 +180,8 @@ cdfextract <- function(filename,varname,x.rng=NULL,y.rng=NULL,t.rng=NULL,
                        description=filename,v.name=varname)
       class(results) <- "map"
     }
-    print("Saving the extracted data in cdfextract.nc")
-    r2cdf("cdfextract.nc",results)
+#    print("Saving the extracted data in cdfextract.nc")
+#    r2cdf("cdfextract.nc",results)
     invisible(results)
   } else {
     if (!file.exists(filename)) print("Cannot find filename") else {

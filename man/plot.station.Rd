@@ -8,7 +8,7 @@
   station records available (in a given subdirectory).
 }
 \usage{plotStation(obs,l.anom=TRUE,mon=NULL,
-                        leps=FALSE,out.dir="output",what="b",
+                        leps=FALSE,out.dir="output",what="b",trend=TRUE,
                         type="l",pch=26,col="black",lwd=3,lty=3,add=FALSE)}
 
 \arguments{
@@ -19,6 +19,7 @@
   \item{leps}{Flag: T -> produce EPS files (hard copy). }
   \item{out.dir}{Directory where to store hard copies.}
   \item{what}{"t"=timeseries; "d"=distribution; "b"=both.}
+  \item{trend}{show best-fit polynomial (5th order) trend}
   \item{type}{same as in \code{link{plot}}.}
   \item{pch}{same as in \code{link{plot}}.}
   \item{col}{colour, same as in \code{link{plot}}.}

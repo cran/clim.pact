@@ -79,6 +79,8 @@
     v.name \tab Name of element. \cr
     c.mon \tab Month-season information. \cr
     f.name \tab File name of original data. \cr
+    clim \tab mean values (climatology) \cr
+    attributes \tab Attributes \cr
 }
   The data is also saved as files.
 }

@@ -15,7 +15,7 @@
 #------------------------------------------------------------------------
 
 
-stationmap <- function(ele=101) {
+stationmap <- function(ele=101,NORDKLIM=TRUE,NACD=TRUE,silent=TRUE) {
 
 # Load libraries, and compile function:
   
@@ -51,27 +51,43 @@ data(nordklim.meta)
 #-------------------------------------------------------------------
 # Selection of NACD and NORDKLIMstations.
 
-locs<-c(as.character(nacd.meta$V5[is.element(nacd.meta$V14,ele)]),
-        strip(as.character(meta$location)))
+if ((NORDKLIM) & (NACD)) { 
+ locs<-c(as.character(nacd.meta$V5[is.element(nacd.meta$V14,ele)]),
+         strip(as.character(meta$location)))
+} else if (NORDKLIM) locs<-as.character(strip(as.character(meta$location))) else
+       if (NACD) locs<-as.character(nacd.meta$V5[is.element(nacd.meta$V14,ele)])
+
 plot(c(-80,40),c(50,82),type="n",
      main=ele.c,xlab="Longitude",ylab="Latitude")
 addland()
-
-#print(locs)
+if (!silent) print(locs)
 
 for (loc in locs) {
 #  print("NACD:")
-  obs.nacd<-getnacd(loc,silent=TRUE)
-  if (obs.nacd$found) {
-    points(obs.nacd$lon,obs.nacd$lat,col="blue",pch=20,cex=1.25)}
-#  print("NordKlim")
-  obs.nork<-getnordklim(loc,silent=TRUE)
-  if (obs.nork$found) {
-    points(obs.nork$lon,obs.nork$lat,col="red",pch=20,cex=0.8)
+  if ((NORDKLIM) & (NACD)) { 
+    obs.nacd<-getnacd(loc,silent=TRUE)
+    if (obs.nacd$found) {
+      points(obs.nacd$lon,obs.nacd$lat,col="blue",pch=20,cex=1.25)
+    }
+#     print("NordKlim")
+    obs.nork<-getnordklim(loc,silent=TRUE)
+    if (obs.nork$found) {
+        points(obs.nork$lon,obs.nork$lat,col="red",pch=20,cex=0.8)
+    }
+  } else if (NORDKLIM) {
+    obs.nork<-getnordklim(loc,silent=TRUE)
+      if (obs.nork$found) {
+        points(obs.nork$lon,obs.nork$lat,col="red",pch=20,cex=0.8)
+      }
+  } else if (NACD) {
+    obs.nacd<-getnacd(loc,silent=TRUE)
+    if (obs.nacd$found) {
+      points(obs.nacd$lon,obs.nacd$lat,col="blue",pch=20,cex=1.25)
+    }
   }
 }
 grid()
 legend(-75,55,c('NACD','NordKlim'),pch=c(20,20),
-       col=c('blue','red'),merge=TRUE,bg="grey95")
+       col=c('blue','red'),bg="grey95")
 
 }

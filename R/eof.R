@@ -32,6 +32,7 @@ tim.torg <- attr(fields$tim,"time_origin")
 
 dims <- dim(fields$dat) 
 if (length(dims)==3) dim(fields$dat) <- c(dims[1],dims[2]*dims[3])
+clim <- rep(NA,dims[2]*dims[3])
 
 # For naming the files containing the results
 
@@ -151,6 +152,7 @@ fname<-paste(direc,"eof_", preds.id,scen,"_",vnames,"_",region,"_",
        c.mon,'_',lower.case(substr(attr(fields$tim,"unit"),1,3)),
              ".Rdata",sep="")
 print(paste("File name:",fname,"sum(i.mm)=",sum(i.mm)))
+print(dim(fields$dat))
 
 #-------------------------------------------------------------------------
 
@@ -158,28 +160,38 @@ id <- row.names(table(fields$id.x))
 size <- matrix(rep(0,3*fields$n.fld),3,fields$n.fld)
 stdv <- rep(0,fields$n.fld)
 
-#print(table(fields$id.lon))
-#print(table(fields$id.lat))
-#print(id)
+print(table(fields$id.lon))
+print(table(fields$id.lat))
+print(table(fields$id.x))
+print(id)
 
+ixy <- 0
 for (i in 1:fields$n.fld) {
   ii <- fields$id.x == id[i]
 #  print(paste("id.x: ",sum(ii)))
   id.lon <- fields$id.lon
   id.lat <- fields$id.lat
+#  print("i.lon/i.lat:")
   i.lon <- id.lon == id[i]
   i.lat <- id.lat == id[i]
+#  print("lonx/latx:")
   lon.x <- fields$lon[i.lon]
   lat.x <- fields$lat[i.lat]
+#  print("id.lon/id.lat:")
   id.lon <- id.lon[i.lon]
   id.lat <- id.lat[i.lat]
+#  print("nx/ny:")
   nx <- length(lon.x)
   ny <- length(lat.x)
+#  print("dat:")
   dat.x <- dat[,ii]
+#  print("ix/iy:")
   ix <- ((lon.x >= min(lon)) & (lon.x <= max(lon)))
   iy <- ((lat.x >= min(lat)) & (lat.x <= max(lat)))
+#  print("new lonx/latx:")
   lon.x <- lon.x[ix]
   lat.x <- lat.x[iy]
+#  print("new id.lon/id.lat:")
   id.lon  <- id.lon[ix]
   id.lat  <- id.lat[iy]
 #  print(dim(dat.x))
@@ -197,7 +209,9 @@ for (i in 1:fields$n.fld) {
 print("Remove mean values at each grid point")
   for (j.y in 1:ny) {
     for (i.x in 1:nx) {
-      dat.x[,j.y,i.x] <- dat.x[,j.y,i.x] - mean(dat.x[,j.y,i.x],na.rm=TRUE)
+      ixy <- ixy + 1
+      clim[ixy] <- mean(dat.x[,j.y,i.x],na.rm=TRUE)
+      dat.x[,j.y,i.x] <- dat.x[,j.y,i.x] -  clim[ixy]
     }
   }
 
@@ -338,7 +352,7 @@ eof<-list(EOF=EOF,W=W,PC=PC,id=preds.id,n.fld=fields$n.fld,tot.var=tot.var,
           id.t=id.t,id.x=fields$id.x,size=size,dW=dW,mon=mon,l.wght=l.wght,
           id.lon=id.lons,id.lat=id.lats,region=region,tim=tim,
           lon=lons,lat=lats,var.eof=Var.eof,yy=yy,mm=mm,dd=dd,
-          v.name=fields$v.name,c.mon=c.mon,f.name=fname,
+          v.name=fields$v.name,c.mon=c.mon,f.name=fname,clim=clim,
           attributes=fields$attributes)
 class(eof) <- c("eof",class(fields))
 save(file='data/ceof.Rdata',eof,ascii=FALSE)

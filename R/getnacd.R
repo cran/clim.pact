@@ -53,8 +53,10 @@ if (ascii) {
   save(obs,meta.nacd,file=fr.name)
 }
 
+
 # Load R-data-file - FAST!
 
+#print(fr.name)
 load(fr.name)
 
 station<-obs$V1

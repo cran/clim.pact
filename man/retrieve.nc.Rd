@@ -8,7 +8,7 @@
 \usage{retrieve.nc(f.name="data/ncep_t2m.nc",v.nam="AUTO",
                         l.scale=TRUE,greenwich=TRUE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
-                        x.rng=NULL,y.rng=NULL,t.rng=NULL)
+                        x.rng=NULL,y.rng=NULL,t.rng=NULL,force.chron=TRUE)
 }
 \arguments{
     \item{f.name}{name of netCDF file.}
@@ -22,6 +22,8 @@
     \item{x.rng}{Region to extract.}
     \item{y.rng}{Region to extract.}
     \item{t.rng}{Time interval to extract.}
+    \item{force.chron}{Check for monotonic chronological order (no
+      jumping back and forth in time).}
   }
   \value{A "field.object" list:
     \tabular{ll}{

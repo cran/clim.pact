@@ -6,7 +6,7 @@
 retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
                         l.scale=TRUE,greenwich=TRUE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
-                        x.rng=NULL,y.rng=NULL,t.rng=NULL) {
+                        x.rng=NULL,y.rng=NULL,t.rng=NULL,force.chron=TRUE) {
   library(netCDF)
 #  library(chron)
 #  library(date)
@@ -47,6 +47,7 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
       if (lower.case(substr(vars[i],1,nchar(t.nam)))==lower.case(t.nam) &
           (length(size)==1)) {
         eval(expr)
+#        print(paste("length(tim)=",length(tim)))
       }
 
       if (n.dim==4) {
@@ -102,6 +103,28 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
   season<-cbind(c(12,1,2),c(3,4,5),c(6,7,8),c(9,10,11))
   season.c<-c("","DJF","MAM","JJA","SON")
 
+  dtim <- diff(tim)
+  if ( sum(dtim<=0) > 0) {
+    print(paste("Warning! Test of chonological order finds",sum(dtim<=0),"jump(s)"))
+    print(paste("median(dtim)=",median(dtim)))
+    if (force.chron) {
+      nt <- length(tim)
+      tim.att <- attributes(tim)
+      dtims <- as.numeric(row.names(table(dtim)))
+      if (length(dtims < 4)) {
+        print(paste("Force correction: assume tim[1] is correct,",
+                    median(dtim),"is correct time step, and length=",nt))
+        tim <- seq(tim[1],tim[1]+nt-1,by=median(dtim))
+      } else {
+        dt <- readline("What is the correct time step? (0 leaves tim unchanged)")
+        if (dt != 0) tim <- seq(tim[1],tim[1]+nt-1,by=dt)
+      }
+    }
+    print(paste("length(tim)=",length(tim),"nt=",nt))
+#    print("set new attributes for tim")
+    attributes(tim) <- tim.att
+#    print("continue...")
+  }
   t.unit <- NULL
   if (!is.null(attributes(tim)$unit)) t.unit <- attributes(tim)$unit else
     if (!is.null(attributes(tim)$units)) t.unit <- attributes(tim)$units

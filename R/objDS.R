@@ -1,0 +1,332 @@
+plotDSobj <- function(result,outdir="output",figs=c(1,2,3,4)) {
+
+if (class(result)!="objDS") {
+  stop("The argument is not an 'objDS' object!")
+}
+
+months<-c("Jan","Feb","Mar","Apr","May","Jun",
+          "Jul","Aug","Sep","Oct","Nov","Dec")
+
+for (mon in months) {
+   var.n <- paste("result$",mon,"$pre.gcm",sep="")
+   eval(parse(text=paste(var.n,"<-",var.n," - mean(",var.n,",na.rm=TRUE)",sep="")))
+   var.n <- paste("result$",mon,"$pre.y",sep="")
+   eval(parse(text=paste(var.n,"<-",var.n," - mean(",var.n,",na.rm=TRUE)",sep="")))
+   var.n <- paste("result$",mon,"$y.o",sep="")
+   eval(parse(text=paste(var.n,"<-",var.n," - mean(",var.n,",na.rm=TRUE)",sep="")))
+
+}
+# Plotting and diagnostics:
+
+# Construct a time series for the whole year:
+
+  ds.all.gcm <-cbind(
+           result$Jan$pre.gcm,result$Feb$pre.gcm,result$Mar$pre.gcm,
+           result$Apr$pre.gcm,result$May$pre.gcm,result$Jun$pre.gcm,
+           result$Jul$pre.gcm,result$Aug$pre.gcm,result$Sep$pre.gcm,
+           result$Oct$pre.gcm,result$Nov$pre.gcm,result$Dec$pre.gcm)
+  yymm.all.gcm <-cbind(
+           result$Jan$yy.gcm + (result$Jan$mm.gcm - 0.5)/12,
+           result$Feb$yy.gcm + (result$Feb$mm.gcm - 0.5)/12,
+           result$Mar$yy.gcm + (result$Mar$mm.gcm - 0.5)/12,
+           result$Apr$yy.gcm + (result$Apr$mm.gcm - 0.5)/12,
+           result$May$yy.gcm + (result$May$mm.gcm - 0.5)/12,
+           result$Jun$yy.gcm + (result$Jun$mm.gcm - 0.5)/12,
+           result$Jul$yy.gcm + (result$Jul$mm.gcm - 0.5)/12,
+           result$Aug$yy.gcm + (result$Aug$mm.gcm - 0.5)/12,
+           result$Sep$yy.gcm + (result$Sep$mm.gcm - 0.5)/12,
+           result$Oct$yy.gcm + (result$Oct$mm.gcm - 0.5)/12,
+           result$Nov$yy.gcm + (result$Nov$mm.gcm - 0.5)/12,
+           result$Dec$yy.gcm + (result$Dec$mm.gcm - 0.5)/12)
+  y.gcm <- as.vector(t(ds.all.gcm))
+  yymm.gcm <-  as.vector(t(yymm.all.gcm))
+
+  ds.all.cal <-cbind(
+           result$Jan$pre.y,result$Feb$pre.y,result$Mar$pre.y,
+           result$Apr$pre.y,result$May$pre.y,result$Jun$pre.y,
+           result$Jul$pre.y,result$Aug$pre.y,result$Sep$pre.y,
+           result$Oct$pre.y,result$Nov$pre.y,result$Dec$pre.y)
+  yymm.all.cal <-cbind(
+           result$Jan$yy.cal + (result$Jan$mm.cal - 0.5)/12,
+           result$Feb$yy.cal + (result$Feb$mm.cal - 0.5)/12,
+           result$Mar$yy.cal + (result$Mar$mm.cal - 0.5)/12,
+           result$Apr$yy.cal + (result$Apr$mm.cal - 0.5)/12,
+           result$May$yy.cal + (result$May$mm.cal - 0.5)/12,
+           result$Jun$yy.cal + (result$Jun$mm.cal - 0.5)/12,
+           result$Jul$yy.cal + (result$Jul$mm.cal - 0.5)/12,
+           result$Aug$yy.cal + (result$Aug$mm.cal - 0.5)/12,
+           result$Sep$yy.cal + (result$Sep$mm.cal - 0.5)/12,
+           result$Oct$yy.cal + (result$Oct$mm.cal - 0.5)/12,
+           result$Nov$yy.cal + (result$Nov$mm.cal - 0.5)/12,
+           result$Dec$yy.cal + (result$Dec$mm.cal - 0.5)/12)
+  y.cal <- as.vector(t(ds.all.cal))
+  yymm.cal <-  as.vector(t(yymm.all.cal))
+
+  obs.all <-cbind(
+           result$Jan$y.o,result$Feb$y.o,result$Mar$y.o,
+           result$Apr$y.o,result$May$y.o,result$Jun$y.o,
+           result$Jul$y.o,result$Aug$y.o,result$Sep$y.o,
+           result$Oct$y.o,result$Nov$y.o,result$Dec$y.o)
+  yymm.all.obs <-cbind(
+           result$Jan$yy.o + (result$Jan$mm.o - 0.5)/12,
+           result$Feb$yy.o + (result$Feb$mm.o - 0.5)/12,
+           result$Mar$yy.o + (result$Mar$mm.o - 0.5)/12,
+           result$Apr$yy.o + (result$Apr$mm.o - 0.5)/12,
+           result$May$yy.o + (result$May$mm.o - 0.5)/12,
+           result$Jun$yy.o + (result$Jun$mm.o - 0.5)/12,
+           result$Jul$yy.o + (result$Jul$mm.o - 0.5)/12,
+           result$Aug$yy.o + (result$Aug$mm.o - 0.5)/12,
+           result$Sep$yy.o + (result$Sep$mm.o - 0.5)/12,
+           result$Oct$yy.o + (result$Oct$mm.o - 0.5)/12,
+           result$Nov$yy.o + (result$Nov$mm.o - 0.5)/12,
+           result$Dec$yy.o + (result$Dec$mm.o - 0.5)/12)
+  y.obs <- as.vector(t(obs.all))
+  yymm.obs <-  as.vector(t(yymm.all.obs))
+
+if (!is.null(result$Jan$f.name)) {
+  slash<-instring("/",result$Jan$f.name)
+  uscr<-instring("_",result$Jan$f.name)
+  subtitle <- substr(result$Jan$f.name,slash+1,uscr[2]-1)
+} else subtitle <- " "
+
+
+if (sum(is.element(figs,1))>0) {newFig()
+plot(range(yymm.obs,yymm.gcm,na.rm=TRUE),
+     range(y.obs,y.gcm,y.cal,na.rm=TRUE),type="n",
+     main=paste("Downscaled ",result$Jan$v.name," anomalies at ",result$Jan$location,
+                "     (",round(result$Jan$lat.loc,2),"N/",round(result$Jan$lon.loc,2),"E)",sep=""),
+     sub=subtitle,xlab="Time",ylab=result$Jan$unit)
+grid()
+points(yymm.obs+0.025,y.obs,pch=20,cex=1.2,col="grey60")
+points(yymm.obs,y.obs,pch=20,cex=1.2,col="black")
+lines(yymm.obs,y.obs,lty=3)
+lines(yymm.cal+0.0025,y.cal,lty=2,lwd=2,col="grey60")
+lines(yymm.cal,y.cal,lty=2,lwd=2,col="grey30")
+lines(yymm.gcm+0.0025,y.gcm,lty=1,lwd=2,col="darkblue")
+lines(yymm.gcm,y.gcm,lty=1,lwd=1,col="blue")
+legend(min(yymm.obs,yymm.gcm,na.rm=TRUE),
+       max(y.obs,y.gcm,y.cal,na.rm=TRUE),
+       c("Obs","Calibr.","Scenario"),col=c("black","grey30","blue"),
+       pch=c(20,26,26),lty=c(3,2,1),lwd=c(1,2,1),bg="wheat",cex=0.8)
+dev.copy2eps(file=paste(outdir,"/plotDSobj_1.eps",sep=""))
+}
+# Residuals:
+
+res.rng <- range(result$Jan$step.wise$residual,result$Feb$step.wise$residual,
+                 result$Mar$step.wise$residual,result$Apr$step.wise$residual,
+                 result$May$step.wise$residual,result$Jun$step.wise$residual,
+                 result$Jul$step.wise$residual,result$Aug$step.wise$residual,
+                 result$Sep$step.wise$residual,result$Oct$step.wise$residual,
+                 result$Nov$step.wise$residual,result$Dec$step.wise$residual, na.rm=TRUE)
+if (sum(is.element(figs,2))>0) {newFig()
+plot(c(0,length(result$Jan$yy.o)),res.rng,     
+     type="n", main=paste("Residuals ",result$Jan$v.name," anomalies at ",result$Jan$location,
+                          "     (",round(result$Jan$lat.loc,2),"N/",round(result$Jan$lon.loc,2),"E)",sep=""),
+     sub=subtitle,xlab="Time",ylab=result$Jan$unit)
+grid()
+points(result$Jan$step.wise$residual,col="black",pch=20,cex=0.5)
+points(result$Feb$step.wise$residual,col="black",pch=20,cex=0.5)
+points(result$Mar$step.wise$residual,col="black",pch=20,cex=0.5)
+points(result$Apr$step.wise$residual,col="black",pch=20,cex=0.5)
+points(result$May$step.wise$residual,col="black",pch=20,cex=0.5)
+points(result$Jun$step.wise$residual,col="black",pch=20,cex=0.5)
+points(result$Jul$step.wise$residual,col="black",pch=20,cex=0.5)
+points(result$Aug$step.wise$residual,col="black",pch=20,cex=0.5)
+points(result$Sep$step.wise$residual,col="black",pch=20,cex=0.5)
+points(result$Oct$step.wise$residual,col="black",pch=20,cex=0.5)
+points(result$Nov$step.wise$residual,col="black",pch=20,cex=0.5)
+points(result$Dec$step.wise$residual,col="black",pch=20,cex=0.5)
+lines(result$Jan$step.wise$residual,col="black")
+lines(result$Feb$step.wise$residual,col="grey40")
+lines(result$Mar$step.wise$residual,col="red")
+lines(result$Apr$step.wise$residual,col="darkred")
+lines(result$May$step.wise$residual,col="blue")
+lines(result$Jun$step.wise$residual,col="darkblue")
+lines(result$Jul$step.wise$residual,col="green")
+lines(result$Aug$step.wise$residual,col="darkgreen")
+lines(result$Sep$step.wise$residual,col="magenta")
+lines(result$Oct$step.wise$residual,col="cyan")
+lines(result$Nov$step.wise$residual,col="wheat")
+lines(result$Dec$step.wise$residual,col="brown")
+dev.copy2eps(file=paste(outdir,"/plotDSobj_2.eps",sep="")) 
+}
+
+if (sum(is.element(figs,3))>0) { newFig()
+brks <- seq(res.rng[1]-1,res.rng[2]+1,length=25)
+h.jan<-hist(result$Jan$step.wise$residual,breaks=brks)$density
+h.feb<-hist(result$Feb$step.wise$residual,breaks=brks)$density
+h.mar<-hist(result$Mar$step.wise$residual,breaks=brks)$density
+h.apr<-hist(result$Apr$step.wise$residual,breaks=brks)$density
+h.may<-hist(result$May$step.wise$residual,breaks=brks)$density
+h.jun<-hist(result$Jun$step.wise$residual,breaks=brks)$density
+h.jul<-hist(result$Jul$step.wise$residual,breaks=brks)$density
+h.aug<-hist(result$Aug$step.wise$residual,breaks=brks)$density
+h.sep<-hist(result$Sep$step.wise$residual,breaks=brks)$density
+h.oct<-hist(result$Oct$step.wise$residual,breaks=brks)$density
+h.nov<-hist(result$Nov$step.wise$residual,breaks=brks)$density
+h.dec<-hist(result$Dec$step.wise$residual,breaks=brks)$density
+brks <- hist(result$Dec$step.wise$residual,breaks=brks)$mids
+plot(range(brks),range(c(h.jan,h.feb,h.mar,h.apr,h.may,h.jun,
+     h.jul,h.aug,h.sep,h.oct,h.nov,h.dec)),type="n",
+     main=paste("Residuals ",result$Jan$v.name," anomalies at ",result$Jan$location,
+                          "     (",round(result$Jan$lat.loc,2),"N/",round(result$Jan$lon.loc,2),"E)",sep=""),
+     sub=subtitle,ylab="Density",xlab=result$Jan$unit)
+grid()
+lines(brks,h.jan,col="black")
+lines(brks,h.feb,col="grey40")
+lines(brks,h.mar,col="red")
+lines(brks,h.apr,col="darkred")
+lines(brks,h.may,col="blue")
+lines(brks,h.jun,col="darkblue")
+lines(brks,h.jul,col="green")
+lines(brks,h.aug,col="darkgreen")
+lines(brks,h.sep,col="magenta")
+lines(brks,h.oct,col="cyan")
+lines(brks,h.nov,col="wheat")
+lines(brks,h.dec,col="brown")
+dev.copy2eps(file=paste(outdir,"/plotDSobj_3.eps",sep="")) 
+}
+
+rates <- c(result$Jan$rate.ds,result$Feb$rate.ds,result$Mar$rate.ds,
+           result$Apr$rate.ds,result$May$rate.ds,result$Jun$rate.ds,
+           result$Jul$rate.ds,result$Aug$rate.ds,result$Sep$rate.ds,
+           result$Oct$rate.ds,result$Nov$rate.ds,result$Dec$rate.ds)
+err <- c(result$Jan$rate.err,result$Feb$rate.err,result$Mar$rate.err,
+           result$Apr$rate.err,result$May$rate.err,result$Jun$rate.err,
+           result$Jul$rate.err,result$Aug$rate.err,result$Sep$rate.err,
+           result$Oct$rate.err,result$Nov$rate.err,result$Dec$rate.err)
+r2 <- c(result$Jan$fit.r2,result$Feb$fit.r2,result$Mar$fit.r2,
+           result$Apr$fit.r2,result$May$fit.r2,result$Jun$fit.r2,
+           result$Jul$fit.r2,result$Aug$fit.r2,result$Sep$fit.r2,
+           result$Oct$fit.r2,result$Nov$fit.r2,result$Dec$fit.r2)
+p.val <- as.numeric(c(result$Jan$gcm.trnd.p,result$Feb$gcm.trnd.p,result$Mar$gcm.trnd.p,
+           result$Apr$gcm.trnd.p,result$May$gcm.trnd.p,result$Jun$gcm.trnd.p,
+           result$Jul$gcm.trnd.p,result$Aug$gcm.trnd.p,result$Sep$gcm.trnd.p,
+           result$Oct$gcm.trnd.p,result$Nov$gcm.trnd.p,result$Dec$gcm.trnd.p))
+
+if (sum(is.element(figs,4))>0) {newFig()
+plot(c(0,13),range(c(rates+err,rates-err),na.rm=TRUE),type="n",
+     main=paste("Linear trend rates ",result$Jan$v.name," derived ",result$Jan$location,
+                          "     (",round(result$Jan$lat.loc,2),"N/",round(result$Jan$lon.loc,2),"E)",sep=""),
+     sub=subtitle,ylab=paste(result$Jan$unit,"/ decade"),xlab="Month")
+grid()
+
+polygon(c(1:12,reverse(1:12)),c(rates+err,reverse(rates-err)),
+        col="wheat",border="grey",lwd=2)
+lines(0:12+0.5,c(r2[1],r2)/100*max(rates-err,na.rm=TRUE)+min(rates-err,na.rm=TRUE),
+      type="S",col="steelblue")
+lines(rates,lwd=2)
+points((1:12)[p.val < 5],rates[p.val < 5],pch=20,cex=1.5)
+points((1:12)[p.val >= 5],rates[p.val >= 5],pch=21,cex=1.5)
+text((1:12)-0.33,rates-0.01*diff(range(c(rates+err,rates-err),na.rm=TRUE)),rates,
+       cex=0.8,col="grey45")
+
+for (i in 0:10) {
+  lines(c(11.8,12),rep(i/10*max(rates-err,na.rm=TRUE)+min(rates-err,na.rm=TRUE),2),col="steelblue")
+  lines(c(0,11),rep(i/10*max(rates-err,na.rm=TRUE)+min(rates-err,na.rm=TRUE),2),lty=3,col="steelblue")
+  text(11.5,i/10*max(rates-err,na.rm=TRUE)+min(rates-err,na.rm=TRUE),paste(i*10,'%',sep=""),
+        cex=0.8,col="steelblue")
+  }
+mtext("R-squared (%) from calibration regression",side=4,col="steelblue",cex=0.80)
+points(1,max(rates+err),pch=20); text(3,max(rates+err),"5% sign.level")
+points(7,max(rates+err),pch=21); text(8,max(rates+err),"not sign.")
+
+dev.copy2eps(file=paste(outdir,"/plotDSobj_4.eps",sep="")) 
+}
+}
+
+
+objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
+                  mon=NULL,direc="output/",cal.id=NULL,
+                  ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
+                  method="lm",leps=FALSE,param="t2m",
+                  plot.res=FALSE,plot.rate=FALSE,xtr.args="",
+                  swsm="step",predm="predict",lsave=TRUE,rmac=TRUE,
+                  silent=FALSE) {
+
+  cmon<-c("Jan","Feb","Mar","Apr","May","Jun",
+          "Jul","Aug","Sep","Oct","Nov","Dec")
+  
+  dims <- dim(field.obs$dat); ny <- dims[2]; nx <- dims[3]
+#  print(dims)
+  wy <- 2*pi*seq(0,ny-1,by=1)/(ny-1)
+  x.mod<-matrix(rep(NA,ny*nx),ny,nx)
+  x.mod[,1]<-cos(wy);   x.mod[,2]<-sin(wy)
+  x.mod[,3]<-cos(2*wy); x.mod[,4]<-sin(2*wy)
+  x.mod[,5]<-cos(3*wy); x.mod[,6]<-sin(3*wy)
+  wx <- 2*pi*seq(0,nx-1,by=1)/(nx-1)
+  y.mod<-matrix(rep(NA,ny*nx),ny,nx)
+  y.mod[1,]<-cos(wx);   y.mod[2,]<-sin(wx)
+  y.mod[3,]<-cos(2*wx); y.mod[4,]<-sin(2*wx)
+  y.mod[5,]<-cos(3*wx); y.mod[6,]<-sin(3*wx)
+  if (is.null(mon)) mon  <-  1:12
+  
+  result <- list(station=station)
+  if (is.null(positive) &
+      sum(is.element(c("t2m","tem"),lower.case(substr(field.obs$v.name,1,3))))> 0) {
+    positive <- TRUE
+  }
+  for (imon in mon) {
+    print(imon)
+    cormap <- corField(field.obs,station,mon=imon)
+
+    # Find optimal longitudes & latitudes:
+    
+    latx <- 0.5*(field.obs$lat[2:ny]+field.obs$lat[1:(ny-1)])
+    lonx <- 0.5*(field.obs$lon[2:nx]+field.obs$lon[1:(nx-1)])
+    iy <- min( (1:ny)[station$lat <= field.obs$lat], na.rm=TRUE)
+    ix <- min( (1:nx)[station$lon <= field.obs$lon], na.rm=TRUE)
+    largescale <- data.frame(y=as.vector(cormap$map[ix,]), X=x.mod)      
+    y.fit<-lm(y ~ X.1 + X.2 + X.3 + X.4 + X.5 + X.6,data=largescale)
+    largescale <- data.frame(y=as.vector(cormap$map[,iy]), X=t(y.mod))
+    lsX <- data.frame(X=x.mod);  lsY <- data.frame(X=t(y.mod));
+    x.fit<-lm(y ~ X.1 + X.2 + X.3 + X.4 + X.5 + X.6,data=largescale)
+    yhat <- predict(y.fit,newdata=lsX); xhat <- predict(x.fit,newdata=lsY);
+    yzero <- yhat[2:ny]*yhat[1:(ny-1)]; xzero <- xhat[2:nx]*xhat[1:(nx-1)]
+    lonx <- lonx[xzero < 0]; latx <- latx[yzero < 0]
+    x.rng <- c(max(c(min(field.obs$lon),max(lonx[lonx < station$lon])), na.rm=TRUE),
+               min(c(max(field.obs$lon),min(lonx[lonx > station$lon])), na.rm=TRUE))
+    y.rng <- c(max(c(min(field.obs$lat),max(latx[latx < station$lat])), na.rm=TRUE),
+               min(c(max(field.obs$lat),min(latx[latx > station$lat])), na.rm=TRUE))
+    
+    if (plot) {
+      plot(range(c(field.obs$lat,field.obs$lon)),range(cormap$map,na.rm=TRUE),type="n",
+           main="Finding optimal domain",xlab="deg N & deg E",
+           sub=paste(round(station$lon,2),"E/",round(station$lat,2),"N",sep=""))
+      grid()
+      lines(range(c(field.obs$lat,field.obs$lon)),rep(0,2),lty=3)
+      points(field.obs$lat,as.vector(cormap$map[ix,]))
+      lines(field.obs$lat,as.numeric(yhat),lwd=2);
+      lines(rep(y.rng[1],2),range(cormap$map,na.rm=TRUE),lty=2)
+      lines(rep(y.rng[2],2),range(cormap$map,na.rm=TRUE),lty=2)
+
+      points(field.obs$lon,as.vector(cormap$map[,iy]),col="red",pch=20)
+      lines(field.obs$lon,as.numeric(xhat),col="red",lwd=2)
+      lines(rep(x.rng[1],2),range(cormap$map,na.rm=TRUE),lty=2,col="red")
+      lines(rep(x.rng[2],2),range(cormap$map,na.rm=TRUE),lty=2,col="red")
+    }
+    print("catFields:")
+#    print(">>> Check REB 11.02.2004!")
+#    print(x.rng)
+#    print(c(sum(!is.finite(field.obs$dat)),sum(!is.finite(field.gcm$dat))))
+#    print(summary(field.obs$lon)); print(summary(field.obs$lat))
+#    print(summary(field.gcm$lon)); print(summary(field.gcm$lat))
+    field.2 <- catFields(field.obs,field.gcm,lon=x.rng,lat=y.rng,mon=imon)
+    print("EOF:")
+    eof <- EOF(field.2)
+    print("DS:")
+    ds <- DS(preds=eof,dat=station,direc=direc,cal.id=cal.id,
+                  ldetrnd=ldetrnd,i.eofs=i.eofs,ex.tag=ex.tag,
+                  method=method,plot=FALSE,leps=leps,param=param,
+                  plot.res=plot.res,plot.rate=plot.rate,xtr.args=xtr.args,
+                  swsm=swsm,predm=predm,lsave=lsave,rmac=rmac,
+                  silent=silent)
+    print(paste("result$",cmon[imon]," <- ds",sep=""))
+    eval(parse(text=paste("result$",cmon[imon]," <- ds",sep="")))
+  }
+
+  class(result) <- "objDS"
+  if (plot) plotDSobj(result)
+
+  invisible(result)
+}

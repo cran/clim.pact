@@ -1,5 +1,5 @@
 composite.field <- function(x,y,lsig.mask=TRUE,sig.lev=0.05,s=0.42,mon=NULL,
-                      lty=1,col="black",lwd=1) {
+                            lty=1,col="black",lwd=1,main=NULL,sub=NULL) {
   library(ctest)
 
 if ((class(x)[1]!="field") & (class(x)[1]!="monthly.field.object") &
@@ -34,12 +34,18 @@ if (class(y)[1]=="station") {
                  yy*10000+mm*100+dd)
   i.plus <- (y.ts[i1] >= mean(y.ts[i1],na.rm=TRUE)+s*sd(y.ts[i1],na.rm=TRUE))
   i.minus<- (y.ts[i1] <= mean(y.ts[i1],na.rm=TRUE)-s*sd(y.ts[i1],na.rm=TRUE))
-} else if (length(y)==length(x$tim)) {
+} else if (length(y)==length(x$tim) & !is.logical(y)) {
     i1 <- seq(1,length(x$tim),by=1)
     i2 <- seq(1,length(x$tim),by=1)
     y.ts <- rep(0,length(i2))
     i.plus <- y > 0
     i.minus <- y < 0
+} else if (length(y)==length(x$tim) & is.logical(y)) {
+    i1 <- seq(1,length(x$tim),by=1)
+    i2 <- seq(1,length(x$tim),by=1)
+    y.ts <- rep(0,length(i2))
+    i.plus <- y 
+    i.minus <- !y    
 } else if ((min(abs(y))>= min(x$yy)) & (max(abs(y)) <= max(x$yy))) {
     i1 <- seq(1,length(x$tim),by=1)    
     i2 <- seq(1,length(x$tim),by=1)
@@ -70,7 +76,7 @@ if (class(y)[1]=="station") {
         plus  <- vec1[i.plus]
         minus  <- vec1[i.minus]
         map[j,i] <- mean(plus,na.rm=TRUE) - mean(minus,na.rm=TRUE)
-        p.val[j,i] <- t.test(plus,minus)$p.value
+        if ((length(plus) > 0) & (length(minus) > 0)) p.val[j,i] <- t.test(plus,minus)$p.value
       } 
     }
   }
@@ -82,11 +88,14 @@ if (class(y)[1]=="station") {
                 c(c(rep(1,21),seq(1,0,length=20))))
   if (lsig.mask) map[p.val > 0.05] <- NA
   if (sum(is.finite(map))==0) stop('No region with significance')
+  if ( (is.null(main)) & (class(y)[1]=="station") ) {
+    main <- paste(descr,attributes(x$dat)$"long_name",
+                  "using",y$ele,"at",y$location)
+  } else main <- paste(descr,attributes(x$dat)$"long_name")
+  if (is.null(sub)) sub <- date
   filled.contour(x$lon,x$lat,t(map),
                  col = my.col,levels=z.levs,
-                 main=paste(descr,attributes(x$dat)$"long_name",
-                            "using",y$ele,"at",y$location),
-                 sub=date,xlab="Longitude",ylab="Latitude")
+                 main=main,sub=sub,xlab="Longitude",ylab="Latitude")
 
 # From filled.contour in base
   mar.orig <- (par.orig <- par(c("mar","las","mfrow")))$mar

@@ -16,7 +16,8 @@
 DS <- function(dat,preds,mon=NULL,direc="output/",cal.id=NULL,
                ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
                method="lm",plot=TRUE,leps=FALSE,param="t2m",
-               plot.res=FALSE,plot.rate=FALSE,xtr.args="") {
+               plot.res=FALSE,plot.rate=FALSE,xtr.args="",
+               swsm="step",predm="predict",lsave=TRUE) {
 library(ts)
 library(ctest)
 library(chron)
@@ -95,7 +96,7 @@ if (is.null(attr(preds$tim,"unit"))) {
 }
 
 eos <- instring(" ",dat$location)[1]-1
-if ((is.null(eos)) | (eos <= 0)) eos <- length(dat$location)
+if ((is.null(eos)) | (eos <= 0)) eos <- nchar(dat$location)
 preds.id <- substr(preds.id,1,nchar(preds.id)-1)
 fname<-paste(direc,"ds_",preds.id,"_",region,"_",
              substr(dat$location,1,eos),"_",dat$ele,"_",preds$c.mon,'_',
@@ -201,6 +202,7 @@ X.cal<-  X.cal[is.element(mm.cal,mon),]
 yy.cal<- yy.cal[is.element(mm.cal,mon)]
 dd.cal<- dd.cal[is.element(mm.cal,mon)]
 mm.cal<- mm.cal[is.element(mm.cal,mon)]
+#print(c(length(y.o),length(yy.o),length(X.cal[,1]),length(yy.cal)))
 
 if (sum((preds$id.t!=cal.id) & !is.na(preds$PC[,1]))>0) {
   X.gcm<-preds$PC[preds$id.t!=cal.id  & !is.na(preds$PC[,1]),]
@@ -234,18 +236,20 @@ if (class(preds)[2]=="monthly.field.object") {
 
 # Extract the predictand & predictors:
 
-y.o<-y.o[i1] 
-mm.o<-mm.o[i1]
-yy.o<-yy.o[i1]
-dd.o<-dd.o[i1]
-X.cal<-X.cal[i2,]
-mm.cal<-mm.cal[i2]
-yy.cal<-yy.cal[i2]
-dd.cal<-dd.cal[i2]
+#print(c(sum(i1),sum(i2)))
+y.o<-y.o[i1] ; mm.o<-mm.o[i1]; yy.o<-yy.o[i1]; dd.o<-dd.o[i1]
+X.cal<-X.cal[i2,]; mm.cal<-mm.cal[i2]; yy.cal<-yy.cal[i2]; dd.cal<-dd.cal[i2]
+
+# Remove missing values:
+i3 <- is.finite(y.o)
+#print(c(length(y.o),length(yy.o),length(X.cal[,1]),length(yy.cal)))
+y.o<-y.o[i3]; mm.o<-mm.o[i3]; yy.o<-yy.o[i3]; dd.o<-dd.o[i3]
+X.cal<-X.cal[i3,]; mm.cal<-mm.cal[i3]; yy.cal<-yy.cal[i3]; dd.cal<-dd.cal[i3]
 
 print("Common times:")
 print(range(yy.o))
-        
+print(range(y.o))
+
 #--------------------------------------------------------
 # De-trend the data used for model calibration:
 
@@ -254,7 +258,7 @@ for (i in 1:length(preds$var.eof)) {
   dtrnd<-lm(X.cal[,i] ~trnd)
   X.cal[,i]<-dtrnd$residual   
 }
-y <- y.o - mean(y.o)
+y <- y.o - mean(y.o,na.rm=TRUE)
 trnd<-seq(-1,1,length=length(y))
 dtrnd<-lm(y ~ trnd)
 if (ldetrnd) {
@@ -262,56 +266,25 @@ if (ldetrnd) {
 }
 
 # Stepwise regression
+scen.gcm.str <- "data.frame("
+calibrate.str <- "data.frame(y=y,"
+for (ipre in 1:length(preds$var.eof)) {
+  scen.gcm.str <- paste(scen.gcm.str,"X",ipre,"=X.gcm[,",ipre,
+                        "]* preds$W[",ipre,"],",sep="")
+  calibrate.str <- paste(calibrate.str,"X",ipre,"=X.cal[,",ipre,
+                        "]* preds$W[",ipre,"],",sep="")
+}
+scen.gcm.str <- paste(scen.gcm.str,"yy=yy.gcm,mm=mm.gcm,dd=dd.gcm)",sep="")
+scen.gcm <- eval(parse(text=scen.gcm.str))
+calibrate.str <- paste(calibrate.str,"yy=yy.cal,mm=mm.cal,dd=dd.cal)",sep="")
+calibrate <- eval(parse(text=calibrate.str))
 
-scen.gcm<- data.frame(X1=X.gcm[,1]* preds$W[1],
-                      X2=X.gcm[,2]* preds$W[2],
-                      X3=X.gcm[,3]* preds$W[3],
-                      X4=X.gcm[,4]* preds$W[4],
-                      X5=X.gcm[,5]* preds$W[5],
-                      X6=X.gcm[,6]* preds$W[6],
-                      X7=X.gcm[,7]* preds$W[7],
-                      X8=X.gcm[,8]* preds$W[8],
-                      X9=X.gcm[,9]* preds$W[9],
-                      X10=X.gcm[,10]* preds$W[10],
-                      X11=X.gcm[,11]* preds$W[11],
-                      X12=X.gcm[,12]* preds$W[12],
-                      X13=X.gcm[,13]* preds$W[13],
-                      X14=X.gcm[,14]* preds$W[14],
-                      X15=X.gcm[,15]* preds$W[15],
-                      X16=X.gcm[,16]* preds$W[16],
-                      X17=X.gcm[,17]* preds$W[17],
-                      X18=X.gcm[,18]* preds$W[18],
-                      X19=X.gcm[,19]* preds$W[19],
-                      X20=X.gcm[,20]* preds$W[20])
-
-calibrate<-data.frame(y=y,
-                      X1=X.cal[,1]* preds$W[1],
-                      X2=X.cal[,2]* preds$W[2],
-                      X3=X.cal[,3]* preds$W[3],
-                      X4=X.cal[,4]* preds$W[4],
-                      X5=X.cal[,5]* preds$W[5],
-                      X6=X.cal[,6]* preds$W[6],
-                      X7=X.cal[,7]* preds$W[7],
-                      X8=X.cal[,8]* preds$W[8],
-                      X9=X.cal[,9]* preds$W[9],
-                      X10=X.cal[,10]* preds$W[10],
-                      X11=X.cal[,11]* preds$W[11],
-                      X12=X.cal[,12]* preds$W[12],
-                      X13=X.cal[,13]* preds$W[13],
-                      X14=X.cal[,14]* preds$W[14],
-                      X15=X.cal[,15]* preds$W[15],
-                      X16=X.cal[,16]* preds$W[16],
-                      X17=X.cal[,17]* preds$W[17],
-                      X18=X.cal[,18]* preds$W[18],
-                      X19=X.cal[,19]* preds$W[19],
-                      X20=X.cal[,20]* preds$W[20])
-
-print("Prepare stepwise regression")
+#print(summary(calibrate))
 # Due to a bug in step, 'attatch' cannot be used, so it's done
 # in a more complicated way.
 attach(calibrate)
 exprn <- paste(method,"(y ~ 1",sep="")
-for (i.eof in 1:20) {  
+for (i.eof in 1:length(i.eofs)) {  
   eval(parse(text=
              paste("X",i.eofs[i.eof]," <- calibrate$X",i.eofs[i.eof],sep="")))
 }
@@ -321,11 +294,15 @@ for (i.eof in 1:length(i.eofs)) {
 exprn <- paste(exprn,xtr.args,")",sep="")
 print(paste("Model: ",exprn))
 expr <- parse(text=exprn)
-lm.mod <- eval(expr)    
-if (method!="nnet") step.wise<-step(lm.mod,trace=0) else
-                    step.wise<-lm.mod
+lm.mod <- eval(expr)
+meths <- methods(class(lm.mod))
+print("Stepwise..")
+if ((swsm!="none") & !is.null(swsm)) {
+  step.wise <- eval(parse(text=paste(swsm,"(lm.mod,trace=0)",sep="")))
+}  else step.wise<-lm.mod
 
 #print("ANOVA from step-wise regression:")
+
 stat <- summary(step.wise)
 if (length(step.wise$coefficients)>1) {
   if (!is.null(stat$r.squared)) {
@@ -333,8 +310,13 @@ if (length(step.wise$coefficients)>1) {
     p.val <- round(100*(1-pf(stat$fstatistic[1],
                            stat$fstatistic[2],
                            stat$fstatistic[3])))
+  } else if (method=="anm") {
+    cor.test(y,eval(parse(text=paste(predm,"(lm.mod)",sep=""))))
+    r2.stat <- cor.test(y[!calibrate$cal],predict.anm(lm.mod))
+    r2 <- round(100*r2.stat$estimate2)
+    r.val <- round(100*r2.stat$p.value)
   } else {
-    r2.stat <- cor.test(y,predict(lm.mod))
+    r2.stat <- eval(parse(text=paste("r2.stat <- cor.test(y,",predm,"(lm.mod))",sep="")))
     r2 <- round(100*r2.stat$estimate^2)
     p.val <- round(100*r2.stat$p.value)
   }
@@ -352,19 +334,21 @@ if (length(step.wise$coefficients)>1) {
 
 # Downscale predictions
 
-pre.y  <-predict(step.wise)
+#pre.y  <-predict(step.wise)
+pre.y  <- eval(parse(text=paste(predm,"(step.wise)",sep="")))
 for (i.eof in 1:20) {
   eval(parse(text=paste("rm (X",i.eofs[i.eof],")",sep="")))
 }
 detach(calibrate)
 attach(scen.gcm)
-pre.gcm<-predict(step.wise,newdata=scen.gcm)
+#pre.gcm<-predict(step.wise,newdata=scen.gcm)
+pre.gcm <- eval(parse(text=paste(predm,"(step.wise,newdata=scen.gcm)",sep="")))
 detach(scen.gcm)
 print(summary(step.wise))
 
 # A "fudge" to avoid problems when stepwise rejects all the predictors
 # (i.e. only returns an intercept)
-if (length(step.wise$coefficients)<=1) {
+if (length(pre.gcm)==1) {
   print(c(length(pre.gcm),c(length(yy.gcm))))
   pre.gcm <- rep(pre.gcm,length(yy.gcm))
 }
@@ -544,9 +528,9 @@ list.expr <- paste(list.expr,
 ds<-eval(parse(text=list.expr))
 print(paste("File name:",fname))
 class(ds) <- "ds"
-save(file=fname,ds,ascii=FALSE) 
+if (lsave) save(file=fname,ds,ascii=FALSE) 
 #print("Plotting...")
 #print(preds$region)
-if (plot) plotDS(ds,leps)     
+if (plot) plotDS(ds,leps)
 invisible(ds)
 }

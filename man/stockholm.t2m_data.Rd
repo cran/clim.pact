@@ -1,7 +1,7 @@
 \name{stockholm.t2m}
 \alias{stockholm.t2m}
-\title{Monthly mean temperature in Oslo.}
-\description{A station record of monthly mean temperature Oslo-Blindern.}
+\title{Monthly mean temperature in Stockholm.}
+\description{A station record of monthly mean temperature Stockholm.}
 \usage{data(stockholm.t2m)}
 \format{list of "monthly.station.record" class:
     \tabular{ll}{

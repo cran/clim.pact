@@ -36,7 +36,7 @@
   1645-1668, DOI 10.1002/joc.703. 
 }  
 \usage{
-catFields(field.1,field.2,lat=NULL,lon=NULL,plot.interp=FALSE,
+catFields(field.1,field.2=NULL,lat=NULL,lon=NULL,plot.interp=FALSE,
            interval.1=NULL,interval.2=NULL,mon=NULL,demean=TRUE) 
 }
 \arguments{

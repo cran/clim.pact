@@ -31,7 +31,7 @@ avail.locs(ele) }
       602 \tab maximum precip. \cr
       701 \tab Number of days with snow cover (> 50\% covered) days dsc \cr
       801 \tab Mean cloud cover \% N  \cr
-      911 \tab mean snow depth \cr} 
+      911 \tab mean snow depth \cr}
 }
 \value{
     

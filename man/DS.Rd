@@ -67,7 +67,8 @@ is: \deqn{y= c_1 + 2 c_2 x + 3 c_3 x^2 +  4 c_4 x^3 + 5 c_5 x^4.}{y= c1
 \usage{DS(dat,preds,mon=NULL,direc="output/",cal.id=NULL,
               ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
               method="lm",plot=TRUE,leps=FALSE,param="t2m",
-              plot.res=FALSE,plot.rate=FALSE,xtr.args="")}
+              plot.res=FALSE,plot.rate=FALSE,xtr.args="",
+              swsm="step",predm="predict",lsave=TRUE)}
 
 \arguments{
     \item{dat}{ A climate.station object (\code{\link{station.obj}} or 
@@ -92,6 +93,10 @@ is: \deqn{y= c_1 + 2 c_2 x + 3 c_3 x^2 +  4 c_4 x^3 + 5 c_5 x^4.}{y= c1
     \item{plot.res}{'TRUE' shows statistics for residuals.}
     \item{plot.rate}{'TRUE' shows analysis of rate-of-change.}
     \item{xtr.args}{Extra/additional arguments in the formula.}
+    \item{swsm}{Step-wise screening method, default=='step'; 'none'
+      skips stepwise sceeening.}
+    \item{predm}{Prediction method, default is "predict"}.
+    \item{lsave}{TRUE -> saves the result on disc}.
 }
 
 \value{A 'ds' object -  a list of following elements:

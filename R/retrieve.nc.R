@@ -8,41 +8,61 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
     stop(paste("Sorry,",f.name," does not exist!"))
   }
   ncid1<-open.netCDF(f.name)
-  dat <- read.netCDF(ncid1)
+  data <- read.netCDF(ncid1)
   close.netCDF(ncid1)
-  vars <- names(dat)
+  vars <- names(data)
   nvars <- length(vars)
   d <- rep(0,nvars)
+  dat <- NULL
 #  print("Searching for variables")
   for (i in 1:nvars) {
-#      print(vars[i])
-      if (sum(grep("_",vars[i]))==0) {
-      expr <- parse(text=paste("dat$",vars[i],sep=""))
-      if (lower.case(substr(vars[i],1,nchar(x.nam)))==x.nam) lon <- eval(expr)
-      expr <- parse(text=paste("dat$",vars[i],sep=""))
-      if (lower.case(substr(vars[i],1,nchar(y.nam)))==y.nam) lat <- eval(expr)
-      expr <- parse(text=paste("dat$",vars[i],sep=""))
-      if (lower.case(substr(vars[i],1,nchar(t.nam)))==t.nam) tim <- eval(expr)
-
-      expr <- parse(text=paste("dim(dat$",vars[i],")",sep=""))
-      size <- eval(expr)
-      expr <- parse(text=paste("dat$",vars[i],sep=""))
-      if (lower.case(substr(vars[i],1,nchar(v.nam)))==t.nam) {
-        dat <- eval(expr)
-      } else if ((length(size)==3) & (v.nam=="AUTO")) {
-        dat <- eval(expr)
-        var.name <- vars[i]
-      } else if (v.nam=="ASK") {
-        for (ii in 1:nvars) {
-          print(vars[i])
-          i.var <- readline(prompt="Select variable:")
-          expr <- parse(text=paste("dat$",vars[i.var],sep=""))
-          dat <- eval(expr)
-          var.name <- vars[i.var]
-        }
+      expr <- parse(text=paste("lon <- data$'",vars[i],"'",sep=""))
+      if (lower.case(substr(vars[i],1,nchar(x.nam)))==lower.case(x.nam)) {
+        eval(expr)
       }
-    }
+      expr <- parse(text=paste("lat <- data$'",vars[i],"'",sep=""))
+      if (lower.case(substr(vars[i],1,nchar(y.nam)))==lower.case(y.nam)) {
+        eval(expr)
+      }
+      expr <- parse(text=paste("tim <- data$'",vars[i],"'",sep=""))
+      if (lower.case(substr(vars[i],1,nchar(t.nam)))==lower.case(t.nam)) {
+        eval(expr)
+      }
+      expr <- parse(text=paste("dim(data$'",vars[i],"')",sep=""))
+      size <- eval(expr)
+#      print(paste('dim(data$',vars[i],')',sep=""))
+#      print(size)
+      expr <- parse(text=paste("dat <- data$'",vars[i],"'",sep=""))
+      if ((lower.case(substr(vars[i],1,nchar(v.nam)))==lower.case(v.nam)) &
+          (is.null(dat))) {
+        eval(expr)
+        print(paste("Data:",vars[i]," dim:",
+                    dim(dat)[1],"x",dim(dat)[2],"x",dim(dat)[3]))
+      } else if ((length(size)==3) & (v.nam=="AUTO")) {
+        eval(expr)
+        v.nam <- vars[i]
+        print(paste("Data:",v.nam," dim:",
+                    dim(dat)[1],"x",dim(dat)[2],"x",dim(dat)[3]))
+      } else if (v.nam=="ASK") {
+          print(vars)
+          i.var <- as.numeric(readline(prompt=
+                   paste("Select data variable (1-",nvars,"): ",sep="")))
+          print(paste("dat <- data$",vars[i.var],sep=""))
+          expr <- parse(text=paste("dat <- data$'",vars[i.var],"'",sep=""))
+          eval(expr)
+          v.nam <- vars[i.var]
+          print(paste("Data:",v.nam," dim:",
+                dim(dat)[1],"x",dim(dat)[2],"x",dim(dat)[3]))
+      } 
   }
+
+  if (is.null(dat)) {
+    print("Did not find the data")
+    print(vars)
+    print("Try the option v.nam='ASK'")
+    return()
+  }
+#  print("Found all variables")
   slash <- instring("/",f.name)
   dot <- instring(".",f.name)
   nx <- length(lon)
@@ -76,6 +96,7 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
     yy0 <- as.numeric(substr(torg,1,dash[1]-1))
     mm0 <- as.numeric(substr(torg,dash[1]+1,dash[2]-1))
     dd0 <- as.numeric(substr(torg,dash[2]+1,spc[1]-1))
+    if (is.na(dd0)) dd0  <- 15
   }
   print(c(yy0,mm0,dd0))
   
@@ -150,15 +171,15 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
 #  print(attributes(dat)$"unit")
 
 #  print(dat.att)
-  if (l.scale) {
+  if ((l.scale) & !is.null(attributes(dat)$"scale_factor")) {
     dat <- dat * dat.att$"scale_factor"
   }
   # Have included a sanity test to detect an old 'bug': offset 273 and
   # units of deg C..
-  if ( (l.scale) |
-      (dat.att$"add_offset"!=273) &
+  if ( ((l.scale) & !is.null(attributes(dat)$"add_offset"))) {
+      if ( (dat.att$"add_offset"!=273) &
       (dat.att$"unit"=="deg C")) {
-     dat <- dat + dat.att$"add_offset"}
+     dat <- dat + dat.att$"add_offset"} }
   if (l.scale) {   
     print("BEFORE scale adjustment & weeding")
     print(summary(as.vector(dat)))
@@ -184,20 +205,20 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
   nx <- length(lon)
   ny <- length(lat)
   print(c(nt,ny,nx))
-  eos <- nchar(var.name)
-  if (instring("-",var.name)> 0) {
-    eos <- instring("-",var.name)-1
-  } else if (instring("_",var.name)> 0) {
-    eos <- instring("_",var.name)-1
+  eos <- nchar(v.nam)
+  if (instring("-",v.nam)> 0) {
+    eos <- instring("-",v.nam)-1
+  } else if (instring("_",v.nam)> 0) {
+    eos <- instring("_",v.nam)-1
   }
-  var.name <- substr(var.name,1,eos)
-  id.x <- matrix(rep(var.name,ny*nx),ny,nx)
+  v.nam <- substr(v.nam,1,eos)
+  id.x <- matrix(rep(v.nam,ny*nx),ny,nx)
   id.t <- rep(substr(f.name,slash[length(slash)]+1,
                      dot[length(dot)]-1),nt)              
   
-  retrieve.nc  <- list(dat=dat,lon=lon,lat=lat,tim=tim,v.name=var.name,
+  retrieve.nc  <- list(dat=dat,lon=lon,lat=lat,tim=tim,v.name=v.nam,
                        id.x=id.x,id.t=id.t,yy=yy,mm=mm,dd=dd,n.fld=1,
-                       id.lon=rep(var.name,nx),id.lat=rep(var.name,ny))
+                       id.lon=rep(v.nam,nx),id.lat=rep(v.nam,ny))
   class(retrieve.nc) <- c("field",obj.type)
   invisible(retrieve.nc)
 }

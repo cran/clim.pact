@@ -2,6 +2,11 @@
 # rasmus.benestad@met.no
 #------------------------------------------------------------------------
 
+newFig <- function() {
+   dev <- paste(options()$device,"()",sep="")
+   eval(parse(text=dev))
+ }
+
 
 plotDS <- function(ds.obj,leps=FALSE,plot.map=TRUE, plot.res=FALSE,
                    plot.rate=FALSE,add=FALSE,col="darkred",lwd=2,lty=1,
@@ -11,7 +16,7 @@ if (class(ds.obj)!="ds") stop("Need a 'ds' object!")
 attach(ds.obj)
 
 # Plotting: -----------------------------------------------
-     
+               
 pred.descr <- paste("Empirical Downscaling (",id.1,"[")
 
 lons <- lon.loc
@@ -26,7 +31,7 @@ for (i in 1:n.fld) {
   lats <- eval(parse(text=paste("c(lats,lat.",i,")",sep="")))
 }
 
-subtitle <- paste("Calibration: ",month," ",v.name," at ",location,
+subtitle <- paste("Calibration: ",month," ",v.name," at ",ds.obj$location,
                   " using ",id.1,": R2=",fit.r2,
                   "%, p-value=",fit.p,"%.",sep="")
 
@@ -37,13 +42,13 @@ y.lim.tr <- range(c(y.o,pre.y,pre.gcm))
 yymm.o<-yy.o + (mm.o-0.5)/12 + (dd.o-0.5)/365.25
 yymm.gcm<-yy.gcm + (mm.gcm-0.5)/12 + (dd.gcm-0.5)/365.25
 
-if (!leps) par(ask=TRUE)
+#if (!leps) par(ask=TRUE)
 if ((!add) & (plot.map)) {
   if (leps) {
     figname<- paste("predictor_",v.name,"_",location,"_",region,"_",
                   month,ex.tag,".eps",sep="")
     postscript(file = figname,onefile=TRUE,horizontal=FALSE,paper="a4")
-  } 
+  } else eval(parse(text=paste(lower.case(options()$device),"()",sep="")))
   par(ps=16,cex.sub=0.7,cex.main=0.9)
   plot(c(floor(min(lons)),ceiling(max(lons))),
        c(floor(min(lats)),ceiling(max(lats))),type="n",
@@ -88,10 +93,10 @@ if ((!add) & (plot.map)) {
     if (!file.exists(direc)){
       print(paste("The directory",direc,"does not exists.. Creates it.."))
       dir.create(direc)
-    }
+    } 
     file.copy(figname,direc)
     file.remove(figname)
-  }
+  } 
 }
 
 if (!add) {
@@ -99,7 +104,7 @@ if (!add) {
     figname<- paste("scen_",v.name,"_",location,"_",region,"_",
                     month,ex.tag,".eps",sep="")
     postscript(file = figname,onefile=TRUE,horizontal=FALSE,paper="a4")
-  }
+  } else newFig()
   par(ps=16,cex.sub=0.7,cex.main=0.9)
 
   plot(c(min(yymm.o[1],yymm.gcm[1]),yymm.gcm[length(yymm.gcm)]),
@@ -145,7 +150,7 @@ if (leps) {
   figname<- paste("tendency_",v.name,"_",location,"_",region,"_",
                 month,ex.tag,".eps",sep="")
   postscript(file = figname,onefile=TRUE,horizontal=FALSE,paper="a4")
-}      
+} else newFig()
 par(ps=16,cex.sub=0.7,cex.main=0.9)
 
 plot(c(min(yymm.gcm),max(yymm.gcm)),y.lim.tr,type="n",
@@ -172,7 +177,7 @@ if (leps) {
   figname<- paste("residual_",v.name,"_",location,"_",region,"_",
                 month,ex.tag,".eps",sep="")
   postscript(file = figname,onefile=TRUE,horizontal=FALSE,paper="a4")
-}
+} else newFig()
 par(ps=16,cex.sub=0.9,cex.main=0.7)
 plot(yymm.o,step.wise$residual,type="l",lwd=3,
      main=paste("Residual",
@@ -189,7 +194,7 @@ if (leps) {
   figname<- paste("qq-residual_",v.name,"_",location,"_",region,"_",
                 month,".eps",ex.tag,sep="")
   postscript(file = figname,onefile=TRUE,horizontal=FALSE,paper="a4")
-} 
+} else newFig()
 par(ps=16,cex.sub=0.8,cex.main=0.85)
 qqnorm((step.wise$residual-mean(step.wise$residual,na.rm=TRUE))/
        sd(step.wise$residual,na.rm=TRUE))

@@ -1,4 +1,4 @@
-catFields <- function(field.1,field.2,lat=NULL,lon=NULL,
+catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
                        plot.interp=FALSE,interval.1=NULL,
                        interval.2=NULL,mon=NULL,demean=TRUE) {
   library(akima)
@@ -53,8 +53,8 @@ catFields <- function(field.1,field.2,lat=NULL,lon=NULL,
     cmon<-c('Jan','Feb','Mar','Apr','May','Jun',
             'Jul','Aug','Sep','Oct','Nov','Dec')
     print(paste("Extract",cmon[mon]))
-    i1 <- field.1$mm == mon
-    i2 <- field.2$mm == mon
+    i1 <- is.element(field.1$mm,mon)
+    i2 <- is.element(field.2$mm,mon)
     field.1$dat <- field.1$dat[i1,,]
     field.1$tim <- field.1$tim[i1]
     field.1$id.t <- field.1$id.t[i1]

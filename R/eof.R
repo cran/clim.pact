@@ -116,7 +116,13 @@ if (class(fields)[2]=="monthly.field.object") {
 #  print(season)
 }
 
-preds.names <- row.names(table(fields$id.t))
+preds.names <- row.names(table(lower.case(fields$id.t)))
+for (i.pred in 1:length(preds.names)) {
+  if (preds.names[i.pred]=="t2m") preds.names[i.pred] <- tem
+  if (preds.names[i.pred]=="psl") preds.names[i.pred] <- slp
+}
+preds.names <- row.names(table(preds.names))
+
 preds.id <- ""
 for (i.pred in 1:length(preds.names)) {
   eos <- nchar(preds.names[i.pred])

@@ -56,8 +56,8 @@ Y.1.dm<-retrieve.nc("/data1/hirham/T2M_203001-204912.nc",x.rng=c(5,25),
 Y.1.dm$yy <- Y.1.dm$yy + 50
 # It is important that demean=FALSE when concatinating the two time slices
 # from the model simulations, if a study of climate change is the objective.
-xX.1.dm <- cat.fields(X.1.dm,Y.1.dm,demean=FALSE)
-xX.1.dm <- cat.fields(x.1.dm,xX.1.dm)
+xX.1.dm <- catFields(X.1.dm,Y.1.dm,demean=FALSE)
+xX.1.dm <- catFields(x.1.dm,xX.1.dm)
 eof.dc <- eof(xX.1.dm,mon=1)
 }
 # To read the data:

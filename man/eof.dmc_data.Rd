@@ -55,8 +55,8 @@ Y.1.dm<-retrieve.nc("/data1/hirham/T2M_203001-204912.nc",x.rng=c(5,25),
 Y.1.dm$yy <- Y.1.dm$yy + 50
 # It is important that demean=FALSE when concatinating the two time slices
 # from the model simulations, if a study of climate change is the objective.
-xX.1.dm <- cat.fields(X.1.dm,Y.1.dm,demean=FALSE)
-xX.1.dm <- cat.fields(x.1.dm,xX.1.dm)
+xX.1.dm <- catFields(X.1.dm,Y.1.dm,demean=FALSE)
+xX.1.dm <- catFields(x.1.dm,xX.1.dm)
 x.2.dm<-retrieve.nc("/data1/era15/ERA-15_slp.nc",x.rng=c(5,25),y.rng=c(58,65))
 X.2.dm<-retrieve.nc("/data1/hirham/PSL_198001-199912.nc",x.rng=c(5,25),
                     y.rng=c(58,65))
@@ -65,8 +65,8 @@ Y.2.dm<-retrieve.nc("/data1/hirham/PSL_203001-204912.nc",x.rng=c(5,25),
 Y.2.dm$yy <- Y.2.dm$yy + 50
 # It is important that demean=FALSE when concatinating the two time slices
 # from the model simulations, if a study of climate change is the objective.
-xX.2.dm <- cat.fields(X.2.dm,Y.2.dm,demean=FALSE)
-xX.2.dm <- cat.fields(x.2.dm,xX.2.dm)
+xX.2.dm <- catFields(X.2.dm,Y.2.dm,demean=FALSE)
+xX.2.dm <- catFields(x.2.dm,xX.2.dm)
 
 xX.dm <- mix.fields(xX.1.dm,xX.2.dm,mon=1)
 eof.dmc <- eof(xX.dm,mon=1)

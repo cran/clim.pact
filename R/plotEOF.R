@@ -30,7 +30,8 @@ title.2 <- "The fraction of variance accounted by the EOFs"
 title.3 <- paste("Principal component (",class(x)[2],")",sep="")
 i.last <- 0
 id <- row.names(table(id.x))
-par(ask=TRUE)
+#par(ask=TRUE)
+newFig()
 plot(c(floor(min(lon)),ceiling(max(lon))),
      c(floor(min(lat)),ceiling(max(lat))),
      type="n",main=title.1,
@@ -63,6 +64,7 @@ if (n.fld>1) legend(min(lon),max(lat),id,
 
 dev.copy2eps(file=paste("plotEOF_1.eps",sep=""))
 
+newFig()
 plot(100*(W+dW)^2/tot.var,main=title.2,type="n",
      ylab="Variance (%)",xlab="EOF order",
      sub=paste(f.name," (",c.mon,")"))
@@ -80,6 +82,7 @@ points(var.eof,pch=20,cex=0.8,col="darkgrey")
 grid()
 dev.copy2eps(file=paste("plotEOF_2.eps",sep=""))
 
+newFig()
 yymm<-yy + (mm-0.5)/12 + (dd-0.5)/365.25
 plot(yymm,PC[,i.eof],pch=20,cex=0.7,
      main=title.3,,col="grey70",

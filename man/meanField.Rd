@@ -3,12 +3,13 @@
 \alias{meanField}
 \title{Optimal interpolation}
 \description{.}
-\usage{meanField(x,lon.rng=NULL,lat.rng=NULL,t.rng=NULL)}
+\usage{meanField(x,lon.rng=NULL,lat.rng=NULL,t.rng=NULL,mon=NULL)}
 \arguments{
     \item{x}{A field object.}
     \item{lon.rng}{Extract the longitude interval.}
     \item{lat.rng}{Extract the latitude interval.}
     \item{t.rng}{Extract the time interval.}
+    \item{mon}{Month (1-12) or season (1-12) to extract if !is.null.}
  }
 \value{A map object}
 \author{R.E. Benestad}}

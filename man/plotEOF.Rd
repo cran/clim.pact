@@ -7,14 +7,16 @@
   EPS format under the current working directory: "plotEOF\_1.eps",
   "plotEOF\_2.eps" and "plotEOF\_3.eps" respectively.
 }
-\usage{plotEOF(x,i.eof=1,nlevs=5,sub=NULL,
-                   col=c("red","blue","darkgreen","steelblue"))}
+\usage{plotEOF(x,i.eof=1,nlevs=5,
+                   col=c("red","blue","darkgreen","steelblue")),
+                   main=NULL,sub=NULL)}
 \arguments{
     \item{x}{An \code{\link{EOF}} object.}
     \item{i.eof}{EOF to plot.}
     \item{nlevs}{Contour levels.}
-    \item{sub}{subtitle.}
     \item{col}{Colour.}
+    \item{main}{Preset main title (see \code{\link{plot}}).}
+    \item{sub}{subtitle}
     }
 \value{}
 \author{R.E. Benestad}}

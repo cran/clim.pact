@@ -14,29 +14,28 @@
 
 #------------------------------------------------------------------------
 
-
-map.eof <- function(x,i.eof=1,nlevs=5,add=FALSE,
+map.eof <- function(x,i.eof=1,nlevs=9,add=FALSE,
             col=c("red","blue","darkgreen","steelblue"),lwd=2,lty=1) {
 
-if (class(x)!= "eof") stop ("The argument must be an 'eof' object") 
+if (class(x)[1]!= "eof") stop ("The argument must be an 'eof' object") 
 
 attach(x)
 
-dims <- dim(EOF) 
-if (length(dims)==3) dim(EOF) <- c(dims[1],dims[2]*dims[3])
+dims <- dim(x$EOF) 
+if (length(dims)==3) dim(x$EOF) <- c(dims[1],dims[2]*dims[3])
 
 title.1 <- paste("EOF pattern #",i.eof,"(",class(x)[2],")",sep="")
 i.last <- 0
-id <- row.names(table(id.x))
+id <- row.names(table(x$id.x))
 if (!add) {
-  plot(c(floor(min(lon)),ceiling(max(lon))),
-     c(floor(min(lat)),ceiling(max(lat))),
+  plot(c(floor(min(lon)),ceiling(max(x$lon))),
+     c(floor(min(lat)),ceiling(max(x$lat))),
      type="n",main=title.1,
      sub=paste(x$f.name," (",c.mon,")"),
      xlab="Longitude",ylab="Latitude")
 }
 
-if (range(lon)[2]-range(lon)[1] > 360) {
+if (range(x$lon)[2]-range(x$lon)[1] > 360) {
   xy.cont <- COn0E65N(lon.cont, lat.cont)
   addland(lon=xy.cont$x,lat=xy.cont$y)
 } else addland()
@@ -45,20 +44,24 @@ grid()
 col.tab <- col[1:length(id)]
 neofs <- length(x$var)
 i.last <- 0
-for (i in 1:n.fld) {
-  i.fld <- seq(i.last+1,i.last+size[2,i]*size[3,i],by=1)
+for (i in 1:x$n.fld) {
+  #print(c(i,NA,x$size[,i],NA,i.last,NA,i.last+1,i.last+x$size[2,i]*x$size[3,i]))
+  i.fld <- seq(i.last+1,i.last+x$size[2,i]*x$size[3,i],by=1)
   i.last <- max(i.fld)
-  EOF.1 <- EOF[,i.fld]
-  dim(EOF.1)<-c(neofs,size[2,i],size[3,i])
+  EOF.1 <- x$EOF[,i.fld]
+  dim(EOF.1)<-c(neofs,x$size[2,i],x$size[3,i])
   eof.patt<-t(EOF.1[i.eof,,])
-  i.lon <- id.lon == id[i]
-  i.lat <- id.lat == id[i]
-  lon.x <- lon[i.lon]
-  lat.x <- lat[i.lat]
+  i.lon <- x$id.lon == id[i]
+  i.lat <- x$id.lat == id[i]
+  lon.x <- x$lon[i.lon]
+  lat.x <- x$lat[i.lat]
+  #print(summary(as.vector(eof.patt)))
+  #print(lon.x)
+  #print(lat.x)
   contour(lon.x,lat.x,eof.patt,
           nlevels=nlevs,add=TRUE,lwd=2,col=col.tab[i])
 }
-if ((n.fld>1) & (!add)) legend(min(lon),max(lat),id,
+if ((x$n.fld>1) & (!add)) legend(min(x$lon),max(x$lat),id,
              col=c(col.tab),lty=1,
              lwd=2,merge=TRUE, bg='gray95')
 
@@ -70,3 +73,5 @@ if ((n.fld>1) & (!add)) legend(min(lon),max(lat),id,
 
   class(results) <- c("map","eof")
 }
+
+

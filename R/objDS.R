@@ -108,7 +108,7 @@ legend(min(yymm.obs,yymm.gcm,na.rm=TRUE),
        max(y.obs,y.gcm,y.cal,na.rm=TRUE),
        c("Obs","Calibr.","Scenario"),col=c("black","grey30","blue"),
        pch=c(20,26,26),lty=c(3,2,1),lwd=c(1,2,1),bg="wheat",cex=0.8)
-dev.copy2eps(file=paste(outdir,"/plotDSobj_1.eps",sep=""))
+if (lower.case(options()$device)=="x11") dev.copy2eps(file=paste(outdir,"/plotDSobj_1.eps",sep=""))
 }
 # Residuals:
 
@@ -184,7 +184,7 @@ lines(brks,h.sep,col="magenta")
 lines(brks,h.oct,col="cyan")
 lines(brks,h.nov,col="wheat")
 lines(brks,h.dec,col="brown")
-dev.copy2eps(file=paste(outdir,"/plotDSobj_3.eps",sep="")) 
+if (lower.case(options()$device)=="x11") dev.copy2eps(file=paste(outdir,"/plotDSobj_3.eps",sep="")) 
 }
 
 rates <- c(result$Jan$rate.ds,result$Feb$rate.ds,result$Mar$rate.ds,
@@ -231,7 +231,7 @@ mtext("R-squared (%) from calibration regression",side=4,col="steelblue",cex=0.8
 points(1,max(rates+err),pch=20); text(3,max(rates+err),"5% sign.level")
 points(7,max(rates+err),pch=21); text(8,max(rates+err),"not sign.")
 
-dev.copy2eps(file=paste(outdir,"/plotDSobj_4.eps",sep="")) 
+if (lower.case(options()$device)=="x11") dev.copy2eps(file=paste(outdir,"/plotDSobj_4.eps",sep="")) 
 }
 }
 
@@ -254,11 +254,13 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
   x.mod[,1]<-cos(wy);   x.mod[,2]<-sin(wy)
   x.mod[,3]<-cos(2*wy); x.mod[,4]<-sin(2*wy)
   x.mod[,5]<-cos(3*wy); x.mod[,6]<-sin(3*wy)
+  x.mod[,7]<-cos(4*wy); x.mod[,8]<-sin(4*wy)
   wx <- 2*pi*seq(0,nx-1,by=1)/(nx-1)
   y.mod<-matrix(rep(NA,ny*nx),ny,nx)
   y.mod[1,]<-cos(wx);   y.mod[2,]<-sin(wx)
   y.mod[3,]<-cos(2*wx); y.mod[4,]<-sin(2*wx)
   y.mod[5,]<-cos(3*wx); y.mod[6,]<-sin(3*wx)
+  y.mod[7,]<-cos(4*wx); y.mod[8,]<-sin(4*wx)
   if (is.null(mon)) mon  <-  1:12
   
   result <- list(station=station)
@@ -269,6 +271,7 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
   for (imon in mon) {
     print(imon)
     cormap <- corField(field.obs,station,mon=imon)
+    if (lower.case(options()$device)=="x11") dev.copy2eps(file=paste(direc,"/cormap_",cmon[imon],".eps",sep=""))
 
     # Find optimal longitudes & latitudes:
     
@@ -276,11 +279,13 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     lonx <- 0.5*(field.obs$lon[2:nx]+field.obs$lon[1:(nx-1)])
     iy <- min( (1:ny)[station$lat <= field.obs$lat], na.rm=TRUE)
     ix <- min( (1:nx)[station$lon <= field.obs$lon], na.rm=TRUE)
-    largescale <- data.frame(y=as.vector(cormap$map[ix,]), X=x.mod)      
-    y.fit<-lm(y ~ X.1 + X.2 + X.3 + X.4 + X.5 + X.6,data=largescale)
-    largescale <- data.frame(y=as.vector(cormap$map[,iy]), X=t(y.mod))
+    yprof <- as.vector(cormap$map[ix,]); yprof[is.na(yprof)] <- 0
+    xprof <- as.vector(cormap$map[,iy]); xprof[is.na(xprof)] <- 0
+    largescale <- data.frame(y=yprof, X=x.mod)      
+    y.fit<-lm(y ~ X.1 + X.2 + X.3 + X.4 + X.5 + X.6 + X.7 + X.8,data=largescale)
+    largescale <- data.frame(y=xprof, X=t(y.mod))
     lsX <- data.frame(X=x.mod);  lsY <- data.frame(X=t(y.mod));
-    x.fit<-lm(y ~ X.1 + X.2 + X.3 + X.4 + X.5 + X.6,data=largescale)
+    x.fit<-lm(y ~ X.1 + X.2 + X.3 + X.4 + X.5 + X.6 + X.7 + X.8,data=largescale)
     yhat <- predict(y.fit,newdata=lsX); xhat <- predict(x.fit,newdata=lsY);
     yzero <- yhat[2:ny]*yhat[1:(ny-1)]; xzero <- xhat[2:nx]*xhat[1:(nx-1)]
     lonx <- lonx[xzero < 0]; latx <- latx[yzero < 0]
@@ -288,22 +293,22 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
                min(c(max(field.obs$lon),min(lonx[lonx > station$lon])), na.rm=TRUE))
     y.rng <- c(max(c(min(field.obs$lat),max(latx[latx < station$lat])), na.rm=TRUE),
                min(c(max(field.obs$lat),min(latx[latx > station$lat])), na.rm=TRUE))
-    
     if (plot) {
       plot(range(c(field.obs$lat,field.obs$lon)),range(cormap$map,na.rm=TRUE),type="n",
-           main="Finding optimal domain",xlab="deg N & deg E",
-           sub=paste(round(station$lon,2),"E/",round(station$lat,2),"N",sep=""))
+           main=paste("Finding optimal domain for",cmon[imon]),xlab="deg N & deg E",
+           sub=paste(round(field.obs$lon[ix],2),"E/",round(field.obs$lat[iy],2),"N",sep=""))
       grid()
       lines(range(c(field.obs$lat,field.obs$lon)),rep(0,2),lty=3)
-      points(field.obs$lat,as.vector(cormap$map[ix,]))
+      points(field.obs$lat,yprof)
       lines(field.obs$lat,as.numeric(yhat),lwd=2);
       lines(rep(y.rng[1],2),range(cormap$map,na.rm=TRUE),lty=2)
       lines(rep(y.rng[2],2),range(cormap$map,na.rm=TRUE),lty=2)
 
-      points(field.obs$lon,as.vector(cormap$map[,iy]),col="red",pch=20)
+      points(field.obs$lon,xprof,col="red",pch=20)
       lines(field.obs$lon,as.numeric(xhat),col="red",lwd=2)
       lines(rep(x.rng[1],2),range(cormap$map,na.rm=TRUE),lty=2,col="red")
       lines(rep(x.rng[2],2),range(cormap$map,na.rm=TRUE),lty=2,col="red")
+      if (lower.case(options()$device)=="x11") dev.copy2eps(file=paste(direc,"/objDS_",cmon[imon],"_1.eps",sep=""))
     }
     print("catFields:")
 #    print(">>> Check REB 11.02.2004!")

@@ -91,7 +91,7 @@ if (class(y)[1]=="station") {
   if ( (is.null(main)) & (class(y)[1]=="station") ) {
     main <- paste(descr,attributes(x$dat)$"long_name",
                   "using",y$ele,"at",y$location)
-  } else main <- paste(descr,attributes(x$dat)$"long_name")
+  } else if (is.null(main)) main <- paste(descr,attributes(x$dat)$"long_name")
   if (is.null(sub)) sub <- date
   filled.contour(x$lon,x$lat,t(map),
                  col = my.col,levels=z.levs,

@@ -24,6 +24,8 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
   tim.torg1 <- attr(field.1$tim,"time_origin")
   tim.unit2 <- attr(field.2$tim,"unit")
   tim.torg2 <- attr(field.2$tim,"time_origin")
+  if (is.null(tim.unit1)) tim.unit1<- "month"
+  if (is.null(tim.unit2)) tim.unit2<- "month"
   if (lower.case(substr(tim.unit1,1,3)) != lower.case(substr(tim.unit2,1,3))) {
     print(c(tim.unit1,tim.unit2))
     stop('The time units must match')
@@ -199,7 +201,7 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
   var.name <- paste(field.1$v.name,"&",field.2$v.name,sep="")
   result  <- list(dat=dat,lon=lon,lat=lat,tim=tim,v.name=var.name,
                   id.t=id.t,id.x=id.x,yy=yy,mm=mm,dd=dd,n.fld=field.1$n.fld,
-                  id.lon=field.1$id.lon,id.lat=field.1$id.lat)
+                  id.lon=field.1$id.lon,id.lat=field.1$id.lat,attributes=field.1$attributes)
   class(result) <- c(class(field.1),"cat.fields")
   invisible(result)
 }

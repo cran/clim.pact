@@ -1,37 +1,58 @@
 # Extracts a variable and a subregion from a netcdf File
 # Assumes a netCDF file with the structure:
 # field(tim,lat,lon)
-#
 # R.E. Benestad, 23.09.2003
+#
+# Modified 27.04.2004 to base the IO on the ncdf package instead of
+# netCDF (which is being phased out).
+#
 
 cdfextract <- function(filename,varname,x.rng=NULL,y.rng=NULL,t.rng=NULL,
                        greenwich=TRUE,x.nam="lon",y.nam="lat",t.nam="tim",
-                       plot=FALSE,l.scale=TRUE) {
+                       plot=TRUE,l.scale=TRUE) {
 
-  library(netCDF)
+#  library(netCDF)
+  library(ncdf)
 
   CDF <- cdfcont(filename)
   imatch <- (CDF$vars == varname)
   if (sum(imatch)>0) {
     lon <- NULL; lat <- NULL; tim <- NULL; lev <- NULL
-    ncid<-open.netCDF(filename)
-    dims <- attr(dim.netCDF(ncid),"names")
-    print(dims)
-    for (i in 1:length(dims)) {
-      if (lower.case(substr(dims[i],1,3))==x.nam) lon <- read.netCDF(ncid,name=dims[i])
-      if (lower.case(substr(dims[i],1,3))==y.nam) lat <- read.netCDF(ncid,name=dims[i])
-      if (lower.case(substr(dims[i],1,3))==t.nam) tim <- read.netCDF(ncid,name=dims[i])
+    dat.att <- cdfcont(filename)
+    ncid1 <- open.ncdf(filename)
+    v1 <- ncid1$var[[1]]
+    vars <- v1$name
+    nvars <-  ncid1$nvars
+    print(vars)
+    dims <- names(ncid1$dim)
+    vars <- names(ncid1$dim)
+    n.dim <- ncid1$ndims
+    d <- rep(0,nvars)
+    dat <- NULL
+    dat.att$unit <-v1$units
+
+    eval(parse(text=paste("lon <- ncid1$dim$",names(ncid1$dim)[1],"$vals",sep="")))
+    eval(parse(text=paste("lat <- ncid1$dim$",names(ncid1$dim)[2],"$vals",sep="")))
+    eval(parse(text=paste("tim <- ncid1$dim$",names(ncid1$dim)[3],"$vals",sep="")))
+    attr(lon,"unit") <- eval(parse(text=paste("ncid1$dim$",names(ncid1$dim)[1],"$units",sep="")))
+    attr(lat,"unit") <- eval(parse(text=paste("ncid1$dim$",names(ncid1$dim)[2],"$units",sep="")))
+    attr(tim,"time_origin") <- dat.att$torg
+    if (!is.null(dat.att$time.unit)) attr(tim,"unit") <- dat.att$time.unit else 
+     attr(tim,"unit") <-eval(parse(text=paste("ncid1$dim$",names(ncid1$dim)[itim],"$units",sep="")))     
+    if (n.dim==4) {
+      eval(parse(text=paste("lev <- ncid1$dim$",names(ncid1$dim)[3],"$vals",sep="")))
+      eval(parse(text=paste("tim <- ncid1$dim$",names(ncid1$dim)[4],"$vals",sep="")))
+      attr(lev,"unit") <- eval(parse(text=paste("ncid1$dim$",names(ncid1$dim)[3],"$units",sep="")))
+      attr(tim,"time_origin") <- dat.att$torg
+      attr(tim,"unit") <- eval(parse(text=paste("ncid1$dim$",names(ncid1$dim)[4],"$units",sep="")))
     }
 
-      t.unit <- NULL
-  if (!is.null(attributes(tim)$unit)) t.unit <- attributes(tim)$unit else
-    if (!is.null(attributes(tim)$units)) t.unit <- attributes(tim)$units
-  
-  print("Time information:")
-  if (!is.null(attributes(tim)$"time_origin")) {
-    torg <-  attributes(tim)$"time_origin"
-  } else torg <- NULL
-
+    print("Time information:")
+    if (!is.null(dat.att$time.origin)) {
+      torg <-  dat.att$time.origin
+    } else torg <- NULL
+ 
+  t.unit <- attr(tim,"unit")
   if (!is.null(torg)) {
     yy0 <- as.numeric(substr(torg,8,11))
     dd0 <- as.numeric(substr(torg,1,2))
@@ -115,11 +136,12 @@ cdfextract <- function(filename,varname,x.rng=NULL,y.rng=NULL,t.rng=NULL,
       iit <- 0
       for (it in t1:t2) {
         iit <- iit+1
-        datIN <- read.netCDF(ncid,name=varname,start=c(it-1,0,0),count=c(1,ny,nx))
-        dim(datIN) <- c(ny,nx)
-        dat[iit,,] <- datIN[iy,ix]
+        datIN <- get.var.ncdf(ncid1,v1,,start=c(1,1,it),count=c(nx,ny,1))
+        #print(c(dim(datIN),NA,nx,ny))
+        dim(datIN) <- c(nx,ny)
+        dat[iit,,] <- t(as.matrix(datIN[ix,iy]))
         if (plot) {
-          image(lon[isrtx],lat,t(datIN[,isrtx]),
+          image(lon[isrtx],lat,datIN[isrtx,],
                 main=paste(yy[it],"-",mm[it],"-",dd[it]),sub=filename)
           contour(lonx,lat[iy],t(dat[iit,,iisrtx]),add=TRUE)
           lines(c(min(lonx),rep(max(lonx),2),rep(min(lonx),2)),
@@ -133,21 +155,27 @@ cdfextract <- function(filename,varname,x.rng=NULL,y.rng=NULL,t.rng=NULL,
        print("cdfextract does not yet know how to handle 4 dimensions ... Sorry!")
        return()
     }   
-    close.netCDF(ncid)
-    dat.att <- attributes(datIN)
+    close.ncdf(ncid1)
 
-    if ((l.scale) & !is.null(attributes(datIN)$"scale_factor")) {
-    dat <- dat * dat.att$"scale_factor"
+#print("<-------- Scale and determine time stamp...")
+#print(dat.att)
+
+    if ((l.scale) & !is.null(dat.att$scale.factor)) {
+    dat <- dat * dat.att$scale.factor
   }
   # Have included a sanity test to detect an old 'bug': offset 273 and
   # units of deg C..
-  if ( ((l.scale) & !is.null(attributes(datIN)$"add_offset"))) {
-      if ( (dat.att$"add_offset"!=273) &
-           (dat.att$"unit"=="deg C")) {
+print("Old bug fix")
+
+  if ( ((l.scale) & !is.null(dat.att$add.offset))) {
+      if ( (dat.att$add.offset!=273) &
+           (dat.att$unit=="deg C")) {
         a <- readline(prompt="Correct an old bug? (y/n)")
-        if (lower.case(a)=="y") dat <- dat + dat.att$"add_offset"} else
-        dat <- dat + dat.att$"add_offset"
+        if (lower.case(a)=="y") dat <- dat + dat.att$add.offset} else
+        dat <- dat + dat.att$add.offset
   }
+
+print("Set ID")
 
   eos <- nchar(varname)
   if (instring("-",varname)> 0) {
@@ -158,21 +186,23 @@ cdfextract <- function(filename,varname,x.rng=NULL,y.rng=NULL,t.rng=NULL,
   varname <- substr(varname,1,eos)
   slash <- instring("/",filename)
   dot <- instring(".",filename)
+  lon <- lon[ix]; lat <- lat[iy]; tim <- tim[t1:t2]
+  isrtx <- order(lon)
+  lon <- lon[isrtx]; dat <- dat[,,isrtx]
+  nt <- length(tim); ny <- length(lat); nx <- length(lon); nz <- length(lev)
   id.x <- matrix(rep(varname,ny*nx),ny,nx)
   id.t <- rep(substr(filename,slash[length(slash)]+1,
                      dot[length(dot)]-1),nt)              
     
 ###    
+print("Set coordinates")
 
-    lon <- lon[ix]; lat <- lat[iy]; tim <- tim[t1:t2]
-    isrtx <- order(lon)
-    lon <- lon[isrtx]; dat <- dat[,,isrtx]
     if (length(tim[t1:t2])>1) {
       results  <- list(dat=dat,lon=lon,lat=lat,tim=tim,lev=lev,
                        v.name=varname,id.x=id.x,id.t=id.t,
                        yy=yy[t1:t2],mm=mm[t1:t2],dd=dd[t1:t2],n.fld=1,
-                       id.lon=NULL,id.lat=NULL,
-                       attributes=attributes(dat))
+                       id.lon=rep(varname,nx),id.lat=rep(varname,ny),
+                       attributes=dat.att)
       class(results) <- c("field",obj.type)
     } else if (length(tim[t1:t2])==1) {
       results  <- list(map=t(dat),lon=lon,lat=lat,tim=tim,

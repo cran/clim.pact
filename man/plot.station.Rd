@@ -9,7 +9,8 @@
 }
 \usage{plotStation(obs,l.anom=TRUE,mon=NULL,
                         leps=FALSE,out.dir="output",what="b",trend=TRUE,
-                        type="l",pch=26,col="black",lwd=3,lty=3,add=FALSE)}
+                        type="l",pch=26,col="black",lwd=3,lty=3,add=FALSE,
+                        main=NULL,sub=NULL,xlab=NULL,ylab=NULL)}
 
 \arguments{
   \item{obs}{A climate station series. }
@@ -25,7 +26,12 @@
   \item{col}{colour, same as in \code{link{plot}}.}
   \item{lwd}{line width, same as in \code{link{plot}}.}
   \item{lty}{line type, same as in \code{link{plot}}.}
-  \item{add}{TRUE adds a time series to previous  (see \code{link{grd.box.ts}}).}
+  \item{add}{TRUE adds a time series to previous  (see
+  \code{link{grd.box.ts}}).}
+  \item{main}{Preset main title (see \code{\link{plot}}).}
+  \item{sub}{subtitle}
+  \item{xlab}{x label}
+  \item{ylab}{y label}
 }
 \value{a <- list of "monthly.station.record" class:
   \tabular{ll}{

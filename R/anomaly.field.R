@@ -1,8 +1,8 @@
 # R.E. Benestad
 
 anomaly.field <- function(x,period=NULL) {
-  if ((class(x)!="monthly.field.object") & (class(x)!="field.object") &
-      (class(x)!="daily.field.object") & (class(x)!="field")) {
+  if ((class(x)[2]!="monthly.field.object") & (class(x)[2]!="field.object") &
+      (class(x)[2]!="daily.field.object") & (class(x)[1]!="field")) {
       stop("Need a field.object") }
   nx <- length(x$lon)
   ny <- length(x$lat)

@@ -23,7 +23,7 @@ library(ts)
 library(ctest)
 #library(chron)
 #library(date)
-library(xtable)
+#library(xtable)
 
 dir.0<-getwd()
 if (!file.exists(direc)){
@@ -601,44 +601,44 @@ print(preds$c.mon)
 print(attr(preds$tim,"unit"))
 print(method)
 
-if ((method!="nnet") & (method!= "anm") & lsave) {
-
-print("Make LaTeX & HTML tables of model")  
-mod.name<-paste(direc,"ds.mod_",preds.id,"_",region,"_",
-             substr(dat$location,1,eos),"_",dat$ele,"_",preds$c.mon,'_',
-             substr(attr(preds$tim,"unit"),1,3),"_",method,
-             ex.tag,sep="")
-mod.tab <- xtable(step.wise,
-                  caption=paste("Calibration period: ",month,
-                  " ",range(yy.cal)[1],"-",range(yy.cal)[2],
-                    " using ",preds$id.t[cal.id],sep=""))
-print("Save LaTeX & HTML tables of model")  
-print.xtable(mod.tab,type="latex",
-             file=paste(mod.name,".tex",sep=""))
-print.xtable(mod.tab,type="html",
-             file=paste(mod.name,".html",sep=""))
-}
-
-print("Make LaTeX & HTML tables of downscaled results")
+#if ((method!="nnet") & (method!= "anm") & lsave) {
+#
+#print("Make LaTeX & HTML tables of model")  
+#mod.name<-paste(direc,"ds.mod_",preds.id,"_",region,"_",
+#             substr(dat$location,1,eos),"_",dat$ele,"_",preds$c.mon,'_',
+#             substr(attr(preds$tim,"unit"),1,3),"_",method,
+#             ex.tag,sep="")
+#mod.tab <- xtable(step.wise,
+#                  caption=paste("Calibration period: ",month,
+#                  " ",range(yy.cal)[1],"-",range(yy.cal)[2],
+#                    " using ",preds$id.t[cal.id],sep=""))
+#print("Save LaTeX & HTML tables of model")  
+#print.xtable(mod.tab,type="latex",
+#             file=paste(mod.name,".tex",sep=""))
+#print.xtable(mod.tab,type="html",
+#             file=paste(mod.name,".html",sep=""))
+#}
+#
+#print("Make LaTeX & HTML tables of downscaled results")
 sce.name<-paste(direc,"ds.res_",preds.id,"_",region,"_",
              substr(dat$location,1,eos),"_",dat$ele,"_",preds$c.mon,'_',
              substr(attr(preds$tim,"unit"),1,3),"_",method,
              ex.tag,sep="")
+#
+#scen.table<-xtable(data.frame(year=as.vector(yy.gcm),
+#                              downscaled=round(pre.gcm,2)),
+#                   caption=paste("Linear trend=",rate.ds,
+#                     ds.unit,"/decade over ",month," ",
+#                     range(yy.gcm)[1],"-",range(yy.gcm)[2],
+#                     " using",preds$id.t[preds$id.t!=cal.id][1],
+#                     "; p-value for linear trend-fit=",
+#                     gcm.trnd.p,"%.",sep=""))
 
-scen.table<-xtable(data.frame(year=as.vector(yy.gcm),
-                              downscaled=round(pre.gcm,2)),
-                   caption=paste("Linear trend=",rate.ds,
-                     ds.unit,"/decade over ",month," ",
-                     range(yy.gcm)[1],"-",range(yy.gcm)[2],
-                     " using",preds$id.t[preds$id.t!=cal.id][1],
-                     "; p-value for linear trend-fit=",
-                     gcm.trnd.p,"%.",sep=""))
-
-if (lsave) {
-  print("Save LaTeX & HTML tables of downscaled results")
-  print.xtable(scen.table,type="html",
-           file=paste(sce.name,".html",sep=""))
-}
+#if (lsave) {
+#  print("Save LaTeX & HTML tables of downscaled results")
+#  print.xtable(scen.table,type="html",
+#           file=paste(sce.name,".html",sep=""))
+#}
 
 pred.name <- row.names(table(preds$id.x))
 list.expr <- paste(list.expr,

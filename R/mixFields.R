@@ -121,7 +121,7 @@ mixFields <- function(field.1,field.2,mon=NULL,
   result  <- list(dat=field.mxf,lon=lon,lat=lat,tim=tim,v.name=var.name,
                   id.t=id.t,id.x=id.x,yy=yy,mm=mm,dd=dd,
                   n.fld=field.1$n.fld+field.2$n.fld,
-                  id.lon=id.lon,id.lat=id.lat)
+                  id.lon=id.lon,id.lat=id.lat,,attributes=field.1$attributes)
   class(result) <- c(class(field.1),"mix.fields")
   invisible(result)
 }

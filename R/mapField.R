@@ -14,7 +14,7 @@ mapField <- function(x,l=NULL,greenwich=TRUE,
   nt <- length(x$tim)
   clim <- x$dat[l,,]
   dd.rng <- range(x$dd)
-  if (is.null(attr(x$tim,"units"))) attr(x$tim,"units") <- "unknown"
+  if (is.null(attr(x$tim,"units"))) attr(x$tim,"units") <- x$attributes$time.unit
   if ( (lower.case(substr(attr(x$tim,"units"),1,5))=="month") |
        ((dd.rng[2]-dd.rng[1]<4) & (x$mm[2]-x$mm[1]>0)) ) {
     it <- mod(1:nt,12)==mod(l,12)
@@ -99,10 +99,12 @@ mapField <- function(x,l=NULL,greenwich=TRUE,
                   c(c(rep(1,21),seq(1,0,length=20))))
   }
   if ((!add) & (method!="nice")) {
+        newFig()
         image(x$lon,x$lat,t(map),levels=seq(nn,xx,length=101),
         main=paste(attributes(x$dat)$"long_name",descr),
         sub=date,xlab="Longitude",ylab="Latitude")
        } else if (!add) {
+         newFig()
          filled.contour(x$lon,x$lat,t(map),
                         col = my.col,levels=z.levs,
                         main=paste(attributes(x$dat)$"long_name",descr),

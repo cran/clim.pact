@@ -19,9 +19,16 @@ station.obj <- function(x,yy,obs.name,unit,ele=NULL,mm=NULL,
   yrs <- as.numeric(row.names(yrs))
 #  print(table(yy))
 #  print(table(mm))
-#  print(c(mm[1],mm[length(mm)]))  
+#  print(c(mm[1],mm[length(mm)],ny))  
 #  print(yrs)
-  
+
+#x11()
+#plot(c(1,12),c(260,295),type="n")
+#grid()
+#col<-c("black","red","blue","green","darkred","darkblue","darkgreen","grey30")
+#lwd <- c(2,rep(1,7),2)
+
+#if (!is.null(mm)) print(paste("First month:",mm[1]," - last month:",mm[length(mm)]))  
   if (is.vector(x)) {
 #    print("Vector")
     if (length(x)==length(yy)) {
@@ -29,16 +36,22 @@ station.obj <- function(x,yy,obs.name,unit,ele=NULL,mm=NULL,
       for (i in 1:ny) {
         x.i <- x[yy==yrs[i]]
         m.i <- mm[yy==yrs[i]]
-#        print(c(m.i,x.i))
+ #       print(rbind(c(i,NA,m.i),c(yrs[i],NA,x.i)))
         x.2D[i,m.i] <- x.i
+ #       lines(as.vector(x.2D[i,]),col=col[i],lwd=lwd[i])
+ #       points(as.vector(x.2D[i,]),col=col[i],pch=20)
       }
+    } else {
+      print(paste("Different lengths: x->",length(x),
+                  "    yy->",length(yy)))
+      stop("Error: time stamp doesn't agree with data")
     }
     x <- x.2D
     yy <- yrs
     rm(x.2D,yrs)
   }
 
-#  print("Make list")
+  #print("Make list")
   station.obj<-list(val=x,yy=yy,station=station,
                     lat=lat,lon=lon,alt=alt,
                     x.0E65N=xy$x,y.0E65N=xy$y,

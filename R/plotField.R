@@ -1,6 +1,7 @@
 plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
                       col="black",col.coast="grey",lty=1,lwd=1,what="ano",
-                      type="s",pch=26,my.col=NULL,add=FALSE) {
+                      type="s",pch=26,my.col=NULL,add=FALSE,
+                      main=NULL,sub=NULL,xlab=NULL,ylab=NULL) {
 
   if ((class(x)[1]!="field") & (class(x)[1]!="monthly.field.object") &
       (class(x)[1]!="daily.field.object")){
@@ -98,7 +99,8 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
   if (!is.null(lon) & !is.null(lat)) {
 #    print("plotField: Time-series")
     results <- grd.box.ts(x,lon,lat,what=what,col=col,
-                          lty=lty,lwd=lwd,pch=pch,type=type,add=add)
+                          lty=lty,lwd=lwd,pch=pch,type=type,add=add,
+                          main=main,sub=sub,xlab=xlab,ylab=ylab)
 #    Z <- results$t2m
     time.ts <- TRUE
 #    print("Now, try to exit this...")
@@ -143,7 +145,8 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
                               "cli"=clim,
                               "abs"=Z)
  
-
+   if (is.null(main)) main <-  paste(attributes(x$dat)$"long_name")
+   if (is.null(sub)) sub <- date
     
     if (is.null(val.rng)) {
       z.levs <- seq(min(abs(as.vector(Z)),na.rm=TRUE),
@@ -155,8 +158,7 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
                                        c(c(rep(1,11),seq(1,0,length=10))))
     filled.contour(X,Y,Z,
                    col = my.col,levels=z.levs,
-                   main=paste(attributes(x$dat)$"long_name"),
-                   sub=date,xlab=xlab,ylab=ylab)
+                   main=main,sub=sub,xlab=xlab,ylab=ylab)
 
 # From filled.contour in base
     mar.orig <- (par.orig <- par(c("mar","las","mfrow")))$mar

@@ -1,102 +1,87 @@
 # R.E. Benestad, met.no, Oslo, Norway 16.04.2002
 # rasmus.benestad@met.no
+#
+# Modified 27.04.2004 to base the IO on the ncdf package instead of
+# netCDF (which is being phased out).
 #------------------------------------------------------------------------
 
 
-retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
+retrieve.nc <- function(filename="data/ncep_t2m.nc",v.nam="AUTO",
                         l.scale=TRUE,greenwich=TRUE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,t.rng=NULL,force.chron=TRUE) {
-  library(netCDF)
-#  library(chron)
-#  library(date)
-  if (!file.exists(f.name)) {
-    stop(paste("Sorry,",f.name," does not exist!"))
+  library(ncdf)
+  if (!file.exists(filename)) {
+    stop(paste("Sorry,",filename," does not exist!"))
   }
-  ncid1<-open.netCDF(f.name)
-  data <- read.netCDF(ncid1)
-  close.netCDF(ncid1)
-  vars <- names(data)
-  nvars <- length(vars)
-  n.dim <- 3
-  if (length(grep(z.nam,lower.case(substr(vars,1,3))))==1) {
+
+  dat.att <- cdfcont(filename)
+  ncid1 <- open.ncdf(filename)
+  if (v.nam=="AUTO") {
+    v1 <- ncid1$var
+    n.vars <- length(v1)
+    if (n.vars==1) v1 <- v1[[1]] else {
+      ipick<-0
+      for (i in seq(n.vars,1,by=-1)) {
+        if (v1[[i]]$ndim==3) ipick <- i
+      }
+      if (ipick > 0) v1 <- v1[[ipick]] else {
+         print("Tip: use open.ncdf to read the data manually")
+         print(names(v1))
+         print(dat.att)
+         stop("Error: did'n find a variable with 3D")
+      }
+    }
+  } else {
+    v1 <- ncid1$var
+    vars <- names(v1)
+    ipick <- grep(v.nam,vars)
+    if (length(ipick)==0) {
+      print(vars)
+      ipick <- as.numeric(readline(paste("Choose variable (1 - ",length(vars),"): ",sep="")))
+    }
+    v1 <- ncid1$var[[ipick]]
+  }
+  data <- get.var.ncdf(ncid1,v1)
+  close.ncdf(ncid1)
+  vars <- v1$name
+  nvars <-  ncid1$nvars
+  print(paste("Reading",vars))
+  v.nam <- v1$longname
+  dims <- names(ncid1$dim)
+  vars <- names(ncid1$dim)
+  n.dim <- ncid1$ndims
+  d <- rep(0,nvars)
+  dat <- NULL
+
+  ilon <- grep("lon",lower.case(names(ncid1$dim)))
+  ilat <- grep("lat",lower.case(names(ncid1$dim)))
+  itim <- grep("tim",lower.case(names(ncid1$dim)))
+  ilev <- grep("lev",lower.case(names(ncid1$dim)))
+  #print(c(ilon,ilat,itim))
+
+  eval(parse(text=paste("lon <- ncid1$dim$",names(ncid1$dim)[ilon],"$vals",sep="")))
+  eval(parse(text=paste("lat <- ncid1$dim$",names(ncid1$dim)[ilat],"$vals",sep="")))
+  eval(parse(text=paste("tim <- ncid1$dim$",names(ncid1$dim)[itim],"$vals",sep="")))
+  attr(lon,"unit") <- eval(parse(text=paste("ncid1$dim$",names(ncid1$dim)[ilon],"$units",sep="")))
+  attr(lat,"unit") <- eval(parse(text=paste("ncid1$dim$",names(ncid1$dim)[ilat],"$units",sep="")))
+  attr(tim,"time_origin") <- dat.att$time.origin
+  if (!is.null(dat.att$time.unit)) attr(tim,"unit") <- dat.att$time.unit else 
+    attr(tim,"unit") <- eval(parse(text=paste("ncid1$dim$",names(ncid1$dim)[itim],"$units",sep="")))
+   
+  if (length(ilev)>0) {
+    eval(parse(text=paste("lev <- ncid1$dim$",names(ncid1$dim)[ilev],"$vals",sep="")))
+    attr(lev,"unit") <- eval(parse(text=paste("ncid1$dim$",names(ncid1$dim)[ilev],"$units",sep="")))
     n.dim <- 4
   } else {
     lev <- NULL
-    nz <- 0
+    n.dim <- 3
   }
-  d <- rep(0,nvars)
-  dat <- NULL
-  
-#  print("Searching for variables")
-  for (i in 1:nvars) {
-      expr <- parse(text=paste("dim(data$'",vars[i],"')",sep=""))
-      size <- eval(expr)
-
-      expr <- parse(text=paste("lon <- data$'",vars[i],"'",sep=""))
-      if (lower.case(substr(vars[i],1,nchar(x.nam)))==lower.case(x.nam) &
-          (length(size)==1)) {
-        eval(expr)
-      }
-      expr <- parse(text=paste("lat <- data$'",vars[i],"'",sep=""))
-      if (lower.case(substr(vars[i],1,nchar(y.nam)))==lower.case(y.nam) &
-          (length(size)==1)) {
-        eval(expr)
-      }
-      expr <- parse(text=paste("tim <- data$'",vars[i],"'",sep=""))
-      if (lower.case(substr(vars[i],1,nchar(t.nam)))==lower.case(t.nam) &
-          (length(size)==1)) {
-        eval(expr)
-#        print(paste("length(tim)=",length(tim)))
-      }
-
-      if (n.dim==4) {
-        expr <- parse(text=paste("lev <- data$'",vars[i],"'",sep=""))
-        if (lower.case(substr(vars[i],1,nchar(z.nam)))==lower.case(z.nam) &
-          (length(size)==1)) {
-          eval(expr)
-        }
-      }
-#      print(paste('dim(data$',vars[i],')',sep=""))
-#      print(size)
-      expr <- parse(text=paste("dat <- data$'",vars[i],"'",sep=""))
-      if ((lower.case(substr(vars[i],1,nchar(v.nam)))==lower.case(v.nam)) &
-          (is.null(dat))) {
-        eval(expr)
-        if (n.dim==3) print(paste("Data:",vars[i]," dim:",
-                       dim(dat)[1],"x",dim(dat)[2],"x",dim(dat)[3])) else
-                      print(paste("Data:",vars[i]," dim:",
-                         dim(dat)[1],"x",dim(dat)[2],"x",
-                                  dim(dat)[3],"x",dim(dat)[4]))
-      } else if ((length(size)==n.dim) & (v.nam=="AUTO")) {
-        eval(expr)
-        v.nam <- vars[i]
-        print(paste("Data:",v.nam," dim:",
-                    dim(dat)[1],"x",dim(dat)[2],"x",dim(dat)[3]))
-      } else if (v.nam=="ASK") {
-          print(vars)
-          i.var <- as.numeric(readline(prompt=
-                   paste("Select data variable (1-",nvars,"): ",sep="")))
-          print(paste("dat <- data$",vars[i.var],sep=""))
-          expr <- parse(text=paste("dat <- data$'",vars[i.var],"'",sep=""))
-          eval(expr)
-          v.nam <- vars[i.var]
-          print(paste("Data:",v.nam," dim:",
-                dim(dat)[1],"x",dim(dat)[2],"x",dim(dat)[3]))
-      } 
-  }
-
-  if (is.null(dat)) {
-    print("Did not find the data")
-    print(vars)
-    print("Try the option v.nam='ASK'")
-    return()
-  }
-#  print("Found all variables")
-  nx <- length(lon)
-  ny <- length(lat)
-  nt <- length(tim)
-  dat.att <- attributes(dat)
+ # Re-order the data: (old convention)
+  nt <- length(tim); ny <- length(lat); nx <- length(lon)
+  #print(c(nt,ny,nx,NA,dim(data)))
+  dat <- data*NA; dim(dat) <- c(nt,ny,nx)
+  for (i in 1:nt) dat[i,,] <- t(as.matrix(data[,,i]))
   
   cmon<-c('Jan','Feb','Mar','Apr','May','Jun',
           'Jul','Aug','Sep','Oct','Nov','Dec')
@@ -125,13 +110,12 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
     attributes(tim) <- tim.att
 #    print("continue...")
   }
-  t.unit <- NULL
-  if (!is.null(attributes(tim)$unit)) t.unit <- attributes(tim)$unit else
-    if (!is.null(attributes(tim)$units)) t.unit <- attributes(tim)$units
-  
-  print("Time information:")
-  if (!is.null(attributes(tim)$"time_origin")) {
-    torg <-  attributes(tim)$"time_origin"
+
+  t.unit <- attr(tim,"unit")
+  dat.att$unit <-v1$units
+
+  if (!is.null(dat.att$time.origin)) {
+    torg <-  dat.att$time.origin
   } else torg <- NULL
 
   if (!is.null(torg)) {
@@ -160,37 +144,45 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
     print("year0 is set to 1, and 365 days is subtracted from tim")
     if (substr(lower.case(t.unit),1,4)=="hour") tim <- tim - 365*24
     if (substr(lower.case(t.unit),1,3)=="day") tim <- tim - 365
-    if (substr(lower.case(t.unit),1,5)=="month") tim <- tim - 12
+    if (substr(lower.case(t.unit),1,3)=="mon") tim <- tim - 12
     if (substr(lower.case(t.unit),1,5)=="year") tim <- tim - 1
     yy0 <- 1
   }
-  print(c(mm0,dd0,yy0))
 
   print(paste("Time unit:",lower.case(t.unit)))
-  if (substr(lower.case(t.unit),1,5)=="month") {
+  if (substr(lower.case(t.unit),1,3)=="mon") {
     tim <- floor(tim)
     mm <- mod(mm0 + tim - 1,12)+1
     yy  <- yy0 + floor((tim+mm0-1)/12)
     dd <- rep(15,length(tim))
     obj.type <- "monthly.field.object"
   } else if (substr(lower.case(t.unit),1,3)=="day") {
-#    mmddyy<-month.day.year(tim,origin=c(mm0,dd0,yy0))
-#    mmddyy <- date.mdy(tim + mdy.date(mm0,dd0,yy0,nineteen=FALSE), weekday = FALSE)
     mmddyy <- caldat(tim + julday(mm0,dd0,yy0))
     mm <- mmddyy$month
     yy <- mmddyy$year
     dd <- mmddyy$day
     obj.type <- "daily.field.object"
   } else if (substr(lower.case(t.unit),1,4)=="hour") {
-#    mmddyy<-month.day.year(tim/24,origin=c(mm0,dd0,yy0))
-#    mmddyy <- date.mdy(tim/24 + mdy.date(mm0,dd0,yy0,nineteen=FALSE),weekday = FALSE)
     mmddyy <- caldat(tim/24 + julday(mm0,dd0,yy0))
     mm <- mmddyy$month
     yy <- mmddyy$year
     dd <- mmddyy$day
     t.unit <- "day"
     obj.type <- "field.object"
-  }
+  } 
+  
+# Extra processing for NCEP files e.g. with Time unit: hours since 1-1-1 00:00:0.0.
+  if ( ((substr(lower.case(t.unit),1,4)=="hour") |
+        (substr(lower.case(t.unit),1,3)=="day")) &
+       (max(diff(dd)) == 0) ) {
+    print("Monthly data, but time unit set to 'hour'/'day'")
+    print("Set time unit to month")
+    obj.type <- "monthly.field.object"
+    dd[] <- 15
+    t.unit <- "month"
+}
+
+
 #  print("Latitude:")
   if (attributes(lat)$"unit"=="degrees_south") lat <- lat * -1
   if (attributes(lon)$"unit"=="degrees_west") lon <- lon * -1
@@ -230,10 +222,10 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
     t.keep <- (yy >= min(t.rng)) & (yy <= max(t.rng))
     if (n.dim==3) dat <- dat[t.keep,,] else
                   dat <- dat[t.keep,,,]
-    torg <- attr(tim,"time_origin")
+    torg <- attr(tim,"time.origin")
     tunit <- attr(tim,"unit")
     tim <- tim[t.keep]
-    attr(tim,"time_origin") <- torg
+    attr(tim,"time.origin") <- torg
     attr(tim,"unit") <- tunit
     yy <- yy[t.keep]
     mm <- mm[t.keep]
@@ -243,34 +235,34 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
   print(paste("First & last records:",yy[1],mm[1],dd[1],
               "&",yy[length(yy)],mm[length(mm)],dd[length(dd)]))
   
-#  print(attributes(dat)$"scale_factor")
-#  print(attributes(dat)$"add_offset")
-#  print(attributes(dat)$"unit")
+#  print(dat.att$scale.factor)
+#  print(dat.att$add.offset)
+#  print(dat.att$unit)
 
 #  print(dat.att)
-  if ((l.scale) & !is.null(attributes(dat)$"scale_factor")) {
-    dat <- dat * dat.att$"scale_factor"
+  if ((l.scale) & !is.null(dat.att$scale.factor)) {
+     if (is.finite(dat.att$scale.factor)) dat <- dat * dat.att$scale.factor
   }
   # Have included a sanity test to detect an old 'bug': offset 273 and
   # units of deg C..
-  if ( ((l.scale) & !is.null(attributes(dat)$"add_offset"))) {
-      if ( (dat.att$"add_offset"!=273) &
-           (dat.att$"unit"=="deg C")) {
+  if ( ((l.scale) & !is.null(dat.att$add.offset))) {
+      if ( (dat.att$add.offset!=273) &
+           (dat.att$unit=="deg C")) {
         a <- readline(prompt="Correct an old bug? (y/n)")
-        if (lower.case(a)=="y") dat <- dat + dat.att$"add_offset"} else
-        dat <- dat + dat.att$"add_offset"
+        if (lower.case(a)=="y") dat <- dat + dat.att$add.offset} else
+        if (is.finite(dat.att$add.offset)) dat <- dat + dat.att$add.offset
   }
   if (l.scale) {   
     print("BEFORE scale adjustment & weeding")
     print(summary(as.vector(dat)))
-    dat[dat == dat.att$"missing_value"] <- NA
+    dat[dat == dat.att$missing.value] <- NA
     if (sum(is.na(dat))>0) print(paste(sum(is.na(dat)),"of",length(dat),
                                  " are set to 'NA'"))
       print("AFTER scale adjustment & weeding")
   }
 
   if (!is.null(dat.att$units)) {
-     dat.att$unit <- dat.att$units
+     if (is.finite(dat.att$units)) dat.att$unit <- dat.att$units
   } 
   if ((dat.att$unit=="K") | (dat.att$unit=="Kelvin") |
       (dat.att$unit=="degrees Kelvin") |
@@ -296,10 +288,10 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
   }
   v.nam <- substr(v.nam,1,eos)
   id.x <- matrix(rep(v.nam,ny*nx),ny,nx)
-  slash <- instring("/",f.name)
-  dot <- instring(".",f.name)
+  slash <- instring("/",filename)
+  dot <- instring(".",filename)
 
-  id.t <- rep(substr(f.name,slash[length(slash)]+1,
+  id.t <- rep(substr(filename,slash[length(slash)]+1,
                      dot[length(dot)]-1),nt)              
   dat.att$time.unit <- t.unit
   dat.att$time.origin <- torg

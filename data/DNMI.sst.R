@@ -1,3 +1,3 @@
-load("eof_DNMI_slp.Rdata")
-DNMI.slp <- EOF2field(eof)
+load("eof_DNMI_sst.Rdata")
+DNMI.sst <- EOF2field(eof)
 

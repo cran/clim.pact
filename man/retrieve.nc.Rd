@@ -4,14 +4,17 @@
 \title{Retrieve data from a netCDF file}
 \description{Reads a netCDF file and picks out vectors that look like
   lngitude, latitude and time. Returns the first 3-D field in the file.
-  See also \code{\link{cdfextract}} (large data files).}
-\usage{retrieve.nc(f.name="data/ncep_t2m.nc",v.nam="AUTO",
+  See also \code{\link{cdfextract}} (large data files). 
+
+This version uses \code{\link{cdfcont}} to obtain vital meta data for
+handling the data in the netCDF file and constructing a 'field' object.}
+\usage{retrieve.nc(filename="data/ncep_t2m.nc",v.nam="AUTO",
                         l.scale=TRUE,greenwich=TRUE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,t.rng=NULL,force.chron=TRUE)
 }
 \arguments{
-    \item{f.name}{name of netCDF file.}
+    \item{filename}{name of netCDF file.}
     \item{v.nam}{name of variable. "AUTO" -> smart search.}
     \item{l.scale}{'TRUE' uses scaling.factor and add.offset.}
     \item{greenwich}{'TRUE' centres maps on Greenwhich meridian (0 deg E).}

@@ -1,11 +1,14 @@
 \name{map.eof}
 \alias{map.eof}
+\alias{mapEOF}
 \title{Map eof}
 \description{Draws maps of the spatial structures described by the EOF
   (\code{\link{EOF}} patterns. Is similar to \code{\link{plotEOF}}, but
   only plots the spatial information. Useful for comparing the spatial
   patterns in different EOFs.} 
-\usage{map.eof(x,i.eof=1,nlevs=5,add=FALSE,
+\usage{map.eof(x,i.eof=1,nlevs=9,add=FALSE,
+            col=c("red","blue","darkgreen","steelblue"),lwd=2,lty=1)
+       mapEOF(x,i.eof=1,nlevs=5,add=FALSE,
             col=c("red","blue","darkgreen","steelblue"),lwd=2,lty=1)}
 \arguments{
     \item{x}{ A field object. }

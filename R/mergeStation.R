@@ -23,8 +23,8 @@ ny.1 <- length(x.1$yy)
 ny.2 <- length(x.2$yy)
 y.1 <- t(x.1$val)
 y.2 <- t(x.2$val)
-dim(y.1) <- c(12*ny.1)
-dim(y.2) <- c(12*ny.2)
+dim(y.1) <- c(12*ny.1); y.1 <- as.vector(y.1)
+dim(y.2) <- c(12*ny.2); y.2 <- as.vector(y.2)
 y.1[y.1 <= -999] <- NA
 y.2[y.2 <= -999] <- NA
 yymm.1 <- sort(rep(x.1$yy,12)) + (rep(1:12,ny.1)-0.5)/12

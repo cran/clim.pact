@@ -3,10 +3,13 @@
 \title{Extract a subfield from a netCDF file.}
 \description{A slow routine that extraxcts a subfield. This routine is
   suitable for reading subsections of large data files that are too big
-  for \code{\link{retrieve.nc}}.}
+  for \code{\link{retrieve.nc}}. 
+
+This version uses \code{\link{cdfcont}} to obtain vital meta data for
+handling the data in the netCDF file and constructing a 'field' object.}
 \usage{cdfextract(filename,varname,x.rng=NULL,y.rng=NULL,t.rng=NULL,
-                  greenwich=TRUE,x.nam="lon",y.nam="lat",t.nam="tim",
-                       plot=FALSE,l.scale=TRUE)}
+                       greenwich=TRUE,x.nam="lon",y.nam="lat",t.nam="tim",
+                       plot=TRUE,l.scale=TRUE)}
 \arguments{
     \item{filename}{name of netCDF file.}
     \item{varname}{name ov variable.}

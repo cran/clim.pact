@@ -27,8 +27,13 @@ if (!file.exists(direc)){
   dir.create(direc)
 }
 
-tim.unit <- attr(fields$tim,"unit")
+if (is.null(attr(fields$tim,"units"))) attr(fields$tim,"units") <- fields$attributes$time.unit 
+tunit <- attr(fields$tim,"unit")
+if (is.null(attr(fields$tim,"time_origin"))) attr(fields$tim,"time_origin") <- fields$attributes$time.origin
 tim.torg <- attr(fields$tim,"time_origin")
+if (!is.null(attr(fields$tim,"unit"))) {
+  tunit <- lower.case(substr(attr(fields$tim,"unit"),1,3))
+} else tunit <- "mon"
 
 dims <- dim(fields$dat) 
 if (length(dims)==3) dim(fields$dat) <- c(dims[1],dims[2]*dims[3])
@@ -61,7 +66,9 @@ tim <- fields$tim
 dims <- dim(dat)
 nt <- dims[1]
 np <- dims[2]
+c.mon <- ""
 if (class(fields)[2]=="monthly.field.object") {
+  print("monthly.field.object")
   if (is.null(mon))  {
       if (min(mm)==max(mm)) c.mon <- months[mm[1]]  else
                c.mon<-paste(months[min(mm)],"-",months[max(mm)],sep="")
@@ -77,6 +84,7 @@ if (class(fields)[2]=="monthly.field.object") {
       tim <- tim[i.mm]
     }
 } else if (class(fields)[2]=="daily.field.object") {
+  print("daily.field.object")
   ac.mod<-matrix(rep(NA,nt*6),nt,6)
   ac.mod[,1]<-cos(2*pi*fields$tim/365.25)
   ac.mod[,2]<-sin(2*pi*fields$tim/365.25)
@@ -114,9 +122,14 @@ if (class(fields)[2]=="monthly.field.object") {
 #  print(table(mm))
 #  print(paste("Season:",mon))
 #  print(season)
-} else if (substr(attr(fields$tim,"unit"),1,5)=="month") {
-      c.mon<-months[as.numeric(row.names(table(mm)))]
-      i.mm <- is.finite(mm) 
+} else if (tunit=="mon") {
+     print("Field with unspecified time unit - set to month")
+     c.mon<-months[as.numeric(row.names(table(mm)))]
+     i.mm <- is.finite(mm) 
+} else {
+  print(class(fields))
+  print(tunit)
+  stop('Error, did not know what to do with the class')
 }
 
 # Decide the name of the file containting EOF
@@ -140,19 +153,23 @@ for (i.pred in 1:length(preds.names)) {
   } else if (instring("-",preds.names[i.pred])> 0) {
     eos <- instring("-",preds.names[i.pred])-1
     if (length(eos) > 1) eos <- eos[1]
-  } 
+  } else if (instring(".",preds.names[i.pred])> 0) {
+    eos <- instring(".",preds.names[i.pred])-1
+    if (length(eos) > 1) eos <- eos[1]
+  } else eos <- nchar(preds.names[i.pred])
   preds.id  <- paste(preds.id,substr(preds.names[i.pred],1,eos),
                      "+",sep="")
 }
 
 print(preds.id)
 vnames <- fields$v.name[1]
-if (length(fields$v.name)>1) for (i in 2:length(fields$v.name)) vnames <- paste(vnames,"+",fields$v.name[i],sep="")
+if (length(fields$v.name)>1) {
+  for (i in 2:length(fields$v.name)) vnames <- paste(vnames,"+",fields$v.name[i],sep="")
+}
 fname<-paste(direc,"eof_", preds.id,scen,"_",vnames,"_",region,"_",
-       c.mon,'_',lower.case(substr(attr(fields$tim,"unit"),1,3)),
-             ".Rdata",sep="")
+       c.mon,'_',tunit,".Rdata",sep="")
 print(paste("File name:",fname,"sum(i.mm)=",sum(i.mm)))
-print(dim(fields$dat))
+#print(dim(fields$dat))
 
 #-------------------------------------------------------------------------
 
@@ -160,10 +177,10 @@ id <- row.names(table(fields$id.x))
 size <- matrix(rep(0,3*fields$n.fld),3,fields$n.fld)
 stdv <- rep(0,fields$n.fld)
 
-print(table(fields$id.lon))
-print(table(fields$id.lat))
-print(table(fields$id.x))
-print(id)
+#print(table(fields$id.lon))
+#print(table(fields$id.lat))
+#print(table(fields$id.x))
+#print(id)
 
 ixy <- 0
 for (i in 1:fields$n.fld) {
@@ -268,20 +285,20 @@ for (i in 1:(ny*nx)) {
   i.bad <- is.na(vec)
   if (sum(i.bad) == 0) {
     ar1 <- acf(vec[],plot=FALSE)
-    aver <- max(c(aver,ar1$acf[2,1,1]))
+    aver <- max(c(aver,ar1$acf[2,1,1]),na.rm=TRUE)
   }
 }
-print(paste("aver=",aver))
+
 n.eff <- round(nt * (1.0-aver)/(1.0+aver))  
-print(paste("n.eff=",n.eff))
+print(paste("mean AR(1) =",aver, "n.eff=",n.eff))
 
 # Apply the PCA:       
 print(paste("Singular Value Decomposition: ",sum(is.na(dat.d2)),
             ' NA-values -> set to zero of ',length(dat.d2)))
 dat.d2[!is.finite(dat.d2)]<-0
-print(range(dat.d2))
-print(dim(dat.d2))
-print(stdv)
+print(paste("Data range:",min(dat.d2),"-",max(dat.d2)," dimensions=",
+            dim(dat.d2)[1],"x",dim(dat.d2)[2],"  std=",stdv))
+
 if (LINPACK) pca<-svd(t(dat.d2)) else 
              pca<-La.svd(t(dat.d2))
 PC<-pca$v[,1:neofs]
@@ -344,8 +361,8 @@ for (i in 1:fields$n.fld) {
   }
 }
 
-attr(tim,"unit") <- tim.unit
-attr(tim,"time_origin") <- tim.torg
+attr(tim,"unit") <- fields$attributes$time.unit
+attr(tim,"time_origin") <- fields$attributes$time.origin
 
 #print("Construct list object")
 eof<-list(EOF=EOF,W=W,PC=PC,id=preds.id,n.fld=fields$n.fld,tot.var=tot.var,

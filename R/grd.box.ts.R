@@ -1,12 +1,12 @@
 grd.box.ts <- function(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
                        col="grey10",lwd=1,lty=1,pch=26,add=FALSE,
-                       filter=NULL,type="s") {
+                       filter=NULL,type="s",main=NULL,sub=NULL,xlab=NULL,ylab=NULL) {
 
   library(akima)
   library(ts)
   
-  if ((class(x)[1]!="field") & (class(x)!="monthly.field.object") &
-      (class(x)!="daily.field.object") ) stop("Need a field.object")
+  if ((class(x)[1]!="field") & (class(x)[2]!="monthly.field.object") &
+      (class(x)[2]!="daily.field.object") ) stop("Need a field.object")
   
   if (greenwich) {
     x$lon[x$lon > 180] <- x$lon[x$lon > 180]-360
@@ -35,6 +35,7 @@ grd.box.ts <- function(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
   x$lon <- x$lon[x.keep]
   x$lat <- x$lat[y.keep]
   x$dat <- x$dat[,y.keep,x.keep]
+  if (sum(!is.finite(x$dat))>0) x$dat[!is.finite(x$dat)] <- 0
   lat.x<-rep(x$lat,length(x$lon))
   lon.x<-sort(rep(x$lon,length(x$lat)))
   nt <- length(x$yy)
@@ -50,10 +51,14 @@ grd.box.ts <- function(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
 if (!is.null(attributes(x$tim)$unit)) {
   attr(x$tim,"units") <- attributes(x$tim)$unit
 }
-#  print(attributes(x$tim)$units)
-#  print(attributes(x$tim)$unit)
+  #print(attributes(x$tim)$units)
+  #print(attributes(x$tim)$unit)
 
-  if (lower.case(substr(attributes(x$tim)$units,1,5))== "month") {
+  tunit <- attributes(x$tim)$units
+  if (!is.null(tunit)) tunit <- lower.case(substr(tunit,1,3)) else
+                       tunit <- "mon"
+                       
+  if (tunit== "mon") {
     clim <- y
     for (im in 1:12) {
       ii <- mod((1:nt)-1,12)+1 == im
@@ -61,8 +66,8 @@ if (!is.null(attributes(x$tim)$unit)) {
     }
   } else {
     ac.mod<-matrix(rep(NA,nt*6),nt,6)
-    if (substr(lower.case(attributes(x$tim)$units),1,3)=="day") jtime <- x$tim
-    if (substr(lower.case(attributes(x$tim)$units),1,4)=="hour")  jtime <- x$tim/24
+    if (tunit=="day") jtime <- x$tim
+    if (tunit=="hou")  jtime <- x$tim/24
     ac.mod[,1]<-cos(2*pi*jtime/365.25); ac.mod[,2]<-sin(2*pi*jtime/365.25)
     ac.mod[,3]<-cos(4*pi*jtime/365.25); ac.mod[,4]<-sin(4*pi*jtime/365.25)
     ac.mod[,5]<-cos(6*pi*jtime/365.25); ac.mod[,6]<-sin(6*pi*jtime/365.25)
@@ -80,12 +85,16 @@ if (!is.null(attributes(x$tim)$unit)) {
                 "abs"="absolute value")
 
   if (!is.null(filter)) ts <- filter(ts,filter)
+  if (is.null(main)) main <-  x$v.name
+  if (is.null(sub)) sub <- paste("Interpolated at ",lon,"E, ",lat,"N ",date,sep="")
+  if (is.null(xlab)) xlab <- "Time"
+  if (is.null(ylab)) ylab <- attributes(x$dat)$unit
+
+
   if (!add) {
 
      plot(x$yy+(x$mm-0.5)/12,ts,type=type,pch=pch,
-       main=x$v.name,
-          sub=paste("Interpolated at ",lon,"E, ",lat,"N ",date,sep=""),
-       xlab="Time",ylab=attributes(x$dat)$unit,col=col,lwd=lwd,lty=lty)
+       main=main,sub=sub,xlab=xlab,ylab=ylab,col=col,lwd=lwd,lty=lty)
 
      points(x$yy+(x$mm-0.5)/12,ts,pch=pch,col=col)
    } else {
@@ -97,7 +106,7 @@ if (!is.null(attributes(x$tim)$unit)) {
   
   dd.rng <- range(x$dd)
   if (is.null(attr(x$tim,"units"))) attr(x$tim,"units") <- "unknown"
-  if ( (lower.case(substr(attr(x$tim,"units"),1,5))=="month") |
+  if ( (tunit=="mon") |
        ((dd.rng[2]-dd.rng[1]<4) & (x$mm[2]-x$mm[1]>0)) ) {
 #    print("Monthly")
     results <- station.obj(ts,yy=x$yy,obs.name=x$v.name,unit=attr(x$dat,"unit"),

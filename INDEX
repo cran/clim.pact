@@ -3,6 +3,9 @@ DS                      Downscaling of monthly means
 EOF                     Empirical Orthogonal Functions (EOFs).
 addland                 Add land contours to map.
 addland                 Coordinates of coast line.
+adjust.eof              Adjusts the PC scores of second field in a
+                        common eof object so they describe the same
+			location and variance as the first field. 
 anomaly.field           Anomalies of a field object.
 anomaly.station         Anomaly.station
 avail.elem              Available elements
@@ -19,6 +22,7 @@ delta                   Delta function
 dist2norm               Transform a series to a normally distributed
                         series.
 distAB                  Distance between two points on Earth
+ds2station              Transforms a 'ds' object to a 'station' object.
 eof.c                   Monthly common EOF.
 eof.dc                  Daily common EOF.
 eof.dmc                 Daily common EOF.
@@ -26,6 +30,7 @@ eof.mc                  Monthly mixed-common EOF.
 eof.slp                 EOF of NCEP reanalysis SLP.
 getdnmi                 Retrieve station record from DNMI database
                         filed.
+getgiss                 Retrieves tempereture data from NASA GISS's web site.
 getnacd                 Retreave station record from the NACD set.
 getnordklim             Retrieve station record from the Nordklima set.
 grd.box.ts              Grid box time series
@@ -36,11 +41,13 @@ julday                  Converts from month, day, and year to Julian
 km2lat                  Convert long-lat to km-km
 km2lon                  Convert long-lat to km-km
 koebenhavn.t2m          Monthly mean temperature in Copenhagen.
+lagStation              Introduce a lag in the station record.
 lower.case              convert to lower case
 map                     Produce a map
 map.eof                 Map eof
 mapField                MapField
 meanField               Mean field
+mergeEOF                Merge EOFs (time components)
 mergeStation            Merge climate station series.
 mixFields               mixFields
 mod                     Modulus of a division.

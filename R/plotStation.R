@@ -5,9 +5,10 @@
 
 plotStation <- function(obs,l.anom=TRUE,mon=NULL,
                         leps=FALSE,out.dir="output",what="b",trend=TRUE,
-                        type="l",pch=26,col="black",lwd=3,lty=3,add=FALSE) {
+                        type="l",pch=26,col="black",lwd=3,lty=3,add=FALSE,
+                        main=NULL,sub=NULL,xlab=NULL,ylab=NULL) {
 
-  
+if (sum(is.element(c("b","t","d"),what))==0) stop("Argumet 'what' must be 'b','t' or 'd'!")
 if ( (class(obs)[2]!="monthly.station.record") &
      (class(obs)[2]!="daily.station.record") ){
   stop(paste("The predictand must be a 'monthly.station.record'",
@@ -46,7 +47,6 @@ if (!is.null(mon)) {
 }
 
   loc <- obs$location
-
   
   if (is.null(mon)) {
     ny <- length(obs$yy)
@@ -83,8 +83,13 @@ if (!is.null(mon)) {
       obs$val[2:ny,12] <- obs$val[1:(ny-1),12]
       obs$val[1,12] <- NA
     }
-    for (i in 1:ny) value[i] <- mean(obs$val[i,mon])
+
+    for (i in 1:ny) value[i] <- mean(obs$val[i,mon],na.rm=TRUE)
     
+    if (is.null(obs$ele)) {
+          for (i in 1:ny) value[i] <- mean(obs$val[i,mon],na.rm=TRUE)
+          obs$ele <- 0
+    }
     if (is.element(obs$ele,c(101,111,121,401,601,701,801,911)))
           for (i in 1:ny) value[i] <- mean(obs$val[i,mon],na.rm=TRUE)
     if (is.element(obs$ele,c(112,602)))
@@ -99,12 +104,14 @@ if (!is.null(mon)) {
     } else sub.tit <- paste(season,": ",loc,sep="")
   }
 
+
   # Polinomial trend
 
   y <- value
   x <- yy
+  X <- data.frame(y=value,x = yy)
   lm.tr.p<-lm(y ~ x + I(x^2) +I(x^3) + I(x^4) + I(x^5))
-  pre.p.fit<-predict(lm.tr.p,data=x)
+  pre.p.fit<-predict(lm.tr.p,newdata=X)
   coef.p.fit<-lm.tr.p$coefficients
   coef.p.fit[is.na(coef.p.fit)] <- 0
   der.p.fit<-c(coef.p.fit[2],2*coef.p.fit[3],3*coef.p.fit[4],

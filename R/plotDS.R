@@ -4,19 +4,21 @@
 
 newFig <- function() {
    dev <- paste(options()$device,"()",sep="")
-   eval(parse(text=dev))
+#   print(paste("newFig: options()$device=",dev))
+   if ((dev!="none()") & (dev!="bitmap()")) eval(parse(text=dev))
+   if (dev=="bitmap()") bitmap(file="newFig.jpg",type="jpeg")
  }
 
 
 plotDS <- function(ds.obj,leps=FALSE,plot.map=TRUE, plot.res=FALSE,
                    plot.rate=FALSE,add=FALSE,col="darkred",lwd=2,lty=1,
-                   direc="output/") {
+                   direc="output/",main=NULL,sub=NULL,xlab=NULL,ylab=NULL) {
 
 if (class(ds.obj)!="ds") stop("Need a 'ds' object!")
 attach(ds.obj)
 
 # Plotting: -----------------------------------------------
-               
+      
 pred.descr <- paste("Empirical Downscaling (",id.1,"[")
 
 lons <- lon.loc
@@ -34,11 +36,14 @@ for (i in 1:n.fld) {
   lats <- eval(parse(text=paste("c(lats,lat.",i,")",sep="")))
 }
 
-subtitle <- paste("Calibration: ",month," ",v.name," at ",ds.obj$location,
+if (is.null(main)) main <-  paste(pred.descr,region,"] ->",v.name,")")       
+if (is.null(sub)) sub <- paste("Calibration: ",month," ",v.name," at ",ds.obj$location,
                   " using ",id.1,": R2=",fit.r2,
                   "%, p-value=",fit.p,"%.",sep="")
+if (is.null(xlab)) xlab <- "Time"
+if (is.null(ylab)) ylab <- paste(v.name,"(",unit,")")
 
-print(paste("subtitle:",subtitle))
+#print(paste("subtitle:",subtitle))
 
 
 y.lim.tr <- range(c(y.o,pre.y,pre.gcm),na.rm=TRUE)
@@ -55,8 +60,7 @@ if ((!add) & (plot.map)) {
   par(ps=16,cex.sub=0.7,cex.main=0.9)
   plot(c(floor(min(lons)),ceiling(max(lons))),
        c(floor(min(lats)),ceiling(max(lats))),type="n",
-       main=paste(pred.descr,region,"] ->",v.name,")"),sub=subtitle,
-       xlab="Time",ylab=paste(v.name,"(",unit,")"))
+       main=main,sub=sub,xlab=xlab,ylab=ylab)
 
   col.tab=c("darkblue","darkred","darkgreen","brown")
   t.rng <- paste(range(ds.obj$yy.cal)[1],"-",range(ds.obj$yy.cal)[2])
@@ -121,8 +125,7 @@ if (!add) {
 
   plot(c(min(yymm.o[1],yymm.gcm[1]),yymm.gcm[length(yymm.gcm)]),
        y.lim.tr,type="n",
-       main=paste(pred.descr,region,"] ->",v.name,")"),sub=subtitle,
-       xlab="Time",ylab=paste(v.name,"(",unit,")"))
+       main=main,sub=sub,xlab=xlab,ylab=ylab)
   grid()
 
 }
@@ -166,9 +169,7 @@ if (leps) {
 par(ps=16,cex.sub=0.7,cex.main=0.9)
 
 plot(c(min(yymm.gcm),max(yymm.gcm)),y.lim.tr,type="n",
-     main=paste(pred.descr,region,"] ->",
-       v.name,")"),sub=subtitle,
-     xlab="Time",ylab=paste("rate of change in",v.name,"(",unit,"/decade)"))
+     main=main,sub=sub,xlab=xlab,ylab=paste("rate of change in",ylab))
 grid()
 lines(yymm.gcm,tr.est.p.fit, col = "blue",lwd=3)
 lines(c(min(yymm.gcm),max(yymm.gcm)),c(rate.ds,rate.ds),col = "red",lwd=2)
@@ -193,8 +194,7 @@ if (leps) {
 par(ps=16,cex.sub=0.9,cex.main=0.7)
 plot(yymm.o,step.wise$residual,type="l",lwd=3,
      main=paste("Residual",
-                region,"] ->",v.name,")"),sub=subtitle,
-     xlab="Time",ylab=paste(v.name,"(",unit,")"))
+                region,"] ->",v.name,")"),sub=sub,xlab=xlab,ylab=ylab)
 lines(yymm.o,pre.y-mean(pre.y,na.rm=TRUE),col="grey",lty=3); 
 grid()
 

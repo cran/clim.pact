@@ -4,7 +4,7 @@
 \description{Plots the results from \code{\link{DS}}.}
 \usage{plotDS(ds.obj,leps=FALSE,plot.map=TRUE,plot.res=FALSE,
 plot.rate=FALSE,add=FALSE,col="darkred",lwd=2,lty=1,
-                   direc="output/")}
+                   direc="output/",main=NULL,sub=NULL,xlab=NULL,ylab=NULL)}
 \arguments{
     \item{ds.obj}{A \code{\link{DS}} object.} 
     \item{leps}{'TRUE' produces EPS files.}
@@ -16,6 +16,10 @@ plot.rate=FALSE,add=FALSE,col="darkred",lwd=2,lty=1,
     \item{lwd}{Line width of scenario time series.}
     \item{lty}{Line style of scenario time series.}
     \item{direc}{Directory for graphical output.}
+    \item{main}{Preset main title (see \code{\link{plot}}).}
+    \item{sub}{subtitle}
+    \item{xlab}{x label}
+    \item{ylab}{y label}
     }
 \value{\code{plotDS} returns a map object for the large-scale synoptic
   (anomaly) pattern, which can be plotted on a sphere

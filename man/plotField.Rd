@@ -8,7 +8,8 @@
   \code{\link{mapField}} or \code{\link{grd.box.ts}} whenever appropriate.}  
 \usage{plotField(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
                        col="black",col.coast="grey",lty=1,lwd=1,what="ano",
-                       type="s",pch=26,my.col=NULL,add=FALSE)}
+                       type="s",pch=26,my.col=NULL,add=FALSE,
+                       main=NULL,sub=NULL,xlab=NULL,ylab=NULL)}
 \arguments{
   \item{x}{A field object.}
   \item{lon}{Position for longitude. One of \code{lon, lat, tim} must be set.}
@@ -26,6 +27,10 @@
   \item{pch}{same as in plot(), only works for single time series.}
   \item{my.col}{colour palette (see \code{link{rgb}}).}
   \item{add}{TRUE adds a time series to previous  (see \code{link{grd.box.ts}}).}
+  \item{main}{Preset main title (see \code{\link{plot}}).}
+  \item{sub}{subtitle}
+  \item{xlab}{x label}
+  \item{ylab}{y label}
 }
 \value{}
 \author{R.E. Benestad}}

@@ -1,0 +1,32 @@
+\name{mapField}
+\alias{mapField}
+\title{MapField}
+\description{Draws maps of fields in a field object, eg read using \code{\link{retrieve.nc}}.}
+\usage{mapField(x,l=NULL,greenwich=TRUE,what="ano",method="nice",
+                       col="black",lwd=2,lty=1,add=FALSE,las = 1)}
+\arguments{
+    \item{x}{ A field object. }
+    \item{l}{The field to map. Default: the last field in the record.}
+    \item{what}{What to draw: "ano"-> anomalies, "cli"-> climatological
+    values, "abs" -> absolute values. }
+    \item{method}{"nice" -> \code{filled.contour}, otherwise use \code{image}.}
+    \item{greenwich}{'TRUE' centres on Greenwich meridian.}
+    \item{col}{Colour.}
+    \item{lwd}{Line width.}
+    \item{lty}{Line type.}
+    \item{add}{Adds map to old figure.}
+    \item{las}{See \link{par}}
+  }
+\value{}
+\author{R.E. Benestad}}
+\examples{
+library(clim.pact)
+\dontrun{
+skt<-retrieve.nc("skt.mon.mean.nc",
+                 x.rng=c(-90,50),y.rng=c(0,75))
+bitmap("ncep.skt.jpg",type="jpeg")
+mapField(skt)
+dev.off()
+}
+}
+\keyword{hplot}

@@ -1,0 +1,179 @@
+# This R routine reads the NACD data. The code
+# will not work with the original NACD files: a space
+# must be inserted between the December value and the
+# country tag, and the missing values must be changed
+# from '-9999' to ' -999'.
+#
+# Arguments:
+# 'location' determines the time series.
+# 'ele.c' determines the element (default=T2m).
+#
+# R.E. Benestad
+
+getnacd <- function(location="prompt",ele.c='101',ascii=FALSE,silent=FALSE,
+                    direc="data") {
+
+if (location=="prompt") {
+  locs <- avail.locs(as.integer(ele.c))
+  print(length(locs))
+  locs.name <- locs$name[locs$ident=="NACD"]
+  print(locs.name)
+  i.loc <- readline(prompt="Please enter the number of desired location: ")
+  i.loc <- as.integer(i.loc)
+  location <- locs.name[i.loc]
+} 
+
+
+if (is.character(ele.c)) {
+  ele.c<-lower.case(ele.c)
+  ele.c<-switch(ele.c,
+                't2m'='101','rr'='601','slp'='401','cloud'='801',
+                't2'='101','precip'='601','101'='101','401'='401',
+                '601'='601','801'='801')
+} else {
+  ele.c<-as.character(ele.c)
+}
+
+#print(location)
+#print(ele.c)
+fr.name<-paste(direc,'/getnacd_',ele.c,'.Rdata',sep="")
+ascii<- ascii | !file.exists(fr.name)
+
+if (ascii) {
+# Read the original ASCII files - slow
+  obs<-read.fwf(
+     paste('data/nacd_v1.',ele.c,sep=""),
+     width=c(5,3,4,rep(5,12),3))
+
+# Read the information about the stations: Metadata
+
+  data(meta.nacd)
+
+# Save as R-data-file
+  save(obs,meta,file=fr.name)
+}
+
+# Load R-data-file - FAST!
+
+load(fr.name)
+
+station<-obs$V1
+ele<-obs$V2
+yy<-obs$V3
+country<-obs$V16
+
+scale<-10
+if (ele[1]==801) scale<-1
+
+val<-as.matrix(obs[,4:15])/scale
+val[val <= -99.9] <- NA
+
+#print(obs[1,])
+#print(meta[1,])
+#print(c(as.character(meta$V1[1]),as.character(meta$V2[1]),
+#        as.character(meta$V3[1]),as.character(meta$V4[1]),
+#        as.character(meta$V5[1]),as.character(meta$V6[1]),
+#        as.character(meta$V7[1]),as.character(meta$V8[1]),
+#        as.character(meta$V9[1]),as.character(meta$V10[1]),
+#        as.character(meta$V11[1]),as.character(meta$V12[1]),
+#        as.character(meta$V13[1]),as.character(meta$V14[1]),
+#        as.character(meta$V15[1]),as.character(meta$V16[1])))
+
+nc<-nchar(location)
+location<-paste(upper.case(location),
+                paste(rep(" ",21-nc),sep="",collapse=""),sep="")
+
+no.find<-FALSE
+if ((sum(is.element(meta$V5,location) & is.element(meta$V14,ele))==0) & !(silent)) {
+  print("getnacd: ERROR - cannot find the right record!")
+  print(sum(is.element(meta$V5,location) & is.element(meta$V14,ele)))
+
+  print("ele.c")
+  print(ele.c)
+  print("location")
+  print(location)
+  print("table(ele)")
+  print(table(ele))
+  print("levels(meta$V14)")
+  print(levels(meta$V14))
+  print("levels(meta$V5)")
+  print(levels(meta$V5))
+  print("sum(is.element(meta$V5,location))")
+  print(sum(is.element(meta$V5,location)))
+  print("sum(is.element(meta$V14,ele))")
+  print(sum(is.element(meta$V14,ele)))
+  print(meta[is.element(meta$V5,location),])
+  no.find<-TRUE
+}
+
+meta<-meta[is.element(meta$V5,location) &
+           is.element(meta$V14,ele),]
+
+if (no.find) {
+ print("meta:")
+ print(meta)
+ print("station:")
+ print(summary(station))
+
+ print("country:")
+ print(levels(country))
+ print(meta$V3)
+}
+ 
+iloc<-is.element(station,meta$V2) &
+                (country == meta$V3) 
+
+if (no.find) {
+ print("summary(iloc)")
+ print(summary(iloc))
+ print("sum(iloc)")
+ print(sum(iloc))
+ print("sum(is.element(station,meta$V2))")
+ print(sum(is.element(station,meta$V2)))
+ print("sum(country == meta$V3)")
+ print(sum(country == meta$V3))
+}
+
+obs.name<-switch(as.character(ele[1]),
+                     '101'='monthly mean T(2m)',
+                     '401'='monthly mean SLP',
+                     '601'='monthly precipitation sum',
+                     '801'='monthly mean cloud cover')
+unit<-switch(as.character(ele[1]),
+                     '101'='degree Celsius',
+                     '401'='hPa',
+                     '601'='mm',
+                     '801'='%')
+#print(as.character(meta$V16))
+quality<-switch(as.character(meta$V16),
+                ' H'='Homogenous, rigorously tested & adjusted',
+                'H'='Homogenous, rigorously tested & adjusted',
+                ' T'='Tested, maybe adjusted but not perfectly H.',
+                'T'='Tested, maybe adjusted but not perfectly H.',
+                ' N'='Not tested for inhomogenouity',
+                'N'='Not tested for inhomogenouity',
+                ' E'='Environm. changes prevents clim.change studies',
+                'E'='Environm. changes prevents clim.change studies',
+                ' I'='Inhomogenous series which presently are unadjustable',
+                'I'='Inhomogenous series which presently are unadjustable')
+
+lat<-meta$V6 + meta$V7/60
+lon<-meta$V9 + meta$V10/60
+lat[meta$V8==" S"]<-lat[meta$V8==" S"]*-1
+lon[meta$V11==" W"]<-lon[meta$V11==" W"]*-1
+#print(levels(meta$V8))
+#print(levels(meta$V11))
+
+xy<-COn0E65N(lon,lat)
+
+getnacd<-list(val=val[iloc,],station=meta$V1,yy=yy[iloc],
+              lat=lat,lon=lon,alt=meta$V12,
+              x.0E65N=xy$x,y.0E65N=xy$y,
+              location=location, wmo.no=meta$V4,
+              start=meta$V3,yy0=meta$V15,ele=ele[1],
+              obs.name=obs.name, unit=unit,country=meta$V3,
+              quality=quality,found=!no.find,
+              ref='Frich et al. (1996), DMI scientific report 96-1')
+class(getnacd) <- c("station","monthly.station.record")
+getnacd
+}

@@ -7,7 +7,7 @@
 
 
 retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
-                        l.scale=TRUE,greenwich=TRUE,silent=FALSE,
+                        l.scale=FALSE,greenwich=TRUE,silent=FALSE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,force.chron=TRUE,force365.25=FALSE) {
   library(ncdf)
@@ -41,7 +41,7 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
   ilat <- grep("lat",lower.case(cdfdims))
   itim <- grep("tim",lower.case(cdfdims))
   ilev <- grep("lev",lower.case(cdfdims))
-   
+  #print(c(ilon,ilat,itim,ilev)) 
   torg<- NULL; scal <- NULL; offs <- NULL
 
   arv <- att.get.ncdf(ncid, cdfvars[ipick], 'scale_factor')
@@ -56,7 +56,8 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
   if( arv$hasatt ) unit <- arv$value else {
     arv <- att.get.ncdf(ncid, cdfvars[ipick], 'unit')
     if( arv$hasatt ) unit <- arv$value else
-       print("Attribute unit not found")  
+       print(paste("Attribute unit not found for",v1))  
+       unit <- "unknown"
   }
 
 
@@ -82,11 +83,13 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
   lat <- get.var.ncdf(ncid,cdfdims[ilat])
   tim <- get.var.ncdf(ncid,cdfdims[itim])
 
-  attr(lon,"unit") <- eval(parse(text=paste("ncid$dim$",cdfdims[ilon],"$units",sep="")))
-  attr(lat,"unit") <- eval(parse(text=paste("ncid$dim$",cdfdims[ilat],"$units",sep="")))
-  attr(tim,"unit") <- eval(parse(text=paste("ncid$dim$",cdfdims[itim],"$units",sep="")))
+  #print("Attributes:")
+  attr(lon,"unit") <- eval(parse(text=paste("ncid$dim$'",cdfdims[ilon],"'$units",sep="")))
+  attr(lat,"unit") <- eval(parse(text=paste("ncid$dim$'",cdfdims[ilat],"'$units",sep="")))
+  print(paste("ncid$dim$'",cdfdims[itim],"$units'",sep=""))
+  attr(tim,"unit") <- eval(parse(text=paste("ncid$dim$'",cdfdims[itim],"'$units",sep="")))
   if (is.null(t.unit)) t.unit <- attr(tim,"unit")
-  print(t.unit)
+  print(paste("Time, units: ",t.unit))
 
   if (length(ilev)>0) {
     lev <- get.var.ncdf(ncid,cdfdims[ilev])
@@ -97,7 +100,7 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
 
   start <- rep(1,nd); count <- rep(1,nd)
 # count <- c(length(lon),length(lat),length(tim))
-  for (i in 1:nd) count[i] <- eval(parse(text=paste("ncid$dim$",cdfdims[i],"$len",sep="")))
+  for (i in 1:nd) count[i] <- eval(parse(text=paste("ncid$dim$'",cdfdims[i],"'$len",sep="")))
   varsize <- count
   lon.we <- lon
   if (!is.null(x.rng)) {
@@ -108,7 +111,7 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
     start[1] <- max(sum(lon < min(x.rng)),1)
     ix <- (lon >= min(x.rng) & lon <= max(x.rng))
     lon <- lon[ix]
-     attr(lon,"unit") <- eval(parse(text=paste("ncid$dim$",cdfdims[ilon],"$units",sep="")))
+     attr(lon,"unit") <- eval(parse(text=paste("ncid$'dim$",cdfdims[ilon],"$units'",sep="")))
     count[1] <- length(lon)
   }
   if (!is.null(y.rng)) {
@@ -168,10 +171,11 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
   } 
 
   if (!is.null(torg)) {
+    print(paste("torg=",torg))
     yy0 <- datestr2num(torg)[1]
     mm0 <- datestr2num(torg)[2]
     dd0 <- datestr2num(torg)[3]
-  } 
+  } else torg <- readline("Give me the time origin (format='15-Dec-1949'):")
 
   if (!silent) print(paste("Time origin: (year-month-day)",yy0,"-",mm0,"-",dd0))
   if (yy0[1]==0) {
@@ -333,7 +337,17 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
   if (!silent) print(paste("First & last records:",yy[1],mm[1],dd[1],
                      "&",yy[length(yy)],mm[length(mm)],dd[length(dd)]))
   
+  if (l.scale) {   
+    if (!silent) print("BEFORE scale adjustment & weeding")
+    if (!silent) print(summary(as.vector(dat)))
+    dat[dat == miss] <- NA
+    if (sum(is.na(dat))>0) print(paste(sum(is.na(dat)),"of",length(dat),
+                                 " are set to 'NA'"))
+      if (!silent) print("AFTER scale adjustment & weeding")
+  }
+
   if ((l.scale) & !is.null(scal)) {
+     print(paste("Scaling: dat <- dat *",scal))
      if (is.finite(scal)) dat <- dat * scal
   }
   # Have included a sanity test to detect an old 'bug': offset 273 and
@@ -343,15 +357,10 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
            (unit=="deg C")) {
         a <- readline(prompt="Correct an old bug? (y/n)")
         if (lower.case(a)=="y") dat <- dat + offs} else
-        if (is.finite(offs)) dat <- dat + offs
-  }
-  if (l.scale) {   
-    if (!silent) print("BEFORE scale adjustment & weeding")
-    if (!silent) print(summary(as.vector(dat)))
-    dat[dat == miss] <- NA
-    if (sum(is.na(dat))>0) print(paste(sum(is.na(dat)),"of",length(dat),
-                                 " are set to 'NA'"))
-      if (!silent) print("AFTER scale adjustment & weeding")
+        if (is.finite(offs)) {
+          print(paste("Offset: dat <- dat +",offs))
+          dat <- dat + offs
+        }
   }
 
   if ((unit=="K") | (unit=="Kelvin") |
@@ -392,7 +401,7 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
                        v.name=v.nam,id.x=id.x,id.t=id.t,
                        yy=yy,mm=mm,dd=dd,n.fld=1,
                        id.lon=rep(v.nam,nx),id.lat=rep(v.nam,ny),
-                       attributes=dat.att)
+                       attributes=dat.att,filename=filename)
   class(retrieve.nc) <- c("field",obj.type)
   invisible(retrieve.nc)
 }

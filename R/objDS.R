@@ -114,7 +114,8 @@ legend(min(yymm.obs,yymm.gcm,na.rm=TRUE),
        c("Observations                  ","Calibr.                ","Scenario                   "),
        col=c("black","grey30","grey50"),
        pch=c(20,26,26),lty=c(3,2,1),lwd=c(1,2,1),bg="grey95",cex=0.7)
-if (lower.case(options()$device)=="x11") dev.copy2eps(file=paste(outdir,"/plotDSobj_1.eps",sep=""))
+if (lower.case(options()$device)=="x11") 
+       dev.copy2eps(file=paste(outdir,"/plotDSobj_1.eps",sep=""))
 }
 # Residuals:
 
@@ -190,7 +191,8 @@ lines(brks,h.sep,col="magenta")
 lines(brks,h.oct,col="cyan")
 lines(brks,h.nov,col="wheat")
 lines(brks,h.dec,col="brown")
-if (lower.case(options()$device)=="x11") dev.copy2eps(file=paste(outdir,"/plotDSobj_3.eps",sep="")) 
+if (lower.case(options()$device)=="x11") 
+     dev.copy2eps(file=paste(outdir,"/plotDSobj_3.eps",sep="")) 
 }
 
 rates <- c(result$Jan$rate.ds,result$Feb$rate.ds,result$Mar$rate.ds,
@@ -211,33 +213,38 @@ p.val <- as.numeric(c(result$Jan$gcm.trnd.p,result$Feb$gcm.trnd.p,result$Mar$gcm
            result$Oct$gcm.trnd.p,result$Nov$gcm.trnd.p,result$Dec$gcm.trnd.p))
 
 if (sum(is.element(figs,4))>0) {newFig()
-plot(c(0,13),range(c(rates+err,rates-err),na.rm=TRUE),type="n",
+par(col.axis="white")
+plot(c(0,25),range(c(rates+err,rates-err),na.rm=TRUE),type="n",
      main=paste("Linear trend rates ",result$Jan$v.name," derived ",result$Jan$location,
                           "     (",round(result$Jan$lat.loc,2),"N/",round(result$Jan$lon.loc,2),"E)",sep=""),
-     sub=subtitle,ylab=paste(result$Jan$unit,"/ decade"),xlab="Month")
+     sub=" ",ylab=paste(result$Jan$unit,"/ decade"),xlab="Month")
+par(col.axis="black",ps=10,las=3)
+axis(1, 1:24, rep(months,2))
+axis(2)
 grid()
 
-polygon(c(1:12,reverse(1:12)),c(rates+err,reverse(rates-err)),
+polygon(c(1:24,reverse(1:24)),c(rep(rates+err,2),reverse(rep(rates-err,2))),
         col="wheat",border="grey",lwd=2)
-lines(0:12+0.5,c(r2[1],r2)/100*max(rates-err,na.rm=TRUE)+min(rates-err,na.rm=TRUE),
+lines(0:24+0.5,c(r2[1],rep(r2,2))/100*max(rates-err,na.rm=TRUE)+min(rates-err,na.rm=TRUE),
       type="S",col="steelblue")
-lines(rates,lwd=2)
-points((1:12)[p.val < 5],rates[p.val < 5],pch=20,cex=1.5)
-points((1:12)[p.val >= 5],rates[p.val >= 5],pch=21,cex=1.5)
-text((1:12)-0.33,rates-0.01*diff(range(c(rates+err,rates-err),na.rm=TRUE)),rates,
+lines(rep(rates,2),lwd=2)
+points((1:24)[rep(p.val < 5,2)],rep(rates[p.val < 5],2),pch=20,cex=1.5)
+points((1:24)[rep(p.val >= 5,2)],rep(rates[p.val >= 5],2),pch=21,cex=1.5)
+text((1:24)-0.33,rep(rates-0.01*diff(range(c(rates+err,rates-err),na.rm=TRUE)),2),rep(rates,2),
        cex=0.8,col="grey45")
 
 for (i in 0:10) {
-  lines(c(11.8,12),rep(i/10*max(rates-err,na.rm=TRUE)+min(rates-err,na.rm=TRUE),2),col="steelblue")
-  lines(c(0,11),rep(i/10*max(rates-err,na.rm=TRUE)+min(rates-err,na.rm=TRUE),2),lty=3,col="steelblue")
-  text(11.5,i/10*max(rates-err,na.rm=TRUE)+min(rates-err,na.rm=TRUE),paste(i*10,'%',sep=""),
+  lines(c(23.8,24),rep(i/10*max(rates-err,na.rm=TRUE)+min(rates-err,na.rm=TRUE),2),col="steelblue")
+  lines(c(0,24),rep(i/10*max(rates-err,na.rm=TRUE)+min(rates-err,na.rm=TRUE),2),lty=3,col="steelblue")
+  text(23.5,i/10*max(rates-err,na.rm=TRUE)+min(rates-err,na.rm=TRUE),paste(i*10,'%',sep=""),
         cex=0.8,col="steelblue")
   }
 mtext("R-squared (%) from calibration regression",side=4,col="steelblue",cex=0.80)
 points(1,max(rates+err),pch=20); text(3,max(rates+err),"5% sign.level")
 points(7,max(rates+err),pch=21); text(8,max(rates+err),"not sign.")
 
-if (lower.case(options()$device)=="x11") dev.copy2eps(file=paste(outdir,"/plotDSobj_4.eps",sep="")) 
+if (lower.case(options()$device)=="x11") 
+      dev.copy2eps(file=paste(outdir,"/plotDSobj_4.eps",sep="")) 
 }
 }
 
@@ -274,6 +281,8 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
       sum(is.element(c("t2m","tem"),lower.case(substr(field.obs$v.name,1,3))))> 0) {
     positive <- TRUE
   }
+  rates <- rep(NA,12)
+
   for (imon in mon) {
     par(cex.sub=0.6,cex.axis=0.6,cex.lab=0.6,fin=c(2.37,2.37))
     print(imon)
@@ -337,7 +346,7 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
 #    print(summary(field.gcm$lon)); print(summary(field.gcm$lat))
     field.2 <- catFields(field.obs,field.gcm,lon=x.rng,lat=y.rng,mon=imon)
     print("EOF:")
-    eof <- EOF(field.2)
+    eof <- EOF(field.2,silent=silent)
     print("DS:")
     ds <- DS(preds=eof,dat=station,direc=direc,cal.id=cal.id,
                   ldetrnd=ldetrnd,i.eofs=i.eofs,ex.tag=ex.tag,
@@ -345,11 +354,67 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
                   plot.res=plot.res,plot.rate=plot.rate,xtr.args=xtr.args,
                   swsm=swsm,predm=predm,lsave=lsave,rmac=rmac,
                   silent=silent)
+    ds$x.rng <- x.rng; ds$y.rng <- y.rng
     print(paste("result$",cmon[imon]," <- ds",sep=""))
     eval(parse(text=paste("result$",cmon[imon]," <- ds",sep="")))
+    rates[imon] <- ds$rate.ds
+  }
+  
+# Quality control!
+# Check the rates with those of adjacent months: if very different, do the computation again
+# but with a reduced domain size until a minimum size is reached (10x10 degrees).
+
+  print("==========================================================")
+  print("=================== Quality control! =====================")
+  print("==========================================================")
+  drate <- -(diff(rep(rates,3))[11:22])*(diff(rep(rates,3))[12:23])
+  icheck <- (drate > 3*var(rates))
+  while (sum(icheck)>0) {
+    print(paste("Rates: (drate exceeds ",3*var(rates),")"))
+    print(rbind(rates,drate,icheck))
+    idoagain <- c((1:12)[icheck],(1:12)[icheck]+1,(1:12)[icheck]-1)
+    idoagain[idoagain<1] <- 12; idoagain[idoagain > 12] <- 1
+    for (ii in idoagain) {
+       print(paste("Re-compute ",cmon[ii],": rate=",rates[ii]," drate=",drate[ii]))
+       x.rng <- eval(parse(text=paste("result$",cmon[ii],"$x.rng",sep="")))
+       y.rng <- eval(parse(text=paste("result$",cmon[ii],"$y.rng",sep="")))
+       if (diff(x.rng) > 25) {x.rng[1] <- x.rng[1]+1; x.rng[2] <- x.rng[2]-1}
+       if (diff(y.rng) > 25) {y.rng[1] <- y.rng[1]+1; y.rng[2] <- y.rng[2]-1}
+       field.2 <- catFields(field.obs,field.gcm,lon=x.rng,lat=y.rng,mon=ii)
+       eof <- EOF(field.2,silent=TRUE)
+       ds <- DS(preds=eof,dat=station,direc=direc,cal.id=cal.id,
+                ldetrnd=ldetrnd,i.eofs=i.eofs,ex.tag=ex.tag,
+                method=method,plot=FALSE,leps=leps,param=param,
+                plot.res=plot.res,plot.rate=plot.rate,xtr.args=xtr.args,
+                swsm=swsm,predm=predm,lsave=lsave,rmac=rmac,
+                silent=TRUE)
+       ds$x.rng <- x.rng; ds$y.rng <- y.rng
+       rates[ii] <- ds$rate.ds
+       eval(parse(text=paste("result$",cmon[ii]," <- ds",sep="")))
+       drate <- -(diff(rep(rates,3))[11:22])*(diff(rep(rates,3))[12:23])
+       icheck[ii] <- (drate[ii] > 3*var(rates))
+       if ((diff(x.rng) <= 15) & (diff(y.rng) <= 15)) icheck[ii] <- FALSE
+        print(paste("New rate=",rates[ii]," drate=",drate[ii]," x.rng=",x.rng[1]," - ",x.rng[2],
+                    " y.rng=",y.rng[1]," - ",y.rng[2],"icheck[ii]=",icheck[ii]))
+    }
   }
 
   class(result) <- "objDS"
+
+  ds.val <-cbind(
+           result$Jan$pre.gcm,result$Feb$pre.gcm,result$Mar$pre.gcm,
+           result$Apr$pre.gcm,result$May$pre.gcm,result$Jun$pre.gcm,
+           result$Jul$pre.gcm,result$Aug$pre.gcm,result$Sep$pre.gcm,
+           result$Oct$pre.gcm,result$Nov$pre.gcm,result$Dec$pre.gcm)
+  ds.yy <- result$Jan$mm.gcm
+  station.series <- station.obj(ds.val,ds.yy,obs.name=paste("downscaled",station$obs.name),
+                        station$unit,ele=station$ele,mm=NULL,
+                        station=station$station,lat=station$lat,lon=station$lon,alt=station$alt,
+                        location=station$location,wmo.no=station$wmo.no,
+                        start=station$start,yy0=min(ds.yy),country=station$country,
+                        ref=paste("clim.pact >= v2.1-4 > objDS (Benestad, 2004, Eos, vol 85, #42, Oct 19, p.417):",
+                                  field.2$filename))
+  result$station <- station.series
   if (plot) plotDSobj(result)
 
   invisible(result)

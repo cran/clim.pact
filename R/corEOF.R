@@ -1,6 +1,6 @@
 corEOF <- function(x,y,lsig.mask=TRUE,sig.lev=0.05,neofs=20,
                       lty=1,col="black",lwd=1) {
-  library(ctest)
+#  library(ctest)
 
 if (class(x)[1]!="eof") {
   stop("x must be an 'eof' object.")

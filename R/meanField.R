@@ -3,7 +3,7 @@ meanField <- function(x,lon.rng=NULL,lat.rng=NULL,t.rng=NULL,mon=NULL) {
 
   season<-cbind(c(12,1,2),c(3,4,5),c(6,7,8),c(9,10,11))
   months<-c("Jan","Feb","Mar","Apr","May","Jun",
-          "Jul","Aug","Sep","Oct","Nov","Dec")
+            "Jul","Aug","Sep","Oct","Nov","Dec")
   season.c<-c("","DJF","MAM","JJA","SON")
   dat <- x$dat
   lons <- x$lon
@@ -48,7 +48,9 @@ meanField <- function(x,lon.rng=NULL,lat.rng=NULL,t.rng=NULL,mon=NULL) {
       yy <- yy[i.mm]
       mm <- mm[i.mm]
       dd <- dd[i.mm]
-      month <- months[mon+1]
+      month <- months[mon[1]]
+      if (length(mon) > 1) 
+        for (i in 2:length(mon)) month <- paste(month,"-",months[mon[i]],sep="")
     } else if (class(x)[2]=="daily.field.object") {
       mon <- mod(mon-1,4)+1
       mon <- season[,mon]
@@ -86,6 +88,6 @@ meanField <- function(x,lon.rng=NULL,lat.rng=NULL,t.rng=NULL,mon=NULL) {
   class(results) <- "map"
 #  attr(results) <- attr(x)
   attr(results,"long_name")<- paste("Mean",x$v.name)   
-  attr(results,"descr") <- "Mean values"
+  attr(results,"descr") <- c("Mean values",month)
   invisible(results) 
 }

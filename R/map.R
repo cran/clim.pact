@@ -34,9 +34,21 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
     nc2 <- ceiling(length(levels)/2)
   }
   if (is.null(main)) main <- paste(attributes(x$dat)$"long_name")
+
+  if (is.null(x$tim)) if (length(x$tim) > 1) {
+    date <- x$tim[1]
+    for (i in 2:length(x$tim)) date <- paste(date,"-",x$tim[i],sep="")
+    x$tim <- date
+  }
+
   if (is.null(sub)) {
-  if (length(x$date)==1) sub <- x$date else
-                         sub <- paste(x$date[1],"-", x$date[length(x$date)])
+  if (length(x$date)==1) {
+    if (is.null(x$tim)) sub <- x$date else
+                        sub <- paste(x$date,": ",x$tim,sep="")
+  } else {
+    if (is.null(x$tim)) sub <- paste(x$date[1],"-", x$date[length(x$date)]) else
+                        sub <- paste(x$date[1]," - ", x$date[length(x$date)],": ",x$tim,sep="")
+  }
   }
 
   if (is.null(xlim)) xlim <- range(x$lon[is.finite(x$lon)]) 
@@ -67,7 +79,7 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
     addland()
   }
   results <- list(lon=x$lon,lat=x$lat,map=map,v.name=,x$v.name,
-                  tim=NULL,date=NULL,attributes=x$attributes)
+                  tim=x$tim,date=x$date,attributes=x$attributes)
   class(results) <- "map"
 #  attr(results) <- attr(x)
   attr(results,"descr") <- "Mean values"

@@ -9,6 +9,6 @@ load("eof_DNMI_slp.Rdata")
                        v.name=eof$v.name,id.x=eof$id.x,id.t=eof$id.t,
                        yy=eof$yy,mm=eof$mm,dd=eof$dd,n.fld=eof$n.fld,
                        id.lon=eof$id.lon,id.lat=eof$id.lat,
-                       attributes=eof$attributes)
+                       attributes=eof$attributes,filename="DNMI.slp")
   class(DNMI.slp) <- class(eof)[-1]
 rm(xxx,climxxx,i)

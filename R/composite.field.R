@@ -1,6 +1,6 @@
 composite.field <- function(x,y,lsig.mask=TRUE,sig.lev=0.05,s=0.42,mon=NULL,
                             lty=1,col="black",lwd=1,main=NULL,sub=NULL) {
-  library(ctest)
+#  library(ctest)
 
 if ((class(x)[1]!="field") & (class(x)[1]!="monthly.field.object") &
     (class(x)[1]!="daily.field.object")){

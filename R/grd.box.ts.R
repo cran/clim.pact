@@ -4,7 +4,7 @@ grd.box.ts <- function(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
                        xlim=NULL,ylim=NULL) {
 
   library(akima)
-  library(ts)
+#  library(ts)
   
   if ((class(x)[1]!="field") & (class(x)[2]!="monthly.field.object") &
       (class(x)[2]!="daily.field.object") ) stop("Need a field.object")

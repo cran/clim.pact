@@ -1,6 +1,6 @@
 corField <- function(x,y,lsig.mask=TRUE,sig.lev=0.05,mon=NULL,
                      lty=1,col="black",lwd=1,main=NULL,z.levs=NULL,my.col=NULL) {
-  library(ctest)
+#  library(ctest)
   library(akima)
   
 if ((class(x)[1]!="field") & (class(x)[1]!="monthly.field.object") &

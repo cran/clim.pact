@@ -15,17 +15,21 @@ if ( (class(obs)[2]!="monthly.station.record") &
              "object - Use  station.obj()"))
 }
 
+if (is.null(main)) {
+  if (class(obs)[2]=="monthly.station.record") main <- paste(obs$location,obs$obs.name) else 
+                                               main <- obs$location
+}
 if (class(obs)[2]=="daily.station.record") {
   newFig()
   plot(obs$yy + obs$mm/12 + obs$dd/365.25, obs$t2m,pch=20,cex=0.5,
-       main=obs$location,sub="met.no Klima DataVareHus",
+       main=main,sub="met.no Klima DataVareHus",
        xlab="Time",ylab="Temperature (deg C)")
   grid()
   lines(obs$yy + obs$mm/12 + obs$dd/365.25, obs$t2m,lty=3,col="grey")
 
   newFig()
   plot(obs$yy + obs$mm/12 + obs$dd/365.25, obs$precip,pch=20,cex=0.5,
-       main=obs$location,sub="met.no Klima DataVareHus",
+       main=main,sub="met.no Klima DataVareHus",
        xlab="Time",ylab="Precipitation (mm)")
   grid()
   lines(obs$yy + obs$mm/12 + obs$dd/365.25, obs$precip,lty=3,col="grey")
@@ -85,16 +89,17 @@ if (!is.null(mon)) {
 
     yy <- obs$yy
     ny <- length(obs$yy)
-    mm <- rep(mon[1],ny)
+    mm <- rep(as.vector(mon[1]),ny)
     yymm <- yy + (mm -0.5)/12
-    value <- obs$val[,mon[1]]
+    #print(dim(obs$val))
+    #print(length(rowMeans(obs$val[,mon])))
+    #print(length(colMeans(obs$val[,mon])))
     if ((length(mon)==3) & (mon[1]==12) & (mon[2]==1) & (mon[3]==2)) {
       obs$val[2:ny,12] <- obs$val[1:(ny-1),12]
       obs$val[1,12] <- NA
   }
-  if (length(mon)==1) value <- obsa$val[,mon] else
-                      value <- as.vector(colMeans(obsa$val[,mon]))
-
+    if (length(mon)>1) value <- rowMeans(obs$val[,mon]) else
+                       value <- obs$val[,mon]
 
     if (is.element(obs$ele,c(101,111,121,401,601,701,801,911)))
           for (i in 1:ny) value[i] <- mean(obs$val[i,mon],na.rm=TRUE)
@@ -142,8 +147,7 @@ if (!is.null(mon)) {
         newFig()
         par(cex.sub=0.8)
         plot(yymm,value,type=type,lwd=lwd,col=col,pch=pch,lty=lty,
-                     main=paste(obs$location,obs$obs.name),
-                     sub=sub.tit,xlab="Time",ylab=obs$unit)
+                     main=main,sub=sub.tit,xlab="Time",ylab=obs$unit)
       } else {
         if (type!="p") lines(yymm,value,lwd=lwd,col=col,lty=lty) 
         if ((type=="p") | (type=="b")) points(yymm,value,col=col,pch=pch) 
@@ -164,7 +168,7 @@ if (!is.null(mon)) {
       if (!is.finite(clim)) clim <- 0
       if (l.anom) value <- value - clim
       histo <- hist(value[!is.na(value)],breaks=15,lwd=3,freq=FALSE,
-         main=paste(obs$location,obs$obs.name),
+         main=main,
          sub=paste(min(round(yy,2)),"--",max(round(yy,2)),
            ":",sub.tit,xlab=obs$unit),xlab=paste(obs$obs.name,obs$unit))
 
@@ -208,7 +212,7 @@ if (!is.null(mon)) {
     postscript(file = figname1,onefile=TRUE,horizontal=FALSE,paper="a4")
     par(ps=14,cex.sub=0.8)
     plot(yymm,value,type=type,lwd=3,
-         main=paste(obs$location,obs$obs.name),
+         main=main,
          sub=sub.tit,xlab="Time",ylab=obs$unit)
     if (trend) lines(yymm[!is.na(y)],pre.p.fit,col="red")
     lines(c(min(yymm),max(yymm)),rep(mean(value,na.rm=TRUE)+
@@ -223,7 +227,7 @@ if (!is.null(mon)) {
     postscript(file = figname2,onefile=TRUE,horizontal=FALSE,paper="a4")
     par(ps=14,cex.sub=0.8)
     histo <- hist(value,breaks=15,lwd=3,freq=FALSE,
-         main=paste(obs$location,obs$obs.name),
+         main=main,
          sub=paste(min(round(yy,2)),"--",max(round(yy,2)),
            ":",sub.tit,xlab=obs$unit))
 

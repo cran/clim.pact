@@ -117,32 +117,44 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
     } 
   }
   if (!is.null(lat) & !is.null(lon)) {
-
-    if (length(lat)==2) lat <- field.1$lat[field.1$lat >= min(lat) & field.1$lat <= max(lat)]
-    if (length(lon)==2) lon <- field.1$lon[field.1$lon >= min(lon) & field.1$lon <= max(lon)]
+    interpolate <- !((length(lat)==2) & (length(lon)==2))
+    if (length(lat)==2) {
+      iy <- field.1$lat >= min(lat) & field.1$lat <= max(lat)
+      lat <- field.1$lat[iy]
+    }
+    if (length(lon)==2) {
+      ix <- field.1$lon >= min(lon) & field.1$lon <= max(lon)
+      lon <- field.1$lon[ix]
+    }
     ny.1 <- length(lat); nx.1 <- length(lon)
     field.1$id.x <-  matrix(rep(field.1$v.nam,ny.1*nx.1),ny.1,nx.1)
     field.1$id.lon <- rep(field.1$v.nam,nx.1); field.1$id.lat <- rep(field.1$v.nam,ny.1)
-    print("interpolate 1st field - please be patient :-)")
-    l.newgrid <- TRUE
-    lat.x<-rep(field.1$lat,length(field.1$lon))
-    lon.x<-sort(rep(field.1$lon,length(field.1$lat)))
-    dat.1<-matrix(nrow=nt.1,ncol=ny.1*nx.1)
-    dim(dat.1)<-c(nt.1,ny.1,nx.1)
-    for (it in 1:nt.1) {
-      Z.in<-as.matrix(field.1$dat[it,,])
-      Z.out<-interp(lat.x,lon.x,Z.in,lat,lon)
-      dat.1[it,,]<-as.matrix(Z.out$z)
-      if (plot.interp) {
-        contour(field.1$lon,field.1$lat,t(round(Z.in,2)),col="blue",lwd=2,
-                main=paste("Field 1: ",it,"/",nt.1),
-                sub=paste(field.1$mm[it],"-",field.1$yy[it]))
-        contour(lon,lat,t(round(Z.out$z,2)),add=TRUE,col="red",lty=2)
-        addland()
-        grid()
+
+    if (!interpolate) {
+      #print(dim(field.1$dat))
+      dat.1 <- field.1$dat[,iy,ix]
+      #print(dim(dat.1))
+    } else {
+      print("interpolate 1st field - please be patient")
+      l.newgrid <- TRUE
+      lat.x<-rep(field.1$lat,length(field.1$lon))
+      lon.x<-sort(rep(field.1$lon,length(field.1$lat)))
+      dat.1<-matrix(nrow=nt.1,ncol=ny.1*nx.1)
+      dim(dat.1)<-c(nt.1,ny.1,nx.1)
+      for (it in 1:nt.1) {
+        Z.in<-as.matrix(field.1$dat[it,,])
+        Z.out<-interp(lat.x,lon.x,Z.in,lat,lon)
+        dat.1[it,,]<-as.matrix(Z.out$z)
+        if (plot.interp) {
+          contour(field.1$lon,field.1$lat,t(round(Z.in,2)),col="blue",lwd=2,
+                  main=paste("Field 1: ",it,"/",nt.1),
+                  sub=paste(field.1$mm[it],"-",field.1$yy[it]))
+          contour(lon,lat,t(round(Z.out$z,2)),add=TRUE,col="red",lty=2)
+          addland()
+          grid()
+        }
       }
-    }
-    
+    } 
   } else {
     print("Use the grid of first field - no interpolation :-)")
     lat <- field.1$lat
@@ -166,7 +178,7 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
   
   if (!l.one & (l.different | l.newgrid)) {
     
-    print("Interpolate 2nd field - please be patient :-)")
+    print("Interpolate 2nd field - please be patient")
     for (it in 1:nt.2) {
       Z.in<-as.matrix(field.2$dat[it,,])
       Z.out<-interp(lat.x,lon.x,Z.in,lat,lon)
@@ -184,12 +196,12 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
     #print("Identical spatial grids :-)")
     dat.2 <- field.2$dat
   }
+  #print(dim(dat.1));  print(dim(dat.2)); print(c(nt.1,ny.1*nx.1)); print(c(nt.2,ny.2*nx.2))
 
-#  print(dim(dat.1));  print(dim(dat.2))
-
+  
   dim(dat.1)<-c(nt.1,ny.1*nx.1)
-  dim(dat.2)<-c(nt.2,ny.1*nx.1)
   if (!l.one) {
+    dim(dat.2)<-c(nt.2,ny.1*nx.1)
     dat<-rbind(dat.1,dat.2)
     dim(dat)<-c(nt.1+nt.2,ny.1,nx.1)
     tim <- c(field.1$tim,field.2$tim)
@@ -213,7 +225,8 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
   var.name <- paste(field.1$v.name,"&",field.2$v.name,sep="")
   result  <- list(dat=dat,lon=lon,lat=lat,tim=tim,v.name=var.name,
                   id.t=id.t,id.x=id.x,yy=yy,mm=mm,dd=dd,n.fld=field.1$n.fld,
-                  id.lon=field.1$id.lon,id.lat=field.1$id.lat,attributes=field.1$attributes)
+                  id.lon=field.1$id.lon,id.lat=field.1$id.lat,attributes=field.1$attributes,
+                  filename=paste(field.1$filename,"+",field.2$filename))
   class(result) <- c(class(field.1),"cat.fields")
   invisible(result)
 }

@@ -18,7 +18,7 @@ This routine reequres the \code{\link[ncdf]{ncdf}}-package is currently only ava
 
 \usage{
        retrieve.nc(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
-                        l.scale=TRUE,greenwich=TRUE,silent=FALSE,
+                        l.scale=FALSE,greenwich=TRUE,silent=FALSE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,force.chron=TRUE,
                         force365.25=FALSE)

@@ -372,6 +372,16 @@ delta <- function(i,j) {
 datestr2num <- function(datestr,vec=TRUE) {
     dsh <- instring("-",datestr)
     spc <- instring(" ",datestr)
+    if (dsh==0) {
+      # The time origin string contains no "-".
+      dot <- instring(".",datestr)
+      com <- instring(",",datestr)
+      sls <- instring("/",datestr)
+      if (length(dot)==2) dsh <- dot else
+      if (length(com)==2) dsh <- com else
+      if (length(sls)==2) dsh <- sls else
+      if (length(spc)>=2) {dsh <- spc[1:2]; spc <- 0}
+    }
     if (spc==0) spc <- nchar(datestr)
     #print(c(datestr,dsh,NA,spc))
     if (dsh[1]==3 & dsh[2]==7) {
@@ -423,6 +433,7 @@ datestr2num <- function(datestr,vec=TRUE) {
       mm0 <- 1
       yy0 <- as.numeric(datestr)
     }
+    
   if (vec) datestr2num <- c(yy0,mm0,dd0) else
            datestr2num <- yy0 + mm0/12 + dd0/31
   datestr2num

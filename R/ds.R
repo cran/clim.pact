@@ -19,8 +19,8 @@ DS <- function(dat,preds,mon=NULL,direc="output/",cal.id=NULL,
                plot.res=FALSE,plot.rate=FALSE,xtr.args="",
                swsm="step",predm="predict",lsave=FALSE,rmac=TRUE,
                silent=FALSE) {
-library(ts)
-library(ctest)
+#library(ts)
+#library(ctest)
 #library(chron)
 #library(date)
 #library(xtable)
@@ -667,6 +667,9 @@ class(ds) <- "ds"
 if (lsave) save(file=fname,ds,ascii=FALSE) 
 #print("Plotting...")
 #print(preds$region)
-if (plot) plotDS(ds,leps)
+if (plot) {
+   ds.map <- plotDS(ds,leps)
+   ds$map <- ds.map
+} 
 invisible(ds)
 }

@@ -10,6 +10,13 @@ mapField <- function(x,l=NULL,greenwich=TRUE,
   if (is.null(l)) l <- length(x$tim)
 #  print("here")
   nx <- length(x$lon); ny <- length(x$lat); nt <- length(x$tim)
+  if (is.character(l)) {
+    ldate <- datestr2num(l)
+    datematch <- is.element(x$yy*10000+x$mm*100+x$dd,ldate[1]*10000+ldate[2]*100+ldate[3])
+    l <- (1:length(x$tim))[datematch]
+    #print(c(ldate,NA,sum(datematch),range(x$yy),NA,l,NA,dim(x$dat)))
+    #print(rbind(x$yy[30:40],x$mm[30:40],x$dd[30:40]))
+  }
   clim <- x$dat[l,,]
   dd.rng <- range(x$dd)
   if (is.null(attr(x$tim,"units"))) attr(x$tim,"units") <- x$attributes$time.unit
@@ -85,7 +92,7 @@ mapField <- function(x,l=NULL,greenwich=TRUE,
                 "cli"="climatological",
                 "abs"="absolute value")
   if (is.null(val.rng)) {
-    print("set range")
+    #print("set range")
     nn <- floor(-max(abs(as.vector(map[is.finite(map)]))))
     xx <- ceiling(max(abs(as.vector(map[is.finite(map)]))))
     nl <- xx-nn

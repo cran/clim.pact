@@ -11,7 +11,7 @@ EOF<-function(fields,l.wght=TRUE,lc180e=FALSE,direc="data/",
               LINPACK=TRUE,silent=FALSE) {
 
 #=========================================================================
-library(ts)
+#library(ts)
 
 if ((class(fields)[2]!="monthly.field.object") &
     (class(fields)[2]!="daily.field.object") &
@@ -311,6 +311,7 @@ if (!silent) print(paste("Data range:",min(dat.d2),"-",max(dat.d2)," dimensions=
 
 if (LINPACK) pca<-svd(t(dat.d2)) else 
              pca<-La.svd(t(dat.d2))
+if (neofs > dim(dat.d2)[2]) neofs <- dim(dat.d2)[2]
 PC<-pca$v[,1:neofs]
 EOF<-t(pca$u[,1:neofs])
 W<-pca$d[1:neofs]

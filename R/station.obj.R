@@ -19,17 +19,17 @@ station.obj <- function(x,yy,obs.name,unit,ele=NULL,mm=NULL,
   yrs <- as.numeric(row.names(yrs))
 #  print(table(yy))
 #  print(table(mm))
-#  print(c(mm[1],mm[length(mm)]))
-  
+#  print(c(mm[1],mm[length(mm)]))  
 #  print(yrs)
   
   if (is.vector(x)) {
+#    print("Vector")
     if (length(x)==length(yy)) {
       x.2D <- matrix(rep(NA,ny*12),ny,12)
       for (i in 1:ny) {
         x.i <- x[yy==yrs[i]]
         m.i <- mm[yy==yrs[i]]
-#        print(m.i)
+        print(c(m.i,x.i))
         x.2D[i,m.i] <- x.i
       }
     }
@@ -38,6 +38,7 @@ station.obj <- function(x,yy,obs.name,unit,ele=NULL,mm=NULL,
     rm(x.2D,yrs)
   }
 
+#  print("Make list")
   station.obj<-list(val=x,yy=yy,station=station,
                     lat=lat,lon=lon,alt=alt,
                     x.0E65N=xy$x,y.0E65N=xy$y,

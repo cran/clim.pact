@@ -1,8 +1,7 @@
 \name{meanField}
-\alias{optimal interpolation}
 \alias{meanField}
-\title{Optimal interpolation}
-\description{.}
+\title{Mean field}
+\description{Computes a map showing the mean field values.}
 \usage{meanField(x,lon.rng=NULL,lat.rng=NULL,t.rng=NULL,mon=NULL)}
 \arguments{
     \item{x}{A field object.}

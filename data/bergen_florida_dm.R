@@ -1,15 +1,15 @@
-obs0 <- read.table("oslo_blindern_dm.txt",
+obs0 <- read.table("bergen_florida_dm.txt",
                    col.names=c("station.number","day","month",
                      "year","t2m","precip"))
-obs <- list(day=obs0$day,month=obs0$month,year=obs0$year,
+bergen.dm <- list(day=obs0$day,month=obs0$month,year=obs0$year,
             t2m=obs0$t2m,precip=obs0$precip,
             obs.name=c("Daily mean temperature","Daily precipitation"),
             unit=c("deg C","mm/day"),station=obs0$station.number[1],
             lat=66.52760,lon=2.61009,alt=94,ele=c("tam","rr"),
             x.0E65N=NULL,y.0E65N=NULL,found=T,
-            location="Oslo-Blindern",wmo.no=NULL,
+            location="Bergen-Florida",wmo.no=NULL,
             start=1937,yy0=1980, country="Norway",ref="www.met.no")
-class(obs) <- "daily.station.record"
+class(bergen.dm) <- "daily.station.record"
 rm(obs0)
 
 # Stnr Navn I drift fra I drift til Snr Utm_e Utm_n Utm_sone Hoh Kommune Fylke

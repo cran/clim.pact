@@ -4,7 +4,6 @@
 \alias{Empirical orthogonal Functions}
 \alias{PCA}
 \alias{principal component analysis}
-\alias{preds}
 \title{Empirical Orthogonal Functions (EOFs).}
 \description{Computes EOFs (a type of principal component
   analysis) for combinations of data sets, typically from

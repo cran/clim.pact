@@ -1,7 +1,9 @@
 \name{grd.box.ts}
 \alias{grd.box.ts}
 \title{Grid box time series}
-\description{Plots time series from field objects, eg from \code{\link{retrieve.nc}}.}
+\description{Plots time series from field objects, eg from
+  \code{\link{retrieve.nc}}. Uses a bilinear interpolation scheme
+  (\code{link{interp}}) from the \code{akima} package.}
 \usage{
 grd.box.ts(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
                        col="grey10",lwd=1,lty=1,pch=26,add=FALSE,
@@ -23,13 +25,10 @@ grd.box.ts(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
     \item{filter}{If not NULL, this is a vector specifying window
       weighting argument of same name in \code{link{filter}}.}
 }
-\value{
-    
-    \tabular{ll}{
-      avail.preds \tab vector of characters \cr
-      avail.locs \tab a list with name, lons, lats,
-      country, ident \cr
-      avail.elem \tab a list with data.set, ele, name \cr}}
+\value{A station object with interpolated values (see \code{\link{station.obj}} and
+  \code{\link{station.obj.dm}}) that can be plotted using eg \code{\link{plotStation}}.    
+
+  }
 \author{R.E. Benestad}}
 \examples{
 \dontrun{
@@ -38,3 +37,8 @@ grd.box.ts(slp,0,60,what="ano",mon=1)
 }
 }
 \keyword{ts}
+
+
+
+
+

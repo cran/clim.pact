@@ -22,7 +22,7 @@ DS <- function(dat,preds,mon=NULL,direc="output/",cal.id=NULL,
 library(ts)
 library(ctest)
 #library(chron)
-library(date)
+#library(date)
 library(xtable)
 
 dir.0<-getwd()
@@ -171,7 +171,8 @@ if (class(dat)[2]=="monthly.station.record") {
     ds.unit <- dat$unit[1]
   }
 #  tim.o <- julian(mm.o,dd.o,yy.o,origin.=c(1,1,1970))
-  tim.o <- mdy.date(mm.o, dd.o, yy.o)
+#  tim.o <- mdy.date(mm.o, dd.o, yy.o)
+  tim.o <- julday(mm.o, dd.o, yy.o) - julday(1,1,1970)
   nt <- length(tim.o)
   ac.mod<-matrix(rep(NA,nt*6),nt,6)
   ac.mod[,1]<-cos(2*pi*tim.o/365.25); ac.mod[,2]<-sin(2*pi*tim.o/365.25)
@@ -404,7 +405,8 @@ if (length(pre.gcm)==1) {
 
 if ((class(dat)[2]=="daily.station.record") & (rmac)) {
 #  tim.cal <- julian(mm.cal,dd.cal,yy.cal,origin.=c(1,1,1970))
-  tim.cal <- mdy.date(mm.cal, dd.cal, yy.cal)
+#  tim.cal <- mdy.date(mm.cal, dd.cal, yy.cal)
+  tim.cal <- julday(mm.cal, dd.cal, yy.cal) - julday(1,1,1970)
   rm(ac.mod)
   nt.cal <- length(tim.cal)
   ac.mod<-matrix(rep(NA,nt.cal*6),nt.cal,6)
@@ -414,7 +416,8 @@ if ((class(dat)[2]=="daily.station.record") & (rmac)) {
   ac.cal <- data.frame(X=ac.mod)
   rm(ac.mod)
 #  tim.gcm <- julian(mm.gcm,dd.gcm,yy.gcm,origin.=c(1,1,1970))
-  tim.gcm <- mdy.date(mm.gcm, dd.gcm, yy.gcm)
+#  tim.gcm <- mdy.date(mm.gcm, dd.gcm, yy.gcm)
+  tim.gcm <- julday(mm.gcm, dd.gcm, yy.gcm) - julday(1,1,1970)
   nt.gcm <- length(tim.gcm)
   ac.mod<-matrix(rep(NA,nt.gcm*6),nt.gcm,6)
   ac.mod[,1]<-cos(2*pi*tim.gcm/365.25); ac.mod[,2]<-sin(2*pi*tim.gcm/365.25)
@@ -423,7 +426,8 @@ if ((class(dat)[2]=="daily.station.record") & (rmac)) {
   ac.gcm <- data.frame(X=ac.mod)
   rm(ac.mod)
 #  tim.o <- julian(mm.o,dd.o,yy.o,origin.=c(1,1,1970))
-  tim.o <- mdy.date(mm.o, dd.o, yy.o)
+#  tim.o <- mdy.date(mm.o, dd.o, yy.o)
+  tim.o <- julday(mm.o, dd.o, yy.o) - julday(1,1,1970)
   nt <- length(tim.o)
   ac.mod<-matrix(rep(NA,nt*6),nt,6)
   ac.mod[,1]<-cos(2*pi*tim.o/365.25); ac.mod[,2]<-sin(2*pi*tim.o/365.25)

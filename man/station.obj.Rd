@@ -1,7 +1,6 @@
 \name{station.obj}
 \alias{station.obj}
 \alias{monthly.station.record}
-\alias{dat}
 \title{Make monthly climate station series object.}
 \description{Create a station object for use as predictand in empirical
   downscaling on monthly data.  Also see \code{\link{station.obj.dm}}.}

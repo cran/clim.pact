@@ -4,8 +4,10 @@ library(clim.pact)
 cmon<-c("Jan","Feb","Mar","Apr","May","Jun",
         "Jul","Aug","Sep","Oct","Nov","Dec")
 
-domains <- c("D2","D4","D9","D10","D1","D3","D5","D6","D7","D8")
-analyses  <- c("NCEP","DNMI")
+#domains <- c("D2","D4","D9","D10","D1","D3","D5","D6","D7","D8")
+#analyses  <- c("NCEP","DNMI")
+domains <- c("D8","D11")
+analyses  <- c("NCEP")
 
 for (domain in domains) {
   for (analysis in analyses) {
@@ -20,7 +22,8 @@ x.domain <- switch(domain,
                 "D7"=list(x.rng=c(-20,20),y.rng=c(55,65)),
                 "D8"=list(x.rng=c(-40,20),y.rng=c(65,85)),
                 "D9"=list(x.rng=c(-60,-40),y.rng=c(40,70)),
-                "D10"=list(x.rng=c(-70,-40),y.rng=c(50,78)))
+                "D10"=list(x.rng=c(-70,-40),y.rng=c(50,78)),
+                "D11"=list(x.rng=c(-40,40),y.rng=c(50,80)))
 x.rng <- x.domain$x.rng
 y.rng <- x.domain$y.rng
 
@@ -108,6 +111,23 @@ gcm.t2m <- retrieve.nc("/home/kareb/data/ipcc_sres/EH4OPYC_A2_temp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(2001,2099))
 gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/EH4OPYC_A2_slp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(2001,2099))
+for (im in 1:12) {
+  XX.t2m <- catFields(obs.t2m,gcm.t2m,mon=im)
+  EOF.t2m <- EOF(XX.t2m,plot=FALSE)
+  XX.slp <- catFields(obs.slp,gcm.slp,mon=im)
+  EOF.slp <- EOF(XX.slp,plot=FALSE)
+  XX <- mixFields(XX.t2m,XX.slp)
+  EOF.t2m.slp <- EOF(XX,plot=FALSE)
+}
+
+
+##################### ECHAM4/OPYC3: GSDIO ########################
+
+print("### ECHAM4/OPYC3 GSDIO: ###")
+gcm.t2m <- retrieve.nc("/home/kareb/data/mpi/mpi-gsdio_t2m.nc",
+                       x.rng=x.rng,y.rng=y.rng,t.rng=c(1860,2099))
+gcm.slp <- retrieve.nc("/home/kareb/data/mpi/mpi-gsdio_slp.nc",
+                       x.rng=x.rng,y.rng=y.rng,t.rng=c(1860,2099))
 for (im in 1:12) {
   XX.t2m <- catFields(obs.t2m,gcm.t2m,mon=im)
   EOF.t2m <- EOF(XX.t2m,plot=FALSE)
@@ -269,4 +289,4 @@ for (im in 1:12) {
 }
 }
 
-source("cmp_eofs_rr.R")
+#source("cmp_eofs_rr.R")

@@ -1,10 +1,15 @@
+# R.E. Benestad, met.no, Oslo, Norway 16.04.2002
+# rasmus.benestad@met.no
+#------------------------------------------------------------------------
+
+
 retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
                         l.scale=TRUE,greenwich=TRUE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,t.rng=NULL) {
   library(netCDF)
 #  library(chron)
-  library(date)
+#  library(date)
   if (!file.exists(f.name)) {
     stop(paste("Sorry,",f.name," does not exist!"))
   }
@@ -137,14 +142,16 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
     obj.type <- "monthly.field.object"
   } else if (substr(lower.case(t.unit),1,3)=="day") {
 #    mmddyy<-month.day.year(tim,origin=c(mm0,dd0,yy0))
-    mmddyy <- date.mdy(tim + mdy.date(mm0,dd0,yy0,nineteen=FALSE), weekday = FALSE)
+#    mmddyy <- date.mdy(tim + mdy.date(mm0,dd0,yy0,nineteen=FALSE), weekday = FALSE)
+    mmddyy <- caldat(tim + julday(mm0,dd0,yy0))
     mm <- mmddyy$month
     yy <- mmddyy$year
     dd <- mmddyy$day
     obj.type <- "daily.field.object"
   } else if (substr(lower.case(t.unit),1,4)=="hour") {
 #    mmddyy<-month.day.year(tim/24,origin=c(mm0,dd0,yy0))
-    mmddyy <- date.mdy(tim/24 + mdy.date(mm0,dd0,yy0,nineteen=FALSE),weekday = FALSE)
+#    mmddyy <- date.mdy(tim/24 + mdy.date(mm0,dd0,yy0,nineteen=FALSE),weekday = FALSE)
+    mmddyy <- caldat(tim/24 + julday(mm0,dd0,yy0))
     mm <- mmddyy$month
     yy <- mmddyy$year
     dd <- mmddyy$day

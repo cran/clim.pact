@@ -12,7 +12,7 @@ getnacd(location="prompt",ele.c='101',ascii=FALSE,silent=FALSE,direc="data")
 }
 
 \arguments{
-  \item{location}{name of climate station location.}
+  \item{location}{name of climate station location or NACD station number.}
   \item{ele.c}{name of element [e.g. avail.elem(), or 't2m', 'rr', 'slp'].}
   \item{ascii}{Flag. T -> force ascii read, otherwise look for
     R-formatted verion (faster).}

@@ -1,6 +1,5 @@
 \name{station.obj.dm}
 \alias{station.obj.dm}
-\alias{obs}
 \alias{daily.station.record}
 \title{Make daily climate station series object.}
 \description{Create a station object for use as predictand in empirical

@@ -89,9 +89,24 @@ if (!is.null(attributes(x$tim)$unit)) {
   grid()
 
 
-  results <- list(map=map,lon=x$lon,lat=x$lat,tim=x$tim,
-                  date=date,description=descr)
-
+  if (lower.case(substr(attr(x$tim,"unit"),1,5))=="month") {
+    print("Monthly")
+    results <- station.obj(ts,yy=x$yy,obs.name=x$v.name,unit=attr(x$dat,"unit"),
+                           ele=NA,mm=x$mm,
+                           station=NA,lat=round(lat,4),lon==round(lon,4),alt=NA,
+                           location="interpolated",wmo.no=NA,
+                           start=min(x$yy),yy0=attr(x$tim,"time_origin"),country=NA,
+                           ref="grd.box.ts.R (clim.pact)")
+  } else {
+    results <- station.obj.dm(t2m=ts,precip=rep(NA,length(ts)),
+                              x$dd,x$mm,x$yy,
+                              obs.name=x$v.name,unit=attr(x$dat,"unit"),ele=NA,
+                              station=NA,lat=round(lat,4),lon=round(lon,4),alt=NA,
+                              location="interpolated",wmo.no=NA,
+                              start=min(x$yy),yy0=attr(x$tim,"time_origin"),country=NA,
+                              ref="grd.box.ts.R (clim.pact)")
+  }
+  
   invisible(results)
 }
 

@@ -17,7 +17,9 @@ plot.rate=FALSE,add=FALSE,col="darkred",lwd=2,lty=1,
     \item{lty}{Line style of scenario time series.}
     \item{direc}{Directory for graphical output.}
     }
-\value{}
+\value{\code{plotDS} returns a map object for the large-scale synoptic
+  (anomaly) pattern, which can be plotted on a sphere
+  (\code{\link{satellite}}) or coloured map (\code{\link{map}}).}
 \author{R.E. Benestad}}
 \examples{
 data(helsinki.t2m)

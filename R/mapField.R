@@ -97,7 +97,7 @@ mapField <- function(x,l=NULL,greenwich=TRUE,what="ano",method="nice",
   contour(x$lon,x$lat,t(map),add=TRUE,col=col,lwd=lwd,lty=lty)
   addland()
   results <- list(map=t(map),lon=x$lon,lat=x$lat,tim=x$tim,
-                  date=date,description=descr)
+                  date=date,description=descr,attributes=x$attributes)
   class(results) <- "map"
   attr(results,"long_name") <- attr(x$dat,"long_name")
   attr(results,"descr") <- descr

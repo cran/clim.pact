@@ -58,10 +58,10 @@ if (plot) {
   grid()
 }
 
-dim(y) <- c(ny,12)
+dim(y) <- c(12,ny)
 
 x<- x.1
-x$val <- y
+x$val <- t(y)
 x$yy <- yy
 x
 }

@@ -10,10 +10,10 @@
 #
 # R.E. Benestad
 
-getdnmi <- function(location,ele.c='t2m',
+getdnmi <- function(location,ele.c='101',silent = FALSE,
                     direc="/home/kareb/data/stations/") {
 
-
+if (!silent) print(paste("GETDNMI:",location,ele.c))
 row<-switch(as.character(ele.c),
               't2m'='V5','rr'='V4','slp'='V9',
               't2'='V5','precip'='V4','temp'='V5',
@@ -91,7 +91,7 @@ if (file.exists(paste(direc,f.name,sep=""))) {
 } else {
   x <- NULL
   station <- NA
-  yy <- NULL
+  YY <- NULL
   lat <- NULL
   lon <- NULL
   alt <- NULL

@@ -56,29 +56,38 @@ if ((!add) & (plot.map)) {
        xlab="Time",ylab=paste(v.name,"(",unit,")"))
 
   col.tab=c("darkblue","darkred","darkgreen","brown")
-
+  t.rng <- paste(range(ds.obj$yy.cal)[1],"-",range(ds.obj$yy.cal)[2])
+  ds.map <- list(tim=NULL,date=NULL,n.maps=NULL)
+  ds.map$tim<-month; ds.map$date<-t.rng; ds.map$n.maps=n.fld
   for (i in 1:n.fld) {
     eval(parse(text=paste("lines(c(min(lon.",i,"),max(lon.",i,")),",
                               "c(min(lat.",i,"),min(lat.",i,")),",
                               "col=col.tab[i],lty=2)",sep="")))
-  eval(parse(text=paste("lines(c(min(lon.",i,"),max(lon.",i,")),",
+    eval(parse(text=paste("lines(c(min(lon.",i,"),max(lon.",i,")),",
                               "c(max(lat.",i,"),max(lat.",i,")),",
                               "col=col.tab[i],lty=2)",sep="")))
-  eval(parse(text=paste("lines(c(min(lon.",i,"),min(lon.",i,")),",
+    eval(parse(text=paste("lines(c(min(lon.",i,"),min(lon.",i,")),",
                               "c(min(lat.",i,"),max(lat.",i,")),",
                               "col=col.tab[i],lty=2)",sep="")))
-  eval(parse(text=paste("lines(c(max(lon.",i,"),max(lon.",i,")),",
+    eval(parse(text=paste("lines(c(max(lon.",i,"),max(lon.",i,")),",
                               "c(min(lat.",i,"),max(lat.",i,")),",
                               "col=col.tab[i],lty=2)",sep="")))
-  eval(parse(text=paste("contour(lon.",i,",lat.",i,",t(ds.obj$X.",i,
+    eval(parse(text=paste("contour(lon.",i,",lat.",i,",t(ds.obj$X.",i,
                "),nlevels=7,add=TRUE,lwd=2,col=col.tab[i])",sep="")))
+    eval(parse(text=paste("ds.map$lon.",i,"<-lon.",i,sep="")))
+    eval(parse(text=paste("ds.map$lat.",i,"<-lat.",i,sep="")))
+    eval(parse(text=paste("ds.map$map.",i,"<-t(ds.obj$X.",i,")",sep="")))
   }
+  class(ds.map) <- "map"; attr(ds.map,"descr") <- "ds: large-scale pattern"
+
+#  print("plotDS: HERE")
 
   if (!is.null(lon.loc) & !is.null(lat.loc))
     points(lon.loc,lat.loc,pch=20,col="wheat",cex=1.5)
     points(lon.loc,lat.loc,pch=20,col="black",cex=0.9)
   addland()
   grid()
+
 
   if (n.fld > 1) {
     legend(min(c(lons,lon.loc)),
@@ -207,4 +216,6 @@ if (leps) {
   file.remove(figname)
 }
 }
+
+invisible(ds.map)
 }

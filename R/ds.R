@@ -17,7 +17,8 @@ DS <- function(dat,preds,mon=NULL,direc="output/",cal.id=NULL,
                ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
                method="lm",plot=TRUE,leps=FALSE,param="t2m",
                plot.res=FALSE,plot.rate=FALSE,xtr.args="",
-               swsm="step",predm="predict",lsave=TRUE) {
+               swsm="step",predm="predict",lsave=TRUE,rmac=TRUE,
+               silent=FALSE) {
 library(ts)
 library(ctest)
 library(chron)
@@ -25,7 +26,7 @@ library(xtable)
 
 dir.0<-getwd()
 if (!file.exists(direc)){
-  print(paste("The directory",direc,"does not exists.. Creates it.."))
+  if (!silent) print(paste("The directory",direc,"does not exists.. Creates it.."))
   dir.create(direc)
 }
 if (class(preds)[1]!="eof") {
@@ -35,6 +36,18 @@ if (class(preds)[1]!="eof") {
 if (class(dat)[1]!="station") {
   stop(paste("The predictand must be a 'monthly.station.record'",
              "object - Use  station.obj()"))
+}
+
+anm.weight <- FALSE
+if (method=="anm.weight") {
+  method <- "anm"
+  anm.weight <- TRUE
+}
+if (method=="anm") {
+  swsm <- "none"
+#  predm <- "predictANM"
+  ldetrnd <- FALSE
+  rmac <- FALSE
 }
 
 cmon<-c('Jan','Feb','Mar','Apr','May','Jun',
@@ -53,20 +66,21 @@ region<-paste(as.character(abs(round(min(lon)))),deg.lon1.c,
               as.character(abs(round(max(lat)))),deg.lat2.c,sep="")
 
 month <-cmon[mon]
-if (class(preds)[2]=="daily.field.object") {
+if ((class(preds)[2]=="daily.field.object") & !is.null(mon)) {
   mon <- mod(mon-1,4)+1
   month <- season.c[mon+1]
   mon <- season[mon]
 }
 
 if (!is.null(mon) & !is.null(preds$mon)) {    
-  print(paste("Extract",month,"-> # of data points=",
-              sum(is.element(preds$mm,mon))))
   if (is.null(mon)) mon <- preds$mon
+  if (!silent) print(paste("Extract",cmon[mon],"-> # of data points=",
+              sum(is.element(preds$mm,mon))))
   if (  sum(is.element(preds$mm,mon))==0  ) {
-    print(paste(">>> ",month," is not found in the PCA product! <<<"))
+    if (!silent) print(paste(">>> ",cmon[mon],
+                             " is not found in the PCA product! <<<"))
     months <- row.names(table(preds$mm))
-    print(paste(" Available months are:",cmon[months]))
+    if (!silent) print(paste(" Available months are:",cmon[months]))
     mon<-months
   }
 } else {
@@ -92,7 +106,7 @@ for (i.pred in 1:length(preds.names)) {
 if (is.null(attr(preds$tim,"unit"))) {
   if (preds$dd[2]-preds$dd[1]==0) attr(preds$tim,"unit")<-"mon" else
                                  attr(preds$tim,"unit")<-"day"
-  print(attr(preds$tim,"unit"))
+#  if (!silent) print(attr(preds$tim,"unit"))
 }
 
 eos <- instring(" ",dat$location)[1]-1
@@ -104,7 +118,7 @@ fname<-paste(direc,"ds_",preds.id,"_",region,"_",
              ex.tag,".Rdata",sep="")
 
 # Get the predictand
-    
+
 loc <- dat$location
 if (class(dat)[2]=="monthly.station.record"){
   v.name  <- abbreviate(dat$obs.name)
@@ -116,16 +130,16 @@ if (v.name=="mT(2") v.name <- "T"
 ny<-length(dat$yy)
 
 if ( (ny < 20) | (sum(is.na(dat$yy))>0) ) {
-    print("ds: WARNING: ... SENSING POSSIBLE PROBLEMS!...")
-  print(paste("For predictor, you selected",preds$f.name))
-  print(paste("for predictand, you selected",loc))
-  print(paste("Number of valid data points from station",
+  if (!silent) print("ds: WARNING: ... SENSING POSSIBLE PROBLEMS!...")
+  if (!silent) print(paste("For predictor, you selected",preds$f.name))
+  if (!silent) print(paste("for predictand, you selected",loc))
+  if (!silent) print(paste("Number of valid data points from station",
               sum(!is.na(dat$val)),"- Length of data record=",ny))
-  print("Years of station observations:")
-  print(range(dat$yy))
-  print("Years of predictor (PCs):")
-  print(range(preds$yy))
-  print("You may want to try another location or different dataset")
+  if (!silent) print("Years of station observations:")
+  if (!silent) print(range(dat$yy))
+  if (!silent) print("Years of predictor (PCs):")
+  if (!silent) print(range(preds$yy))
+  if (!silent) print("You may want to try another location or different dataset")
 }
 
 if (class(dat)[2]=="monthly.station.record") {
@@ -139,26 +153,24 @@ if (class(dat)[2]=="monthly.station.record") {
   yy.o <- dat$yy
   mm.o <- dat$mm
   dd.o <- dat$dd
-  tim.o <- julian(mm.o,dd.o,yy.o,origin.=c(1,1,1970))
   if (eval(parse(text=paste("is.null(dat$",param,")",sep="")))) {
-    print(summary(dat))
+    if (!silent) print(summary(dat))
     param <- readline("Select object field:")
     ds.unit <- readline("unit:")
   } else {
-    print(paste("y.o<-dat$",param,sep=""))
+    if (!silent) print(paste("y.o<-dat$",param,sep=""))
     eval(parse(text=paste("y.o<-dat$",param,sep="")))
     ds.unit <- dat$unit[1]
   }
+  tim.o <- julian(mm.o,dd.o,yy.o,origin.=c(1,1,1970))
   nt <- length(tim.o)
   ac.mod<-matrix(rep(NA,nt*6),nt,6)
-  ac.mod[,1]<-cos(2*pi*tim.o/365.25)
-  ac.mod[,2]<-sin(2*pi*tim.o/365.25)
-  ac.mod[,3]<-cos(4*pi*tim.o/365.25)
-  ac.mod[,4]<-sin(4*pi*tim.o/365.25)
-  ac.mod[,5]<-cos(6*pi*tim.o/365.25)
-  ac.mod[,6]<-sin(6*pi*tim.o/365.25)
-  ac.fit<-lm(y.o ~ ac.mod)
-  y.o <- ac.fit$residual
+  ac.mod[,1]<-cos(2*pi*tim.o/365.25); ac.mod[,2]<-sin(2*pi*tim.o/365.25)
+  ac.mod[,3]<-cos(4*pi*tim.o/365.25); ac.mod[,4]<-sin(4*pi*tim.o/365.25)
+  ac.mod[,5]<-cos(6*pi*tim.o/365.25); ac.mod[,6]<-sin(6*pi*tim.o/365.25)
+  ac.obs <- data.frame(y=y.o, X=ac.mod)
+  ac.fit<-lm(y ~ X.1 + X.2 + X.3 + X.4 + X.5 + X.6,data=ac.obs)
+  if (rmac) y.o <- ac.fit$residual
 }
 
 y.o[y.o < -99] <-NA
@@ -197,7 +209,7 @@ yy.cal<- preds$yy[preds$id.t==cal.id & !is.na(preds$PC[,1])]
 mm.cal<- preds$mm[preds$id.t==cal.id & !is.na(preds$PC[,1])]
 dd.cal<- preds$dd[preds$id.t==cal.id & !is.na(preds$PC[,1])]
 
-print("------------Match times---------------- ")
+if (!silent) print("------------Match times---------------- ")
 X.cal<-  X.cal[is.element(mm.cal,mon),]
 yy.cal<- yy.cal[is.element(mm.cal,mon)]
 dd.cal<- dd.cal[is.element(mm.cal,mon)]
@@ -246,36 +258,57 @@ i3 <- is.finite(y.o)
 y.o<-y.o[i3]; mm.o<-mm.o[i3]; yy.o<-yy.o[i3]; dd.o<-dd.o[i3]
 X.cal<-X.cal[i3,]; mm.cal<-mm.cal[i3]; yy.cal<-yy.cal[i3]; dd.cal<-dd.cal[i3]
 
-print("Common times:")
-print(range(yy.o))
-print(range(y.o))
+if (!silent) print("Common times:")
+if (!silent) print(range(yy.o))
+if (!silent) print(range(y.o))
 
 #--------------------------------------------------------
 # De-trend the data used for model calibration:
 
-for (i in 1:length(preds$var.eof)) {
-  trnd<-seq(-1,1,length=length(X.cal[,i]))
-  dtrnd<-lm(X.cal[,i] ~trnd)
-  X.cal[,i]<-dtrnd$residual   
+if (ldetrnd) {
+  for (i in 1:length(preds$var.eof)) {
+    trnd<-seq(-1,1,length=length(X.cal[,i]))
+    dtrnd<-lm(X.cal[,i] ~trnd)
+    X.cal[,i]<-dtrnd$residual   
+  }
 }
-y <- y.o - mean(y.o,na.rm=TRUE)
+if (method=="anm") y <- y.o   # Analog model
+              else y <- y.o - mean(y.o,na.rm=TRUE)
 trnd<-seq(-1,1,length=length(y))
 dtrnd<-lm(y ~ trnd)
 if (ldetrnd) {
   y<-dtrnd$residual
 }
 
+
+# Stepwise regression
+#scen.gcm.str <- "data.frame("
+#calibrate.str <- "data.frame(y=y,"
+#for (ipre in 1:length(preds$var.eof)) {
+# if (weight) scen.gcm.str <-
+#paste(scen.gcm.str,"X",ipre,"=X.gcm[,",ipre,
+#                                "]* preds$W[",ipre,"],",sep="")
+#else scen.gcm.str <-
+#paste(scen.gcm.str,"X",ipre,"=X.gcm[,",ipre,"],",sep="")
+ 
 # Stepwise regression
 scen.gcm.str <- "data.frame("
 calibrate.str <- "data.frame(y=y,"
 for (ipre in 1:length(preds$var.eof)) {
   scen.gcm.str <- paste(scen.gcm.str,"X",ipre,"=X.gcm[,",ipre,
                         "]* preds$W[",ipre,"],",sep="")
-  calibrate.str <- paste(calibrate.str,"X",ipre,"=X.cal[,",ipre,
-                        "]* preds$W[",ipre,"],",sep="")
+  if (method=="anm") {   # Analog model
+    if (anm.weight) calibrate.str <- paste(calibrate.str,"X",ipre,"=X.cal[,",
+                           ipre,"]* preds$W[",ipre,"],",sep="") else
+                    calibrate.str <- paste(calibrate.str,"X",ipre,"=X.cal[,",
+                           ipre,"],",sep="") 
+  } else calibrate.str <- paste(calibrate.str,"X",ipre,"=X.cal[,",ipre,
+                           "]* preds$W[",ipre,"],",sep="")
 }
 scen.gcm.str <- paste(scen.gcm.str,"yy=yy.gcm,mm=mm.gcm,dd=dd.gcm)",sep="")
 scen.gcm <- eval(parse(text=scen.gcm.str))
+
+
 calibrate.str <- paste(calibrate.str,"yy=yy.cal,mm=mm.cal,dd=dd.cal)",sep="")
 calibrate <- eval(parse(text=calibrate.str))
 
@@ -291,12 +324,14 @@ for (i.eof in 1:length(i.eofs)) {
 for (i.eof in 1:length(i.eofs)) {  
   exprn <- paste(exprn," + X",i.eofs[i.eof],sep="")
 }
-exprn <- paste(exprn,xtr.args,")",sep="")
-print(paste("Model: ",exprn))
+if (method!="anm") exprn <- paste(exprn,xtr.args,")",sep="") else 
+                   exprn <- paste(exprn,",","data=calibrate",xtr.args,")",sep="") 
+
+if (!silent) print(paste("Model: ",exprn))
 expr <- parse(text=exprn)
 lm.mod <- eval(expr)
 meths <- methods(class(lm.mod))
-print("Stepwise..")
+if (!silent) print("Stepwise..")
 if ((swsm!="none") & !is.null(swsm)) {
   step.wise <- eval(parse(text=paste(swsm,"(lm.mod,trace=0)",sep="")))
 }  else step.wise<-lm.mod
@@ -312,21 +347,21 @@ if (length(step.wise$coefficients)>1) {
                            stat$fstatistic[3])))
   } else if (method=="anm") {
     cor.test(y,eval(parse(text=paste(predm,"(lm.mod)",sep=""))))
-    r2.stat <- cor.test(y[!calibrate$cal],predict.anm(lm.mod))
-    r2 <- round(100*r2.stat$estimate2)
-    r.val <- round(100*r2.stat$p.value)
+    r2.stat <- cor.test(y,predict.anm(lm.mod))
+    r2 <- round(100*r2.stat$estimate^2,2)
+    p.val <- round(100*r2.stat$p.value,2)
   } else {
     r2.stat <- eval(parse(text=paste("r2.stat <- cor.test(y,",predm,"(lm.mod))",sep="")))
-    r2 <- round(100*r2.stat$estimate^2)
-    p.val <- round(100*r2.stat$p.value)
+    r2 <- round(100*r2.stat$estimate^2,2)
+    p.val <- round(100*r2.stat$p.value,2)
   }
   fit.p<-as.character(p.val)
 } else {
-  print("-----------Step failed:----------")
-  print(paste("---------",method,":"))
-  print(summary(lm.mod))
-  print("-----------Step:")
-  print(stat)
+  if (!silent) print("-----------Step failed:----------")
+  if (!silent) print(paste("---------",method,":"))
+  if (!silent) print(summary(lm.mod))
+  if (!silent) print("-----------Step:")
+  if (!silent) print(stat)
   r2 <- 0
   p.val <- 100
   fit.p <- "100"
@@ -344,12 +379,12 @@ attach(scen.gcm)
 #pre.gcm<-predict(step.wise,newdata=scen.gcm)
 pre.gcm <- eval(parse(text=paste(predm,"(step.wise,newdata=scen.gcm)",sep="")))
 detach(scen.gcm)
-print(summary(step.wise))
+if (!silent) print(summary(step.wise))
 
 # A "fudge" to avoid problems when stepwise rejects all the predictors
 # (i.e. only returns an intercept)
 if (length(pre.gcm)==1) {
-  print(c(length(pre.gcm),c(length(yy.gcm))))
+  if (!silent) print(c(length(pre.gcm),c(length(yy.gcm))))
   pre.gcm <- rep(pre.gcm,length(yy.gcm))
 }
 
@@ -357,10 +392,42 @@ if (length(pre.gcm)==1) {
 #print(summary(pre.gcm))
 #print(c(mean(pre.gcm[yy.gcm<2010],na.rm=TRUE),
 #        mean(y.o[yy.o>1980],na.rm=TRUE)))
+
+if ((class(dat)[2]=="daily.station.record") & (rmac)) {
+  tim.cal <- julian(mm.cal,dd.cal,yy.cal,origin.=c(1,1,1970))
+  rm(ac.mod)
+  nt.cal <- length(tim.cal)
+  ac.mod<-matrix(rep(NA,nt.cal*6),nt.cal,6)
+  ac.mod[,1]<-cos(2*pi*tim.cal/365.25); ac.mod[,2]<-sin(2*pi*tim.cal/365.25)
+  ac.mod[,3]<-cos(4*pi*tim.cal/365.25); ac.mod[,4]<-sin(4*pi*tim.cal/365.25)
+  ac.mod[,5]<-cos(6*pi*tim.cal/365.25); ac.mod[,6]<-sin(6*pi*tim.cal/365.25)
+  ac.cal <- data.frame(X=ac.mod)
+  rm(ac.mod)
+  tim.gcm <- julian(mm.gcm,dd.gcm,yy.gcm,origin.=c(1,1,1970))
+  nt.gcm <- length(tim.gcm)
+  ac.mod<-matrix(rep(NA,nt.gcm*6),nt.gcm,6)
+  ac.mod[,1]<-cos(2*pi*tim.gcm/365.25); ac.mod[,2]<-sin(2*pi*tim.gcm/365.25)
+  ac.mod[,3]<-cos(4*pi*tim.gcm/365.25); ac.mod[,4]<-sin(4*pi*tim.gcm/365.25)
+  ac.mod[,5]<-cos(6*pi*tim.gcm/365.25); ac.mod[,6]<-sin(6*pi*tim.gcm/365.25)
+  ac.gcm <- data.frame(X=ac.mod)
+  rm(ac.mod)
+  tim.o <- julian(mm.o,dd.o,yy.o,origin.=c(1,1,1970))
+  nt <- length(tim.o)
+  ac.mod<-matrix(rep(NA,nt*6),nt,6)
+  ac.mod[,1]<-cos(2*pi*tim.o/365.25); ac.mod[,2]<-sin(2*pi*tim.o/365.25)
+  ac.mod[,3]<-cos(4*pi*tim.o/365.25); ac.mod[,4]<-sin(4*pi*tim.o/365.25)
+  ac.mod[,5]<-cos(6*pi*tim.o/365.25); ac.mod[,6]<-sin(6*pi*tim.o/365.25)
+  ac.obs <- data.frame(X=ac.mod)
+  y.o <- y.o + predict(ac.fit,newdata=ac.obs)
+  pre.y <- pre.y + predict(ac.fit,newdata=ac.cal)
+  pre.gcm <- pre.gcm + predict(ac.fit,newdata=ac.gcm)  
+}
+
 pre.y   <- pre.y   - mean(pre.y,na.rm=TRUE) + mean(y.o,na.rm=TRUE)
 pre.gcm <- pre.gcm - mean(pre.gcm[yy.gcm<2010],na.rm=TRUE) +
                      mean(y.o[yy.o>1980],na.rm=TRUE)
-print(summary(pre.gcm))
+
+if (!silent) print(summary(pre.gcm))
 
 if ( (regexpr("precip",lower.case(dat$obs.name)) > 0) |
      (regexpr("rain",lower.case(dat$obs.name)) > 0) ) {
@@ -396,8 +463,8 @@ preds2D<-preds$EOF
 dims <- dim(preds2D)
 if (length(dims) > 2) dim(preds2D)<-c(dims[1],dims[2]*dims[3])
 
-print("Reconstruct the spatial patterns")
-print(lm.coe)
+if (!silent) print("Reconstruct the spatial patterns")
+if (!silent) print(lm.coe)
 
 i.last <- 0
 list.expr <- "list("
@@ -436,7 +503,7 @@ for (i in 1:n.fld) {
 
 # Linear trend:
 
-print("Linear trend for GCM (deg C/decade)")
+if (!silent) print("Linear trend for GCM (deg C/decade)")
 x.ind <- seq(0,1,length=length(yy.gcm))
 tr.dat<-data.frame(y=pre.gcm, x=x.ind)
 nt <- length(yy.gcm)
@@ -447,8 +514,8 @@ rate.ds <- round(as.real(round(coef.fit[2]*10,2))*(x.ind[2]-x.ind[1]),2)
 rate.err  <- round(as.real(round(coef.fit[4]*10,2))*(x.ind[2]-x.ind[1]),2)
 
 #print(coef.fit)
-print("Slope and its uncertainty")
-print(c(rate.ds,rate.err))
+if (!silent) print("Slope and its uncertainty")
+if (!silent) print(c(rate.ds,rate.err))
 pre.fit<-predict(lm.tr,data= yy)
 
 # Polinomial trend
@@ -473,12 +540,13 @@ if (!is.null(gcm.stat$fstatistic)) {
 } else {gcm.trnd.p<-"100"}
 gcm.trnd.r2 <- gcm.stat$r.squared
 
-print(paste("P-value of fit=",fit.p))
-print(paste("P-value of trend-fit for downscaled scenario",gcm.trnd.p))
+if (!silent) print(paste("P-value of fit=",fit.p))
+if (!silent) print(paste("P-value of trend-fit for downscaled scenario",gcm.trnd.p))
 
 #---------------------------------------------------
 
-if (method!="nnet") {
+if ((method!="nnet") & (method!= "anm") & lsave) {
+  
 mod.name<-paste(direc,"ds.mod_",preds.id,"_",region,"_",
              substr(dat$location,1,eos),"_",dat$ele,"_",preds$c.mon,'_',
              substr(attr(preds$tim,"unit"),1,3),"_",method,
@@ -507,8 +575,9 @@ scen.table<-xtable(data.frame(year=yy.gcm,
                      "; p-value for linear trend-fit=",
                      gcm.trnd.p,"%.",sep=""))
 
-print.xtable(scen.table,type="html",
-             file=paste(sce.name,".html",sep=""))
+if (lsave) print.xtable(scen.table,type="html",
+           file=paste(sce.name,".html",sep=""))
+
 pred.name <- row.names(table(preds$id.x))
 list.expr <- paste(list.expr,
          "lon.loc=dat$lon,lat.loc=dat$lat,alt.loc=dat$alt,",
@@ -526,7 +595,7 @@ list.expr <- paste(list.expr,
          "pred.name=pred.name)",sep="")       
 #print(list.expr)
 ds<-eval(parse(text=list.expr))
-print(paste("File name:",fname))
+if (!silent) print(paste("File name:",fname))
 class(ds) <- "ds"
 if (lsave) save(file=fname,ds,ascii=FALSE) 
 #print("Plotting...")

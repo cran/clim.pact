@@ -68,7 +68,8 @@ is: \deqn{y= c_1 + 2 c_2 x + 3 c_3 x^2 +  4 c_4 x^3 + 5 c_5 x^4.}{y= c1
               ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
               method="lm",plot=TRUE,leps=FALSE,param="t2m",
               plot.res=FALSE,plot.rate=FALSE,xtr.args="",
-              swsm="step",predm="predict",lsave=TRUE)}
+              swsm="step",predm="predict",lsave=TRUE,rmac=TRUE,
+               silent=FALSE)}
 
 \arguments{
     \item{dat}{ A climate.station object (\code{\link{station.obj}} or 
@@ -86,7 +87,11 @@ is: \deqn{y= c_1 + 2 c_2 x + 3 c_3 x^2 +  4 c_4 x^3 + 5 c_5 x^4.}{y= c1
 	before model calibration.}
     \item{i.eofs}{ select which EOFs to include in the setp-wise screening.}
     \item{ex.tag}{Extra labelling tag for file names for experiments.}
-    \item{method}{Sets the method to use for regression.}
+    \item{method}{Sets the method to use for regression. Method is set
+      to "lm" by default, but "anm" allows the incorporation of an
+      analog model, see \code{\link[anm]{anm}}. "anm.weight" weights the
+    principal components according to the eigenvalues, whereas "anm"
+    uses unweighted series.}
     \item{plot}{'TRUE' produces figures.}
     \item{leps}{'TRUE' produces EPS figures (files).}
     \item{param}{Name of parameter (for plot labels).}
@@ -97,6 +102,9 @@ is: \deqn{y= c_1 + 2 c_2 x + 3 c_3 x^2 +  4 c_4 x^3 + 5 c_5 x^4.}{y= c1
       skips stepwise sceeening.}
     \item{predm}{Prediction method, default is "predict"}.
     \item{lsave}{TRUE -> saves the result on disc}.
+    \item{rmac}{TRUE -> subtracts (removes) the annual cycle in station
+      data.}
+    \item{silent}{TRUE -> no output to screen.}.
 }
 
 \value{A 'ds' object -  a list of following elements:

@@ -7,7 +7,8 @@
 
 EOF<-function(fields,l.wght=TRUE,lc180e=FALSE,direc="data/",
               lon=NULL,lat=NULL,l.stndrd=TRUE,las=1,
-              mon=NULL,plot=TRUE,neofs=20,l.rm.ac=TRUE) {
+              mon=NULL,plot=TRUE,neofs=20,l.rm.ac=TRUE,lsave=TRUE,
+              LINPACK=TRUE) {
 
 #=========================================================================
 library(ts)
@@ -66,8 +67,6 @@ if (class(fields)[2]=="monthly.field.object") {
       i.mm <- is.finite(mm)      
   } else {
       c.mon<-months[mon]
-#      print("Monts")
-#      print(table(mm))
       i.mm <- is.element(mm,mon)
       dat <- dat[i.mm,]
       yy <- yy[i.mm]
@@ -75,7 +74,6 @@ if (class(fields)[2]=="monthly.field.object") {
       dd <- dd[i.mm]
       id.t <- id.t[i.mm]
       tim <- tim[i.mm]
-#      print(table(mm))
     }
 } else if (class(fields)[2]=="daily.field.object") {
   ac.mod<-matrix(rep(NA,nt*6),nt,6)
@@ -97,6 +95,7 @@ if (class(fields)[2]=="monthly.field.object") {
     } else { 
       c.mon<-paste(months[min(mm)],"-",months[max(mm)],sep="")
     }
+    i.mm <- is.finite(mm) 
   } else {
     mon <- mod(mon-1,4)+1
     c.mon<-season.c[mon+1]
@@ -114,6 +113,9 @@ if (class(fields)[2]=="monthly.field.object") {
 #  print(table(mm))
 #  print(paste("Season:",mon))
 #  print(season)
+} else if (substr(attr(fields$tim,"unit"),1,5)=="month") {
+      c.mon<-months[as.numeric(row.names(table(mm)))]
+      i.mm <- is.finite(mm) 
 }
 
 preds.names <- row.names(table(lower.case(fields$id.t)))
@@ -175,11 +177,12 @@ for (i in 1:fields$n.fld) {
   id.lon  <- id.lon[ix]
   id.lat  <- id.lat[iy]
 #  print(dim(dat.x))
-#  print(c(length(yy),ny,nx))
+#  print(c(length(yy),ny,nx,sum(ix),sum(iy)))
 
   dim(dat.x) <- c(length(yy),ny,nx)
   dat.x <- dat.x[,iy,ix]
-   
+
+#print("Stdv[i]")  
   ny <- length(lat.x)
   nx <- length(lon.x)
   nt <- length(yy)
@@ -192,17 +195,17 @@ print("Remove mean values at each grid point")
     }
   }
 
-print("Add geographical weighting")
+  print("Add geographical weighting")
   if (l.wght) {
     print(paste("Weighting according to area. Field",i))
-    Wght<-matrix(nrow=ny,ncol=nx)
-    for (j in 1:nx) Wght[,j]<-sqrt(abs(cos(pi*lat.x/180)))
-    Wght[Wght < 0.1]<-NA
-    for (it in 1:nt) {
-      dat.x[it,,] <- dat.x[it,,]*Wght/stdv[i]
-    }
+    Wght <-matrix(nrow=ny,ncol=nx)
+    for (j in 1:nx)  Wght[,j]<-sqrt(abs(cos(pi*lat.x/180)))
+    Wght[Wght < 0.01]<-NA     
+    for (it in 1:nt) dat.x[it,,] <- dat.x[it,,]*Wght/stdv[i]
+    print(paste("Wght.",i,"<-Wght",sep=""))
+    eval(parse(text=paste("Wght.",i,"<-Wght",sep="")))
   }
-
+  
   # reshape 3-D matrices to 2-D matrices
 
 #print("Reshape 3-D matrices to 2-D matrices")
@@ -255,8 +258,12 @@ print(paste("n.eff=",n.eff))
 # Apply the PCA:       
 print(paste("Singular Value Decomposition: ",sum(is.na(dat.d2)),
             ' NA-values -> set to zero of ',length(dat.d2)))
-dat.d2[is.na(dat.d2)]<-0
-pca<-svd(t(dat.d2))
+dat.d2[!is.finite(dat.d2)]<-0
+print(range(dat.d2))
+print(dim(dat.d2))
+print(stdv)
+if (LINPACK) pca<-svd(t(dat.d2)) else 
+             pca<-La.svd(t(dat.d2))
 PC<-pca$v[,1:neofs]
 EOF<-t(pca$u[,1:neofs])
 W<-pca$d[1:neofs]
@@ -278,7 +285,8 @@ for (i in 1:fields$n.fld) {
   EOF.1 <- EOF[,i.fld]
   dim(EOF.1)<-c(neofs,size[2,i],size[3,i])
 #  print(l.wght)
-  if (l.wght) for (ieof in 1:neofs) EOF.1[ieof,,]<-EOF.1[ieof,,]*stdv[i]/Wght
+  if (l.wght) for (ieof in 1:neofs) EOF.1[ieof,,]<-
+             EOF.1[ieof,,]*stdv[i]/eval(parse(text=paste("Wght.",i,sep="")))
 #  print('eof.patt<-t(EOF.1[1,,])')
   eof.patt<-t(EOF.1[1,,])
   EOF[,i.fld] <- EOF.1
@@ -319,14 +327,16 @@ for (i in 1:fields$n.fld) {
 attr(tim,"unit") <- tim.unit
 attr(tim,"time_origin") <- tim.torg
 
+#print("Construct list object")
 eof<-list(EOF=EOF,W=W,PC=PC,id=preds.id,n.fld=fields$n.fld,tot.var=tot.var,
           id.t=id.t,id.x=fields$id.x,size=size,dW=dW,mon=mon,l.wght=l.wght,
           id.lon=id.lons,id.lat=id.lats,region=region,tim=tim,
           lon=lons,lat=lats,var.eof=Var.eof,yy=yy,mm=mm,dd=dd,
-          v.name=fields$v.name,c.mon=c.mon,f.name=fname)
+          v.name=fields$v.name,c.mon=c.mon,f.name=fname,
+          attributes=fields$attributes)
 class(eof) <- c("eof",class(fields))
 save(file='data/ceof.Rdata',eof,ascii=FALSE)
-save(file=fname,eof,ascii=FALSE) 
+if (lsave) save(file=fname,eof,ascii=FALSE) 
 
 invisible(eof)
 }

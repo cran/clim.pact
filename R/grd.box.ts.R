@@ -1,7 +1,9 @@
 grd.box.ts <- function(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
-                       col="grey10",lwd=1,lty=1,pch=26,add=FALSE) {
+                       col="grey10",lwd=1,lty=1,pch=26,add=FALSE,
+                       filter=NULL) {
 
   library(akima)
+  library(ts)
   
   if ((class(x)[1]!="field") & (class(x)!="monthly.field.object") &
       (class(x)!="daily.field.object") ) stop("Need a field.object")
@@ -42,7 +44,10 @@ grd.box.ts <- function(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
     Z.out<-interp(lat.x,lon.x,Z.in,lat,lon)
     y[it] <- Z.out$z
   }
-  
+
+if (!is.null(attributes(x$tim)$unit)) {
+  attr(x$tim,"units") <- attributes(x$tim)$unit
+}
   if (lower.case(substr(attributes(x$tim)$units,1,5))== "month") {
     clim <- y
     for (im in 1:12) {
@@ -58,6 +63,8 @@ grd.box.ts <- function(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
                 "ano"="anomaly",
                 "cli"="climatological",
                 "abs"="absolute value")
+
+  if (!is.null(filter)) ts <- filter(ts,filter)
   if (!add) {
 
      plot(x$yy+(x$mm-0.5)/12,ts,type="s",
@@ -78,3 +85,5 @@ grd.box.ts <- function(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
 
   invisible(results)
 }
+
+

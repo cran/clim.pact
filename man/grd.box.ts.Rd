@@ -4,7 +4,8 @@
 \description{Plots time series from field objects, eg from \code{\link{retrieve.nc}}.}
 \usage{
 grd.box.ts(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
-                       col="grey10",lwd=1,lty=1,pch=26,add=FALSE)
+                       col="grey10",lwd=1,lty=1,pch=26,add=FALSE,
+                       filter=NULL)
 }
 \arguments{
     \item{x}{A field object.}
@@ -19,6 +20,8 @@ grd.box.ts(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
     \item{lty}{Line style.}
     \item{pch}{Plot character.}
     \item{add}{'TRUE' adds curve to old plot.}
+    \item{filter}{If not NULL, this is a vector specifying window
+      weighting argument of same name in \code{link{filter}}.}
 }
 \value{
     

@@ -35,7 +35,8 @@
 
   \usage{EOF(fields,l.wght=TRUE,lc180e=FALSE,direc="data/",
               lon=NULL,lat=NULL,l.stndrd=TRUE,las=1,
-              mon=NULL,plot=TRUE,neofs=20,l.rm.ac=TRUE)}
+              mon=NULL,plot=TRUE,neofs=20,l.rm.ac=TRUE,lsave=TRUE,
+              LINPACK=TRUE)}
 \arguments{
     \item{fields}{A field object (eg from \link{retrieve.nc}).}
     \item{l.wght}{'TRUE' applies a geographical weighting.}
@@ -49,6 +50,8 @@
     \item{plot}{'TRUE' plots the results.}
     \item{neofs}{Number of leading EOFs to retain.}
     \item{l.rm.ac}{'TRUE' removes the annual cycle.}
+    \item{lsave}{'TRUE' dumps the results to file.}
+    \item{LINPACK}{'TRUE': svd; 'FALSE':La.svd}
 }
 \value{File containing an 'eof.c' object:
   \tabular{ll}{

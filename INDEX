@@ -13,6 +13,9 @@ composite.field         Composite maps
 corEOF                  Field correlation
 corField                Field correlation
 delta                   Delta function
+dist2norm               Transform a series to a normally distributed
+                        series.
+distAB                  Distance between two points on Earth
 eof.c                   Monthly common EOF.
 eof.dc                  Daily common EOF.
 eof.dmc                 Daily common EOF.
@@ -36,6 +39,7 @@ meanField               Optimal interpolation
 mergeStation            Merge climate station series.
 mixFields               mixFields
 mod                     Modulus of a division.
+newFig                  Create a new Window
 num2str                 Convert numbers to string and format
 optint                  Optimum interpolation
 oslo.dm                 Daily Oslo record.
@@ -45,13 +49,15 @@ plotDS                  Plot downscaled results
 plotEOF                 Plot EOFs
 plotField               plotField
 plumePlot               Plot downscaled time series as plumes
+r2cdf                   Save as netCDF file.
 retrieve.nc             Retrieve data from a netCDF file
 reverse                 Reverse
+rotate                  Rotate spherical coordinates
 satellite               Satellite view / polar stereographic
 station.obj             Make monthly climate station series object.
 station.obj.dm          Make daily climate station series object.
 stationmap              Plot climate station map.
-stockholm.t2m           Monthly mean temperature in Oslo.
+stockholm.t2m           Monthly mean temperature in Stockholm.
 strip                   String operation functions
 tromsoe.t2m             Monthly mean temperature in Tromsoe.
 upper.case              convert to UPPER CASE

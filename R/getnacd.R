@@ -50,7 +50,7 @@ if (ascii) {
   data(meta.nacd)
 
 # Save as R-data-file
-  save(obs,meta,file=fr.name)
+  save(obs,meta.nacd,file=fr.name)
 }
 
 # Load R-data-file - FAST!
@@ -69,24 +69,24 @@ val<-as.matrix(obs[,4:15])/scale
 val[val <= -99.9] <- NA
 
 #print(obs[1,])
-#print(meta[1,])
-#print(c(as.character(meta$V1[1]),as.character(meta$V2[1]),
-#        as.character(meta$V3[1]),as.character(meta$V4[1]),
-#        as.character(meta$V5[1]),as.character(meta$V6[1]),
-#        as.character(meta$V7[1]),as.character(meta$V8[1]),
-#        as.character(meta$V9[1]),as.character(meta$V10[1]),
-#        as.character(meta$V11[1]),as.character(meta$V12[1]),
-#        as.character(meta$V13[1]),as.character(meta$V14[1]),
-#        as.character(meta$V15[1]),as.character(meta$V16[1])))
+#print(meta.nacd[1,])
+#print(c(as.character(meta.nacd$V1[1]),as.character(meta.nacd$V2[1]),
+#        as.character(meta.nacd$V3[1]),as.character(meta.nacd$V4[1]),
+#        as.character(meta.nacd$V5[1]),as.character(meta.nacd$V6[1]),
+#        as.character(meta.nacd$V7[1]),as.character(meta.nacd$V8[1]),
+#        as.character(meta.nacd$V9[1]),as.character(meta.nacd$V10[1]),
+#        as.character(meta.nacd$V11[1]),as.character(meta.nacd$V12[1]),
+#        as.character(meta.nacd$V13[1]),as.character(meta.nacd$V14[1]),
+#        as.character(meta.nacd$V15[1]),as.character(meta.nacd$V16[1])))
 
 nc<-nchar(location)
 location<-paste(upper.case(location),
                 paste(rep(" ",21-nc),sep="",collapse=""),sep="")
 
 no.find<-FALSE
-if ((sum(is.element(meta$V5,location) & is.element(meta$V14,ele))==0) & !(silent)) {
+if ((sum(is.element(meta.nacd$V5,location) & is.element(meta.nacd$V14,ele))==0) & !(silent)) {
   print("getnacd: ERROR - cannot find the right record!")
-  print(sum(is.element(meta$V5,location) & is.element(meta$V14,ele)))
+  print(sum(is.element(meta.nacd$V5,location) & is.element(meta.nacd$V14,ele)))
 
   print("ele.c")
   print(ele.c)
@@ -94,20 +94,20 @@ if ((sum(is.element(meta$V5,location) & is.element(meta$V14,ele))==0) & !(silent
   print(location)
   print("table(ele)")
   print(table(ele))
-  print("levels(meta$V14)")
-  print(levels(meta$V14))
-  print("levels(meta$V5)")
-  print(levels(meta$V5))
-  print("sum(is.element(meta$V5,location))")
-  print(sum(is.element(meta$V5,location)))
-  print("sum(is.element(meta$V14,ele))")
-  print(sum(is.element(meta$V14,ele)))
-  print(meta[is.element(meta$V5,location),])
+  print("levels(meta.nacd$V14)")
+  print(levels(meta.nacd$V14))
+  print("levels(meta.nacd$V5)")
+  print(levels(meta.nacd$V5))
+  print("sum(is.element(meta.nacd$V5,location))")
+  print(sum(is.element(meta.nacd$V5,location)))
+  print("sum(is.element(meta.nacd$V14,ele))")
+  print(sum(is.element(meta.nacd$V14,ele)))
+  print(meta.nacd[is.element(meta.nacd$V5,location),])
   no.find<-TRUE
 }
 
-meta<-meta[is.element(meta$V5,location) &
-           is.element(meta$V14,ele),]
+meta<-meta.nacd[is.element(meta.nacd$V5,location) &
+           is.element(meta.nacd$V14,ele),]
 
 if (no.find) {
  print("meta:")

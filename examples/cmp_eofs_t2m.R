@@ -8,7 +8,7 @@ source("clim.pact/R/mix.fields.R")
 cmon<-c("Jan","Feb","Mar","Apr","May","Jun",
         "Jul","Aug","Sep","Oct","Nov","Dec")
 
-domains <- c("D1","D2","D3","D4","D5","D6","D7","D8")
+domains <- c("D9","D10","D1","D2","D3","D4","D5","D6","D7","D8")
 analyses  <- c("DNMI","NCEP")
 
 for (domain in domains) {
@@ -22,7 +22,9 @@ x.domain <- switch(domain,
                 "D5"=list(x.rng=c(  0,35),y.rng=c(55,70)),
                 "D6"=list(x.rng=c( 10,50),y.rng=c(60,75)),
                 "D7"=list(x.rng=c(-20,20),y.rng=c(55,65)),
-                "D8"=list(x.rng=c(-40,20),y.rng=c(65,85)))
+                "D8"=list(x.rng=c(-40,20),y.rng=c(65,85)),
+                "D9"=list(x.rng=c(-60,-40),y.rng=c(40,70)),
+                "D10"=list(x.rng=c(-70,-40),y.rng=c(50,78)))
 x.rng <- x.domain$x.rng
 y.rng <- x.domain$y.rng
 

@@ -98,7 +98,8 @@ if (!is.null(mon)) {
 
   if (!leps) {
     
-  par(ask=TRUE)
+#  par(ask=TRUE)
+  newFig()
   par(cex.sub=0.8)
   plot(yy,value,type="l",lwd=3,
        main=paste(obs$location,obs$obs.name),
@@ -112,6 +113,7 @@ if (!is.null(mon)) {
         lty=2,col="grey")
   grid()
 
+  newFig()
   par(cex.sub=0.8)
   histo <- hist(value[!is.na(value)],breaks=15,lwd=3,freq=FALSE,
        main=paste(obs$location,obs$obs.name),
@@ -173,7 +175,7 @@ if (!is.null(mon)) {
     file.remove(c(figname1,figname2))
   }
 
-  plotStation <- list(yy=yy,value=value,loc=obs$location,
+  plotStation <- list(yy=yy,mm=mm,value=value,loc=obs$location,
                         histo=histo,x.dist=x.dist,y.dist=y.dist)
   invisible(plotStation)
 }

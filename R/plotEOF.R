@@ -45,10 +45,13 @@ grid()
 col.tab <- col[1:length(id)]
 neofs <- length(x$var)
 i.last <- 0
+#print("plotDS: HERE")
 for (i in 1:n.fld) {
   i.fld <- seq(i.last+1,i.last+size[2,i]*size[3,i],by=1)
   i.last <- max(i.fld)
-  EOF.1 <- EOF[,i.fld]
+#  print(dim(x$EOF))
+#  print(range(i.fld))
+  EOF.1 <- x$EOF[,i.fld]
   dim(EOF.1)<-c(neofs,size[2,i],size[3,i])
   eof.patt<-t(EOF.1[i.eof,,])
   i.lon <- id.lon == id[i]
@@ -58,6 +61,7 @@ for (i in 1:n.fld) {
   contour(lon.x,lat.x,eof.patt,
           nlevels=nlevs,add=TRUE,lwd=2,col=col.tab[i])
 }
+
 if (n.fld>1) legend(min(lon),max(lat),id,
              col=c(col.tab),lty=1,
              lwd=2,merge=TRUE, bg='gray95')

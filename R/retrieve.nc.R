@@ -1,6 +1,6 @@
 retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
                         l.scale=TRUE,greenwich=TRUE,
-                        x.nam="lon",y.nam="lat",t.nam="tim",
+                        x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,t.rng=NULL) {
   library(netCDF)
   library(chron)
@@ -12,33 +12,55 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
   close.netCDF(ncid1)
   vars <- names(data)
   nvars <- length(vars)
+  n.dim <- 3
+  if (length(grep(z.nam,lower.case(substr(vars,1,3))))==1) {
+    n.dim <- 4
+  } else {
+    lev <- NULL
+    nz <- 0
+  }
   d <- rep(0,nvars)
   dat <- NULL
 #  print("Searching for variables")
   for (i in 1:nvars) {
+      expr <- parse(text=paste("dim(data$'",vars[i],"')",sep=""))
+      size <- eval(expr)
+
       expr <- parse(text=paste("lon <- data$'",vars[i],"'",sep=""))
-      if (lower.case(substr(vars[i],1,nchar(x.nam)))==lower.case(x.nam)) {
+      if (lower.case(substr(vars[i],1,nchar(x.nam)))==lower.case(x.nam) &
+          (length(size)==1)) {
         eval(expr)
       }
       expr <- parse(text=paste("lat <- data$'",vars[i],"'",sep=""))
-      if (lower.case(substr(vars[i],1,nchar(y.nam)))==lower.case(y.nam)) {
+      if (lower.case(substr(vars[i],1,nchar(y.nam)))==lower.case(y.nam) &
+          (length(size)==1)) {
         eval(expr)
       }
       expr <- parse(text=paste("tim <- data$'",vars[i],"'",sep=""))
-      if (lower.case(substr(vars[i],1,nchar(t.nam)))==lower.case(t.nam)) {
+      if (lower.case(substr(vars[i],1,nchar(t.nam)))==lower.case(t.nam) &
+          (length(size)==1)) {
         eval(expr)
       }
-      expr <- parse(text=paste("dim(data$'",vars[i],"')",sep=""))
-      size <- eval(expr)
+
+      if (n.dim==4) {
+        expr <- parse(text=paste("lev <- data$'",vars[i],"'",sep=""))
+        if (lower.case(substr(vars[i],1,nchar(z.nam)))==lower.case(z.nam) &
+          (length(size)==1)) {
+          eval(expr)
+        }
+      }
 #      print(paste('dim(data$',vars[i],')',sep=""))
 #      print(size)
       expr <- parse(text=paste("dat <- data$'",vars[i],"'",sep=""))
       if ((lower.case(substr(vars[i],1,nchar(v.nam)))==lower.case(v.nam)) &
           (is.null(dat))) {
         eval(expr)
-        print(paste("Data:",vars[i]," dim:",
-                    dim(dat)[1],"x",dim(dat)[2],"x",dim(dat)[3]))
-      } else if ((length(size)==3) & (v.nam=="AUTO")) {
+        if (n.dim==3) print(paste("Data:",vars[i]," dim:",
+                       dim(dat)[1],"x",dim(dat)[2],"x",dim(dat)[3])) else
+                      print(paste("Data:",vars[i]," dim:",
+                         dim(dat)[1],"x",dim(dat)[2],"x",
+                                  dim(dat)[3],"x",dim(dat)[4]))
+      } else if ((length(size)==n.dim) & (v.nam=="AUTO")) {
         eval(expr)
         v.nam <- vars[i]
         print(paste("Data:",v.nam," dim:",
@@ -80,7 +102,10 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
     if (!is.null(attributes(tim)$units)) t.unit <- attributes(tim)$units
   
   print("Time information:")
-  torg <-  attributes(tim)$"time_origin"
+  if (!is.null(attributes(tim)$"time_origin")) {
+    torg <-  attributes(tim)$"time_origin"
+  } else torg <- NULL
+
   if (!is.null(torg)) {
     yy0 <- as.numeric(substr(torg,8,11))
     dd0 <- as.numeric(substr(torg,1,2))
@@ -91,6 +116,7 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
     # Format: time:units = "hours since 1-1-1 00:00:0.0" (NCEP reanalysis)
     t.org.pos <- regexpr("since",lower.case(t.unit))
     torg  <- substr(t.unit,t.org.pos+6,nchar(t.unit))
+    print(paste("torg=",torg))
     dash <- instring("-",torg)
     spc <- instring(" ",torg)
     yy0 <- as.numeric(substr(torg,1,dash[1]-1))
@@ -98,7 +124,7 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
     dd0 <- as.numeric(substr(torg,dash[2]+1,spc[1]-1))
     if (is.na(dd0)) dd0  <- 15
   }
-  print(c(yy0,mm0,dd0))
+  print(paste("Time origin: (year-month-day)",yy0,"-",mm0,"-",dd0))
   
   print(paste("Time unit:",lower.case(t.unit)))
   if (substr(lower.case(t.unit),1,5)=="month") {
@@ -128,7 +154,8 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
     print("Extract latitudes:")
     print(y.rng)
     y.keep <- (lat >= min(y.rng)) & (lat <= max(y.rng))
-    dat <- dat[,y.keep,]
+    if (n.dim==3) dat <- dat[,y.keep,] else
+                  dat <- dat[,,y.keep,] 
     lat <- lat[y.keep]
   }
   if (greenwich) {
@@ -139,13 +166,16 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
   y.srt <- order(lat)
   lon <- lon[x.srt]
   lat <- lat[y.srt]
-  dat <- dat[,y.srt,x.srt]
+  if (n.dim==3) dat <- dat[,y.srt,x.srt] else
+                dat <- dat[,,y.srt,x.srt]
+  
   if (!is.null(x.rng)) {
     print(range(lon))
     print("Extract longitudes:")
     print(x.rng)
     x.keep <- (lon >= min(x.rng)) & (lon <= max(x.rng))
-    dat <- dat[,,x.keep]
+    if (n.dim==3) dat <- dat[,,x.keep] else
+                  dat <- dat[,,,x.keep]
     lon <- lon[x.keep]
   }
   if (!is.null(t.rng)) {
@@ -153,7 +183,8 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
     print("Extract times:")
     print(t.rng)
     t.keep <- (yy >= min(t.rng)) & (yy <= max(t.rng))
-    dat <- dat[t.keep,,]
+    if (n.dim==3) dat <- dat[t.keep,,] else
+                  dat <- dat[t.keep,,,]
     torg <- attr(tim,"time_origin")
     tunit <- attr(tim,"unit")
     tim <- tim[t.keep]
@@ -166,6 +197,7 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
   }
   print(paste("First & last records:",yy[1],mm[1],dd[1],
               "&",yy[length(yy)],mm[length(mm)],dd[length(dd)]))
+  
 #  print(attributes(dat)$"scale_factor")
 #  print(attributes(dat)$"add_offset")
 #  print(attributes(dat)$"unit")
@@ -178,8 +210,11 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
   # units of deg C..
   if ( ((l.scale) & !is.null(attributes(dat)$"add_offset"))) {
       if ( (dat.att$"add_offset"!=273) &
-      (dat.att$"unit"=="deg C")) {
-     dat <- dat + dat.att$"add_offset"} }
+           (dat.att$"unit"=="deg C")) {
+        a <- readline(prompt="Correct an old bug? (y/n)")
+        if (lower.case(a)=="y") dat <- dat + dat.att$"add_offset"} else
+        dat <- dat + dat.att$"add_offset"
+  }
   if (l.scale) {   
     print("BEFORE scale adjustment & weeding")
     print(summary(as.vector(dat)))
@@ -189,9 +224,12 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
       print("AFTER scale adjustment & weeding")
   }
 
+  if (!is.null(dat.att$units)) {
+     dat.att$unit <- dat.att$units
+  } 
   if ((dat.att$unit=="K") | (dat.att$unit=="Kelvin") |
       (dat.att$unit=="degrees Kelvin") |
-      (dat.att$unit=="deg K")) {
+      (dat.att$unit=="deg K") | (dat.att$unit=="degK")) {
     dat <- dat - 273
     dat.att$unit <- "deg C"
   }
@@ -215,10 +253,13 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
   id.x <- matrix(rep(v.nam,ny*nx),ny,nx)
   id.t <- rep(substr(f.name,slash[length(slash)]+1,
                      dot[length(dot)]-1),nt)              
-  
-  retrieve.nc  <- list(dat=dat,lon=lon,lat=lat,tim=tim,v.name=v.nam,
-                       id.x=id.x,id.t=id.t,yy=yy,mm=mm,dd=dd,n.fld=1,
-                       id.lon=rep(v.nam,nx),id.lat=rep(v.nam,ny))
+  dat.att$time.unit <- t.unit
+  dat.att$time.origin <- torg
+  retrieve.nc  <- list(dat=dat,lon=lon,lat=lat,tim=tim,lev=lev,
+                       v.name=v.nam,id.x=id.x,id.t=id.t,
+                       yy=yy,mm=mm,dd=dd,n.fld=1,
+                       id.lon=rep(v.nam,nx),id.lat=rep(v.nam,ny),
+                       attributes=dat.att)
   class(retrieve.nc) <- c("field",obj.type)
   invisible(retrieve.nc)
 }

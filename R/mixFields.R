@@ -99,8 +99,10 @@ mixFields <- function(field.1,field.2,mon=NULL,
   dim(field.1$dat)<-c(nt.1,ny.1*nx.1)
   dim(field.2$dat)<-c(nt.2,ny.2*nx.2)
 
+#  print(dim(field.1$dat))
+#  print(dim(field.2$dat))
+  
   field.mxf<-cbind(field.1$dat,field.2$dat)
-
   tim <- field.1$tim
   attr(tim,"unit") <- tim.unit1
   attr(tim,"time_origin") <- tim.torg1
@@ -109,7 +111,9 @@ mixFields <- function(field.1,field.2,mon=NULL,
   dd <- field.1$dd
   lon <- c(field.1$lon,field.2$lon)
   lat <- c(field.1$lat,field.2$lat)
-  id.x <- as.vector(cbind(field.1$id.x,field.2$id.x))
+  dim(field.1$id.x) <- c(ny.1*nx.1)
+  dim(field.2$id.x) <- c(ny.2*nx.2)
+  id.x <- as.vector(c(field.1$id.x,field.2$id.x))
   id.lon <- c(rep(field.1$id.x[1],nx.1),rep(field.2$id.x[1],nx.2))
   id.lat <- c(rep(field.1$id.x[1],ny.1),rep(field.2$id.x[1],ny.2))
   id.t <- paste(field.1$id.t,"+",field.2$id.t,sep="")

@@ -1,12 +1,15 @@
 \name{getnacd}
 \alias{getnacd}
 \alias{nacd.meta}
+\alias{meta.nacd}
 \title{Retreave station record from the NACD set.}
 \description{Retrieve station record from the North Atlantic Climate
   Data (NACD) set: URL \url{http://www.dmi.dk/}. Also see
   \code{\link{getdnmi}} and \code{\link{getnordklim}}.
 }
-\usage{getnacd(location="prompt",ele.c='101',ascii=FALSE,silent=FALSE,direc="data")}
+\usage{
+getnacd(location="prompt",ele.c='101',ascii=FALSE,silent=FALSE,direc="data")
+}
 
 \arguments{
   \item{location}{name of climate station location.}

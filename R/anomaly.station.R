@@ -9,7 +9,7 @@ anomaly.station <- function(obs,period=c(1961,1990)) {
 cmon<-c("Jan","Feb","Mar","Apr","May","Jun",
         "Jul","Aug","Sep","Oct","Nov","Dec")
 
-if (lower.case(class(obs))=="monthly.station.record") {
+if (lower.case(class(obs)[2])=="monthly.station.record") {
   ny <- length(obs$yy)
   value <- t(obs$val)
   if (!is.null(period)) ii <- ((obs$yy>=period[1]) & (obs$yy<=period[2])) else

@@ -5,7 +5,7 @@
   lngitude, latitude and time. Returns the first 3-D field in the file.}
 \usage{retrieve.nc(f.name="data/ncep_t2m.nc",v.nam="AUTO",
                         l.scale=TRUE,greenwich=TRUE,
-                        x.nam="lon",y.nam="lat",t.nam="tim",
+                        x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,t.rng=NULL)
 }
 \arguments{
@@ -15,6 +15,7 @@
     \item{greenwich}{'TRUE' centres maps on Greenwhich meridian (0 deg E).}
     \item{x.nam}{Name of x-dimension.}
     \item{y.nam}{Name of y-dimension.}
+    \item{z.nam}{Name of z-dimension.}
     \item{t.nam}{Name of time-axis.}
     \item{x.rng}{Region to extract.}
     \item{y.rng}{Region to extract.}

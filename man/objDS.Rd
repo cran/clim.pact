@@ -9,14 +9,19 @@ the borders where the correlation with the station series become
 zero. A fit to a truncated Fourier expansion is used to describe
 profiles of correlation coefficients in zonal and meridional
 directions from where the station is located.
+
+Version 2.1-5: smallest spatial domain for objDS is set to +- 10deg N 
+and E of the station location in order to avoid problems with dimensions 
+if one only contains one data point (the domain becomes a line instead
+of a rectangle).
 }
 \usage{objDS(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
           mon=NULL,direc="output/",cal.id=NULL,
           ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
           method="lm",leps=FALSE,param="t2m",
           plot.res=FALSE,plot.rate=FALSE,xtr.args="",
-          swsm="step",predm="predict",lsave=TRUE,rmac=TRUE,
-          silent=FALSE)}
+          swsm="step",predm="predict",lsave=FALSE,rmac=TRUE,
+          silent=FALSE,qualitycontrol=TRUE)}
 
 \arguments{
     \item{field.obs}{ The gridded observation predictor \code{\link{retrieve.nc}}.}
@@ -49,11 +54,12 @@ directions from where the station is located.
     \item{xtr.args}{Extra/additional arguments in the formula.}
     \item{swsm}{Step-wise screening method, default=='step'; 'none'
       skips stepwise sceeening.}
-    \item{predm}{Prediction method, default is "predict"}.
+    \item{predm}{Prediction method, default is "predict"}
     \item{lsave}{TRUE -> saves the result on disc}.
     \item{rmac}{TRUE -> subtracts (removes) the annual cycle in station
       data.}
-    \item{silent}{TRUE -> no output to screen.}.
+    \item{silent}{TRUE -> no output to screen.}
+    \item{qualitycontrol}{TRUE: perform a qualitry control consisting of comparing the smoothness of the monthly trend estimates throughout the year and repeat the downscaling with a smaller domain if adjacent trend estimates vary significantly (diff greater than 3*variance of rates).}
 }
 
 \value{An 'objDS' object -  a list of objects:

@@ -1,24 +1,27 @@
 \name{station.obj}
 \alias{station.obj}
+\alias{ele}
 \alias{monthly.station.record}
 \title{Make monthly climate station series object.}
 \description{Create a station object for use as predictand in empirical
-  downscaling on monthly data.  Also see \code{\link{station.obj.dm}}.}
+  downscaling on monthly data.  Also see \code{\link{station.obj.dm}}. 
+
+The \code{ele} codes are taken from the Nordklim and NACD data sets: 101='mean T(2m)',111='mean maximum T(2m)',112='highest maximum T(2m)',113='day of Th date Thd',121='mean minimum T(2m)',122='lowest minimum T(2m)',123='day of Tl date Tld',401='mean SLP',601='monthly accum. precip.',602='maximum precip.',701='Number of days with snow cover (> 50\% covered) days dsc',801='Mean cloud cover % N',911='mean snow depth'.
+}
 \usage{station.obj(x,yy,obs.name,unit,ele=NULL, mm=NULL,
                    station=NULL,lat=NULL,lon=NULL,alt=NULL,
                    location="unspecified",wmo.no=NULL,
                    start=NULL,yy0=NULL,country=NULL,ref=NULL)}
+
 \arguments{
-  \item{x}{the data: a matrix of 12 columns holding the observations of each
-  calendar month: column 1 holds January values, col 2 holds February, .. 
-        col 12 holds December values.}
+  \item{x}{the data: a matrix of 12 columns holding the observations of each calendar month: column 1 holds January values, col 2 holds February,  col 12 holds December values.}
   \item{yy}{A vector holding the year of observation of the same length
     as each of the 12 columns. Or a vector with the same length as the data if 
     \code{mm} is given.}
   \item{mm}{a vector of months with the same length as the data (optional).}
   \item{obs.name}{the name of observation (e.g. "Temperature").}
   \item{unit}{the unite of observation (e.g. "deg C").}
-  \item{ele}{element code (e.g. 101).}
+  \item{ele}{element code.}
   \item{station}{local (national) station number.}
   \item{lat}{latitude.}
   \item{lon}{longitude.}
@@ -30,6 +33,7 @@
   \item{country}{name of country.}
   \item{ref}{reference to the data.}
   }
+
   \value{a "monthly.station.record"-class object.
   \tabular{ll}{
     val \tab The monthly values (a 12-column matrix with one
@@ -42,7 +46,7 @@
     wmo.no \tab WMO number. \cr
     start \tab Start of observatins from this location. \cr
     yy0 \tab First year in current record. \cr
-    ele \tab Code of theelement. \cr
+    ele \tab Code of the element. \cr
     obs.name \tab Name of the element. \cr
     unit \tab Unit of the element. \cr
     country \tab The country in which the location is

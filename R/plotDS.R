@@ -4,18 +4,25 @@
 
 newFig <- function() {
    dev <- paste(options()$device,"()",sep="")
-#   print(paste("newFig: options()$device=",dev))
-   if ((dev!="none()") & (dev!="bitmap()")) eval(parse(text=dev))
-   if (dev=="bitmap()") bitmap(file="newFig.jpg",type="jpeg")
+   #print(paste("newFig: options()$device=",dev))
+   if ((dev!="none()") & (dev!="bitmap()")) eval(parse(text=dev)) else
+   if (dev=="bitmap()") {
+     if (dev.cur() > 1) dev.off()
+     bitmap(file="newFig.jpg",type="jpeg")
+   }
  }
 
 
-plotDS <- function(ds.obj,leps=FALSE,plot.map=TRUE, plot.res=FALSE,
+plotDS <- function(ds.obj,leps=FALSE,plot.ts=TRUE,plot.map=TRUE, plot.res=FALSE,
                    plot.rate=FALSE,add=FALSE,col="darkred",lwd=2,lty=1,
                    direc="output/",main=NULL,sub=NULL,xlab=NULL,ylab=NULL) {
 
 if (class(ds.obj)!="ds") stop("Need a 'ds' object!")
 attach(ds.obj)
+
+if (options()$device=="none") {
+  plot.ts=FALSE; plot.map<- FALSE; plot.res<- FALSE; plot.rate <- FALSE
+} 
 
 # Plotting: -----------------------------------------------
   
@@ -46,41 +53,45 @@ if (is.null(ylab)) ylab <- paste(v.name,"(",unit,")")
 
 #print(paste("subtitle:",subtitle))
 
-y.lim.tr <- range(c(y.o,pre.y,pre.gcm),na.rm=TRUE)
-yymm.o<-yy.o + (mm.o-0.5)/12 + (dd.o-0.5)/365.25
-yymm.gcm<-yy.gcm + (mm.gcm-0.5)/12 + (dd.gcm-0.5)/365.25
+y.lim.tr <- range(c(ds.obj$y.o,ds.obj$pre.y,ds.obj$pre.gcm),na.rm=TRUE)
+yymm.o<-ds.obj$yy.o + (ds.obj$mm.o-0.5)/12 + (ds.obj$dd.o-0.5)/365.25
+yymm.gcm<-ds.obj$yy.gcm + (ds.obj$mm.gcm-0.5)/12 + (ds.obj$dd.gcm-0.5)/365.25
 
-#if (!leps) par(ask=TRUE)
-if ((!add) & (plot.map)) {
-  if (leps) {
+#if ((!leps)  & (plot.map)) par(ask=TRUE)
+if (!add) {
+  if ( (leps) & (plot.map) ) {
     figname<- paste("predictor_",v.name,"_",location,"_",region,"_",
                   month,ex.tag,".eps",sep="")
     postscript(file = figname,onefile=TRUE,horizontal=FALSE,paper="a4")
-  } else eval(parse(text=paste(lower.case(options()$device),"()",sep="")))
-  par(ps=16,cex.sub=0.7,cex.main=0.9)
-  plot(c(floor(min(lons,na.rm=TRUE)),ceiling(max(lons,na.rm=TRUE))),
-       c(floor(min(lats,na.rm=TRUE)),ceiling(max(lats,na.rm=TRUE))),type="n",
-       main=main,sub=sub,xlab=xlab,ylab=ylab)
+  } else newFig()
+  if (plot.map) {
+    par(ps=16,cex.sub=0.7,cex.main=0.9)
+    plot(c(floor(min(lons,na.rm=TRUE)),ceiling(max(lons,na.rm=TRUE))),
+         c(floor(min(lats,na.rm=TRUE)),ceiling(max(lats,na.rm=TRUE))),type="n",
+         main=main,sub=sub,xlab=xlab,ylab=ylab)
+  }
 
   col.tab=c("darkblue","darkred","darkgreen","brown")
   t.rng <- paste(range(ds.obj$yy.cal)[1],"-",range(ds.obj$yy.cal)[2])
   ds.map <- list(tim=NULL,date=NULL,n.maps=NULL)
   ds.map$tim<-month; ds.map$date<-t.rng; ds.map$n.maps=n.fld
   for (i in 1:n.fld) {
-    eval(parse(text=paste("lines(c(min(ds.obj$lon.",i,"),max(ds.obj$lon.",i,")),",
-                              "c(min(ds.obj$lat.",i,"),min(ds.obj$lat.",i,")),",
-                              "col=col.tab[i],lty=2)",sep="")))
-    eval(parse(text=paste("lines(c(min(ds.obj$lon.",i,"),max(ds.obj$lon.",i,")),",
-                              "c(max(ds.obj$lat.",i,"),max(ds.obj$lat.",i,")),",
-                              "col=col.tab[i],lty=2)",sep="")))
-    eval(parse(text=paste("lines(c(min(ds.obj$lon.",i,"),min(ds.obj$lon.",i,")),",
-                              "c(min(ds.obj$lat.",i,"),max(ds.obj$lat.",i,")),",
-                              "col=col.tab[i],lty=2)",sep="")))
-    eval(parse(text=paste("lines(c(max(ds.obj$lon.",i,"),max(ds.obj$lon.",i,")),",
-                              "c(min(ds.obj$lat.",i,"),max(ds.obj$lat.",i,")),",
-                              "col=col.tab[i],lty=2)",sep="")))
-    eval(parse(text=paste("contour(ds.obj$lon.",i,",ds.obj$lat.",i,",t(ds.obj$X.",i,
-               "),nlevels=7,add=TRUE,lwd=2,col=col.tab[i])",sep="")))
+    if (plot.map) {
+      eval(parse(text=paste("lines(c(min(ds.obj$lon.",i,"),max(ds.obj$lon.",i,")),",
+                                "c(min(ds.obj$lat.",i,"),min(ds.obj$lat.",i,")),",
+                                "col=col.tab[i],lty=2)",sep="")))
+      eval(parse(text=paste("lines(c(min(ds.obj$lon.",i,"),max(ds.obj$lon.",i,")),",
+                                "c(max(ds.obj$lat.",i,"),max(ds.obj$lat.",i,")),",
+                                "col=col.tab[i],lty=2)",sep="")))
+      eval(parse(text=paste("lines(c(min(ds.obj$lon.",i,"),min(ds.obj$lon.",i,")),",
+                                "c(min(ds.obj$lat.",i,"),max(ds.obj$lat.",i,")),",
+                                "col=col.tab[i],lty=2)",sep="")))
+      eval(parse(text=paste("lines(c(max(ds.obj$lon.",i,"),max(ds.obj$lon.",i,")),",
+                                "c(min(ds.obj$lat.",i,"),max(ds.obj$lat.",i,")),",
+                                "col=col.tab[i],lty=2)",sep="")))
+      eval(parse(text=paste("contour(ds.obj$lon.",i,",ds.obj$lat.",i,",t(ds.obj$X.",i,
+                 "),nlevels=7,add=TRUE,lwd=2,col=col.tab[i])",sep="")))
+    }
     eval(parse(text=paste("ds.map$lon.",i,"<-ds.obj$lon.",i,sep="")))
     eval(parse(text=paste("ds.map$lat.",i,"<-ds.obj$lat.",i,sep="")))
     eval(parse(text=paste("ds.map$map.",i,"<-t(ds.obj$X.",i,")",sep="")))
@@ -89,33 +100,35 @@ if ((!add) & (plot.map)) {
 
 #  print("plotDS: HERE")
 
-  if (!is.null(lon.loc) & !is.null(lat.loc))
-    points(lon.loc,lat.loc,pch=20,col="wheat",cex=1.5)
-    points(lon.loc,lat.loc,pch=20,col="black",cex=0.9)
-  addland()
-  grid()
+  if (plot.map) {
+    if (!is.null(lon.loc) & !is.null(lat.loc))
+      points(lon.loc,lat.loc,pch=20,col="wheat",cex=1.5)
+      points(lon.loc,lat.loc,pch=20,col="black",cex=0.9)
+    addland()
+    grid()
 
+    if (n.fld > 1) {
+      legend(min(c(lons,lon.loc,na.rm=TRUE)),
+           max(c(lats,lat.loc,na.rm=TRUE)),
+           c(pred.name[1:n.fld]),
+           col=c(col.tab[1:n.fld]),
+           lwd=2,lty=1,merge=TRUE,bg="grey95")
+    }
 
-  if (n.fld > 1) {
-    legend(min(c(lons,lon.loc,na.rm=TRUE)),
-         max(c(lats,lat.loc,na.rm=TRUE)),
-         c(pred.name[1:n.fld]),
-         col=c(col.tab[1:n.fld]),
-         lwd=2,lty=1,merge=TRUE,bg="grey95")
+    if (leps) { 
+        if (dev.cur()>1) dev.off()
+      if (!file.exists(direc)){
+        print(paste("The directory",direc,"does not exists.. Creates it.."))
+        dir.create(direc)
+      } 
+      file.copy(figname,direc)
+      file.remove(figname)
+    } 
   }
 
-  if (leps) { 
-    dev.off()
-    if (!file.exists(direc)){
-      print(paste("The directory",direc,"does not exists.. Creates it.."))
-      dir.create(direc)
-    } 
-    file.copy(figname,direc)
-    file.remove(figname)
-  } 
 }
 
-if (!add) {
+if ((!add) & (plot.ts)) {
   if (leps) {
     figname<- paste("scen_",v.name,"_",location,"_",region,"_",
                     month,ex.tag,".eps",sep="")
@@ -130,30 +143,32 @@ if (!add) {
 
 }
 
-lines(yymm.o,y.o,col="darkblue",lwd=3);
-lines(yymm.o,pre.y,col="grey40",lty=2,lwd=2);
-lines(yymm.gcm,pre.gcm,col=col,lwd=lwd,lty=lty);
-lines(yymm.gcm,pre.fit, col = "red",lwd=1,lty=2) 
-lines(yymm.gcm,pre.p.fit, col = "red",lwd=1,lty=2)
-points(yymm.o,y.o,col="darkblue",pch=20);
-points(yymm.o,pre.y,col="grey40",pch=21);
-points(yymm.gcm,pre.gcm,col="darkred",pch=21);
+if (plot.ts) {
+  lines(yymm.o,ds.obj$y.o,col="darkblue",lwd=3);
+  lines(yymm.o,ds.obj$pre.y,col="grey40",lty=2,lwd=2);
+  lines(yymm.gcm,ds.obj$pre.gcm,col=col,lwd=lwd,lty=lty);
+  lines(yymm.gcm,ds.obj$pre.fit, col = "red",lwd=1,lty=2) 
+  lines(yymm.gcm,ds.obj$pre.p.fit, col = "red",lwd=1,lty=2)
+  points(yymm.o,ds.obj$y.o,col="darkblue",pch=20);
+  points(yymm.o,ds.obj$pre.y,col="grey40",pch=21);
+  points(yymm.gcm,ds.obj$pre.gcm,col="darkred",pch=21);
 
-if (!add) legend(quantile(c(yymm.o,yymm.gcm),0.01),
-                 max(c(y.o,pre.y,pre.gcm)),
+  if (!add) legend(quantile(c(yymm.o,yymm.gcm),0.01),
+                 max(c(ds.obj$y.o,ds.obj$pre.ds.obj$y,pre.gcm)),
                  c("Obs.","Fit","GCM","Trends"),cex=0.75,
                  col=c("darkblue","grey40","darkred","red"),
                  lwd=c(3,2,2,1),lty=c(1,2,1,2),pch=c(20,21,21,26,26),
                  merge=TRUE,bg="grey95")
 
-text(quantile(c(yymm.o,yymm.gcm),0.01),
+  text(quantile(c(yymm.o,yymm.gcm),0.01),
      min(c(y.o,pre.y,pre.gcm)),pos=4,cex=0.6,
      paste(month,": Trend fit: P-value=",gcm.trnd.p,"%; ",
            "Projected trend= ",rate.ds,"+-",rate.err," ",
            unit,"/decade",sep=""))
+}
 
 if (leps) { 
-  dev.off()
+  if (dev.cur()>1) dev.off()
   file.copy(figname,direc)
   file.remove(figname)
 }
@@ -177,7 +192,7 @@ lines(c(min(yymm.gcm),max(yymm.gcm)),c(rate.ds,rate.ds),col = "red",lwd=2)
 legend(min(yymm.gcm),-1.5,c("Polinomial fit","Linear fit"),
        lwd=c(3,2),col=c("blue","red"),bg="grey95")
 if (leps) { 
-  dev.off()
+    if (dev.cur()>1) dev.off()
   file.copy(figname,direc)
   file.remove(figname)
 }
@@ -200,7 +215,7 @@ grid()
 
 
 if (leps) { 
-  dev.off()
+    if (dev.cur()>1) dev.off()
   file.copy(figname,direc)
   file.remove(figname)
   figname<- paste("qq-residual_",v.name,"_",location,"_",region,"_",
@@ -214,7 +229,7 @@ lines(c(-5,5),c(-5,5),col="grey",lty=2)
 grid()
 
 if (leps) { 
-  dev.off()
+    if (dev.cur()>1) dev.off()
   file.copy(figname,direc)
   file.remove(figname)
 }

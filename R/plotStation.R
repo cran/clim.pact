@@ -15,6 +15,9 @@ if ( (class(obs)[2]!="monthly.station.record") &
              "object - Use  station.obj()"))
 }
 
+if (is.null(obs$ele)) {
+  stop("The type of parameter cannot be determined: set 'ele' field (101 = temp., 601 = precip.)") 
+}
 if (is.null(main)) {
   if (class(obs)[2]=="monthly.station.record") main <- paste(obs$location,obs$obs.name) else 
                                                main <- obs$location
@@ -38,7 +41,6 @@ if (class(obs)[2]=="daily.station.record") {
 
 } else if (class(obs)[2]=="monthly.station.record") {
   
-
 
 if ((!obs$found) | (sum(is.finite(obs$val))==0)) stop("No valid data!")
 

@@ -21,6 +21,8 @@ if ((class(fields)[2]!="monthly.field.object") &
       stop("Need a 'field.object'")
     }
 
+if (options()$device != "none") plot <- FALSE
+
 dir.0<-getwd()
 if (!file.exists(direc)){
   if (!silent) print(paste("The directory",direc,"does not exists.. Creates it.."))
@@ -88,6 +90,7 @@ if (class(fields)[2]=="monthly.field.object") {
       dd <- dd[i.mm]
       id.t <- id.t[i.mm]
       tim <- tim[i.mm]
+      #print(c(length(yy),length(mm),length(dd),length(tim),length(id.t),NA,dim(fields$PC)))
     }
 } else if (class(fields)[2]=="daily.field.object") {
   if (!silent) print("daily.field.object")
@@ -142,7 +145,7 @@ if (class(fields)[2]=="monthly.field.object") {
 # Decide the name of the file containting EOF
 #print("file name...")
 
-preds.names <- row.names(table(lower.case(fields$id.t)))
+preds.names <- row.names(table(lower.case(id.t)))
 
 preds.id <- ""; scen <- ""
 if (sum(grep("gsdio",preds.names))>0) scen <- "-gsdio"
@@ -377,6 +380,8 @@ attr(tim,"daysayear") <- daysayear
 attr(tim,"time_origin") <- fields$attributes$time.origin
 
 #print("Construct list object")
+#print(c(length(yy),length(mm),length(dd),length(tim),length(id.t),NA,dim(PC)))
+
 eof<-list(EOF=EOF,W=W,PC=PC,id=preds.id,n.fld=fields$n.fld,tot.var=tot.var,
           id.t=id.t,id.x=fields$id.x,size=size,dW=dW,mon=mon,l.wght=l.wght,
           id.lon=id.lons,id.lat=id.lats,region=region,tim=tim,

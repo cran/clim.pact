@@ -21,7 +21,7 @@ This routine reequres the \code{\link[ncdf]{ncdf}}-package is currently only ava
                         l.scale=FALSE,greenwich=TRUE,silent=FALSE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,force.chron=TRUE,
-                        force365.25=FALSE)
+                        force365.25=FALSE,regular=TRUE,daysayear=365.25,forceBC=TRUE)
        fixField(x,torg=NULL,t.unit=NULL,scal=NULL,offs=NULL, 
                      x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,greenwich=TRUE)
        monthly(x,param="t2m")
@@ -43,7 +43,10 @@ This routine reequres the \code{\link[ncdf]{ncdf}}-package is currently only ava
     \item{t.rng}{Time interval to extract.Numerical values are used to identify indeces, e.g. \code{as.numeric(1)} refers to first field, \code{as.numeric(2)} the second field, etc. Character strings, on the other hand, refers to date. E.g. "1-Jan-1990", or "1990" (see \code{\link{datestr2num}} for various formats).}
     \item{force.chron}{Check for monotonic chronological order (no
       jumping back and forth in time).}
-    \item{force365.25}{TRUE forces a natural 365.25 day year as opposed to a 360-day model year.}
+    \item{force365.25}{TRUE forces a natural 365.25 day year as opposed to a 360-day model year. '-1' forces a 360-day year (commonly used in climate modelling).}
+    \item{regular}{TRUE for regular spacing in time (.i.e. no skipping, but one field every month or one field every day).}
+    \item{daysayear}{Number of days in the year on average.}
+    \item{forceBC}{TRUE for not accepting year 0 (see e.g. Press et al. (1989), Numerical Recepies in Pascal, Cambridge).}
     \item{x}{a field object.}
     \item{torg}{time origin.}
     \item{t.unit}{tim unit}
@@ -89,6 +92,8 @@ slp  <- list(dat=X.2$dat,lon=X.2$lon,lat=X.2$lat,tim=X.2$tim,lev=X.2$lev,
              attributes=dat.att)
  class(slp) <- c("field")
 
+# For reading the IPCC FoAR netCDF files that uses a 365-day year (no leap years) and starts on time count year 0:
+gcm <- retrieve.nc(fname,v.nam="tas",x.rng=c(-50,50),y.rng=c(30,75),forceBC=FALSE)
 }
 }
 \keyword{file}

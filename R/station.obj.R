@@ -51,7 +51,7 @@ station.obj <- function(x,yy,obs.name,unit,ele=NULL,mm=NULL,
     rm(x.2D,yrs)
   }
 
-  #print("Make list")
+#  print("Make list")
   station.obj<-list(val=x,yy=yy,station=station,
                     lat=lat,lon=lon,alt=alt,
                     x.0E65N=xy$x,y.0E65N=xy$y,

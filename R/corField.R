@@ -1,5 +1,5 @@
 corField <- function(x,y,lsig.mask=TRUE,sig.lev=0.05,mon=NULL,
-                     lty=1,col="black",lwd=1,main=NULL,z.levs=NULL,my.col=NULL) {
+                     lty=1,col="black",lwd=1,main=NULL,z.levs=NULL,my.col=NULL,plot=TRUE) {
 #  library(ctest)
   library(akima)
   
@@ -111,6 +111,8 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
                                 main <- paste(descr,attributes(x$dat)$"long_name","&",
                                               attributes(y$dat)$"long_name")
   }
+  if ((options()$device != "none") & (plot)) {
+  newFig()
   filled.contour(x$lon,x$lat,t(map),
                  col = my.col,levels=z.levs,
                  main=main,
@@ -132,6 +134,7 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
   if (class(y)[1]=="station") {
     points(y$lon,y$lat,pch=20,col="white",cex=1.2)
     points(y$lon,y$lat,pch=20,col="black",cex=0.9)
+  }
   }
   results <- list(map=t(map),lon=x$lon,lat=x$lat,tim=x$tim,
                   date=date,description=descr)

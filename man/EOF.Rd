@@ -56,7 +56,8 @@
 \value{File containing an 'eof.c' object:
   \tabular{ll}{
     EOF \tab EOF patterns. \cr
-    W  \tab Eigen values. \cr
+    W  \tab Eigenvalues. \cr
+    dW  \tab uncertainty in Eigenvalues (after North et al., 1982, eq 24: dW approx. W sqrt(2/N)). \cr
     PC \tab Principal components of common PCA. \cr
     n.fld \tab Number of different predictors (see
     \link{mixFields}). \cr

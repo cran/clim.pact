@@ -2,12 +2,13 @@
 \alias{plotDS}
 \title{Plot downscaled results}
 \description{Plots the results from \code{\link{DS}}.}
-\usage{plotDS(ds.obj,leps=FALSE,plot.map=TRUE,plot.res=FALSE,
+\usage{plotDS(ds.obj,leps=FALSE,plot.ts=TRUE,plot.map=TRUE,plot.res=FALSE,
 plot.rate=FALSE,add=FALSE,col="darkred",lwd=2,lty=1,
                    direc="output/",main=NULL,sub=NULL,xlab=NULL,ylab=NULL)}
 \arguments{
     \item{ds.obj}{A \code{\link{DS}} object.} 
     \item{leps}{'TRUE' produces EPS files.}
+    \item{plot.ts}{'TRUE' shows the time series.} 
     \item{plot.map}{'TRUE' shows the spatial predictor pattern.} 
     \item{plot.res}{'TRUE' shows statistics for residuals.} 
     \item{plot.rate}{'TRUE' shows analysis of rate-of-change.}

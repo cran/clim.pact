@@ -4,7 +4,7 @@
 \title{Field correlation}
 \description{Produces maps of spatial correlation patterns.}
 \usage{corField(x,y,lsig.mask=TRUE,sig.lev=0.05,mon=NULL,
-                 lty=1,col="black",lwd=1,main=NULL,z.levs=NULL,my.col=NULL)}
+                 lty=1,col="black",lwd=1,main=NULL,z.levs=NULL,my.col=NULL,plot=TRUE)}
 \arguments{
     \item{x}{A field object.}
     \item{y}{A station series or a field object.}
@@ -17,6 +17,7 @@
     \item{main}{Title of plot, same as 'main' in plot().}
     \item{z.levs}{contour levels.}
     \item{my.col}{colour template (see \code{link{rgb}}).}
+    \item{plot}{TRUE for graphics output).}
  }
 \value{A map object.}
 \author{R.E. Benestad}}

@@ -372,7 +372,7 @@ delta <- function(i,j) {
 datestr2num <- function(datestr,vec=TRUE) {
     dsh <- instring("-",datestr)
     spc <- instring(" ",datestr)
-    if (dsh==0) {
+    if (dsh[1]==0) {
       # The time origin string contains no "-".
       dot <- instring(".",datestr)
       com <- instring(",",datestr)

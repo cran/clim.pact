@@ -37,10 +37,14 @@ if (is.null(sub)) sub <- paste(vnames," (",c.mon,")")
 
 for (i in 2:length(vnames)) vnames <- paste(vnames,"+",x$v.name[i])
 i.last <- 0
-id <- row.names(table(id.x))
+id <- row.names(table(x$id.x))
 ordr <- rep(NA,length(id))
 for (i in 1:length(id)) {
-  ordr[i] <- min((1:length(id.x))[is.element(id.x,id[i])])
+  ii<- 0
+  while( (sum(is.element(x$id.lon,id[i]))==x$size[3,i]) & (ii <= length(id)) ) {
+    ii <- ii + 1
+    ordr[i] <- ii
+  }
 }
 #print(ordr)
 id<-id[order(ordr)]
@@ -106,10 +110,12 @@ yymm<-x$yy + (x$mm-0.5)/12 + (x$dd-0.5)/365.25
 #print(c(length(yy),length(mm),length(dd),length(yymm),length(PC[,i.eof])))
 plot(yymm,PC[,i.eof],pch=20,cex=0.7,
      main=title.3,,col="grey70",sub=sub)
-
-lines(yymm[id.t==id.t[1]],PC[id.t==id.t[1],i.eof],col="red",lty=2,lwd=2)
-if (sum(id.t!=id.t[1])>0) lines(yymm[id.t!=id.t[1]],
-          PC[id.t!=id.t[1],i.eof],col="blue",lty=2,lwd=2)
+#print(c(sum(x$id.t==x$id.t[1]),length(yymm[x$id.t==x$id.t[1]]),length(PC[x$id.t==x$id.t[1],i.eof])))
+#print(x$id.t[1])
+#print(table(x$id.t))
+lines(yymm[x$id.t==x$id.t[1]],PC[x$id.t==x$id.t[1],i.eof],col="red",lty=2,lwd=2)
+if (sum(x$id.t!=x$id.t[1])>0) lines(yymm[x$id.t!=x$id.t[1]],
+          PC[x$id.t!=x$id.t[1],i.eof],col="blue",lty=2,lwd=2)
 grid()
 if (ok.eps) dev.copy2eps(file=paste("plotEOF_3.eps",sep=""))
 

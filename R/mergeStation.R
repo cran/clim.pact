@@ -2,7 +2,7 @@
 # produce a long, updated series.
 # R.E. Benestad
 
-mergeStation <- function(x.1,x.2,plot=FALSE) {
+mergeStation <- function(x.1,x.2,plot=FALSE,print=TRUE,rescale=TRUE) {
 
 if ( (class(x.1)[2]!="monthly.station.record") |
      (class(x.2)[2]!="monthly.station.record")) {
@@ -33,7 +33,7 @@ i.1 <- is.element(yymm.1,yymm.2)
 i.2 <- is.element(yymm.2,yymm.1)
 #print(yymm.1); print(i.1)
 if (sum(i.1)) {
-  print(range(yymm.1[i.1]))
+  if (print) print(range(yymm.1[i.1]))
   ovrlp <- data.frame(y=y.1[i.1],x=y.2[i.2])
   new.dat <- data.frame(x=y.2[!i.2])
 
@@ -41,11 +41,12 @@ if (sum(i.1)) {
   Y.2 <- y.2[i.2]
   ii <- is.finite(Y.1) & is.finite(Y.2)
 
-  print(paste("RMSE: ",round(sqrt(sum( (Y.1[ii]-Y.2[ii])^2 ))/sum(i.1),2)))
+  if (print) print(paste("RMSE: ",round(sqrt(sum( (Y.1[ii]-Y.2[ii])^2 ))/sum(i.1),2)))
 
   agree <- lm(y ~ 1 + x, data=ovrlp)
-  print(summary(agree))
+  if (print) print(summary(agree))
   coefs <- agree$coefficients
+  if (!rescale) coefs[2] <- 1
 
 #print("New series")
   y <- c(y.1,coefs[1] + coefs[2]* y.2[!i.2])
@@ -58,12 +59,13 @@ if (sum(i.1)) {
    yy <- c(x.1$yy,x.2$yy)
    #print(c(length(yy),length(y),NA,length(yy)*12))
    ny <- length(yy)
+   yymm <- sort(rep(yy,12)) + (rep(1:12,ny) - 0.5)/12
 }
 #print("Plot?")
 if (plot) {
-  plot(yymm.1,y.1,type="s",lwd=3,col="darkblue")
+  plot(yymm.1,y.1,type="s",lwd=3,col="darkblue",xlim=range(yymm))
   lines(yymm.2,y.2,type="s",col="steelblue",lty=3,lwd=2)
-  lines(yymm,y,type="s",col="wheat",lwd=2)
+  lines(yymm,y,type="s",col="wheat",lwd=1)
   grid()
 }
 

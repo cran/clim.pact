@@ -9,7 +9,9 @@
 retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
                         l.scale=FALSE,greenwich=TRUE,silent=FALSE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
-                        x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,force.chron=TRUE,force365.25=FALSE) {
+                        x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,
+                        force.chron=TRUE,force365.25=FALSE,regular=TRUE,daysayear=365.25,
+                        forceBC=TRUE) {
   library(ncdf)
   if (!file.exists(filename)) {
     stop(paste("Sorry,",filename," does not exist!"))
@@ -60,6 +62,14 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
        unit <- "unknown"
   }
 
+  arv <- att.get.ncdf(ncid, cdfdims[itim], 'calendar')
+  if( arv$hasatt ) calendar <- arv$value else
+       calendar <- "ordinary"
+  #print(calendar)
+  if (calendar=="noleap") {
+    print("Detected 'noleap' Calendar: set daysayear=365")
+    daysayear <- 365
+  }
 
   if (lower.case(a[1])=="linux") {
      torg <- cdfcont(filename)$time.origin
@@ -178,7 +188,7 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
   } else torg <- readline("Give me the time origin (format='15-Dec-1949'):")
 
   if (!silent) print(paste("Time origin: (year-month-day)",yy0,"-",mm0,"-",dd0))
-  if (yy0[1]==0) {
+  if ( (yy0[1]==0) & (forceBC) ) {
     if (!silent) print('There is no year zero (Press et al., Numerical recipies)')
     if (!silent) print("'> print(julday(1,1,1)-julday(1,1,-1))' gives 365")
     if (!silent) print('julday wont work unless the time is fixed')
@@ -189,7 +199,7 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
     }
     if (substr(lower.case(t.unit),1,3)=="day") tim <- tim - 365
     if (substr(lower.case(t.unit),1,3)=="mon") tim <- tim - 12
-    if (substr(lower.case(t.unit),1,5)=="year") tim <- tim - 1
+    if (substr(lower.case(t.unit),1,4)=="year") tim <- tim - 1
     yy0 <- 1
   }
 
@@ -201,13 +211,20 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
     dd <- rep(15,length(tim))
     obj.type <- "monthly.field.object"
   } else if (substr(lower.case(t.unit),1,3)=="day") {
-    mmddyy <- caldat(tim + julday(mm0,dd0,yy0))
+    if (yy0!=0) mmddyy <- caldat(tim + julday(mm0,dd0,yy0)) else if (median(diff(tim)) > 29){
+      year <- yy0 + floor(tim/daysayear)
+      month <- mm0 + rep(1:12,ceiling(length(year)/12))[1:length(tim)] -1
+      day <- rep(15,length(tim))
+      mmddyy <- list(day=day,month=month,year=year)
+    } else stop(paste('THere is a problem with the time dimansion - I do not know what to do.',
+                      'Can be fixed witrh NCO? (http://sf.net/projects/nco)'))
     mm <- mmddyy$month
     yy <- mmddyy$year
     dd <- mmddyy$day
     obj.type <- "daily.field.object"
   } else if (substr(lower.case(t.unit),1,4)=="hour") {
-    mmddyy <- caldat(tim/24 + julday(mm0,dd0,yy0))
+    if (yy0!=0) mmddyy <- caldat(tim/24 + julday(mm0,dd0,yy0)) else {
+    }
     mm <- mmddyy$month
     yy <- mmddyy$year
     dd <- mmddyy$day
@@ -215,11 +232,18 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
     t.unit <- "day"
     obj.type <- "daily.field.object"
   } 
-  daysayear<- 365.25
 
   if (!is.null(t.rng)) {
+    nt <- length(tim)
     if (!is.character(t.rng)) {
       start[nd] <- t.rng[1]
+      if (start[nd] > nt) {
+        print("Argument 't.rng':")
+        print(t.rng)
+        print("Detected an error: start given by 't.rng' exceeds physical record length")
+        print("Are you mixing up dates (given as string argument) and index (numerical argument)?")
+        stop()
+      }
       tim <- tim[t.rng[1]:t.rng[2]]
       attr(tim,"unit") <- eval(parse(text=paste("ncid$dim$",cdfdims[itim],"$units",sep="")))
       count[nd] <- length(tim)
@@ -230,7 +254,7 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
       it <- 1:length(tim)
       it1 <- min(it[(yy*10000 + mm*100 + dd >= yy.1*10000+mm.1*100+dd.1)],na.rm=TRUE)
       it2 <- max(it[(yy*10000 + mm*100 + dd <= yy.2*10000+mm.2*100+dd.2)],na.rm=TRUE)
-      #print(c(yy.1,mm.1,dd.1)); print(c(yy.2,mm.2,dd.2)); print(c(it1,it2))
+      if (!silent) print(c(yy.1,mm.1,dd.1)); print(c(yy.2,mm.2,dd.2)); print(c(it1,it2))
       tim <- tim[it1:it2]
       start[nd] <- it1
       count[nd] <- length(tim)
@@ -238,7 +262,7 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
     }       
   }
  
-  #if (!silent) print(cbind(start,count,varsize))
+  if (!silent) print(cbind(start,count,varsize))
   #if (!silent) print(lat)
   if (!is.null(y.rng) & lat[1] > lat[length(lat)]) {
     start[2] <- varsize[2] - start[2] - count[2] + 1
@@ -281,20 +305,31 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
 
 
 # Check for 'model dates', i.e. 360-day year
-
+  #print("---- --- -- - Check for 'model dates', i.e. 360-day year . .. ... ...."); print(nd)
   if (nd==3) y.test <- as.vector(dat[,1,1]) else y.test <- as.vector(dat[,1,1,1])
   #print(c(sum(is.finite(y.test)),length(y.test)))
-  if (sum(is.finite(y.test)) > 360) {
+  if ( (sum(is.finite(y.test)) > 100) & (daysayear != 360) ){
     ac.gcm  <- data.frame(y=y.test, x1=as.vector(cos(2*pi*tim/360)), 
                                     x2=as.vector(sin(2*pi*tim/360)))
-    ac.real <- data.frame(y=y.test, x1=as.vector(cos(2*pi*tim/365.25)), 
-                                    x2=as.vector(sin(2*pi*tim/365.25)))
+    ac.real <- data.frame(y=y.test, x1=as.vector(cos(2*pi*tim/daysayear)), 
+                                    x2=as.vector(sin(2*pi*tim/daysayear)))
     lm.gcm <- lm(y ~ x1 + x2,data=ac.gcm); r2.gcm <- summary(lm.gcm)$r.squared
     lm.real <- lm(y ~ x1 + x2,data=ac.real); r2.real <- summary(lm.real)$r.squared
     #print(summary(lm.gcm))
     #print(summary(lm.real))
+    #print(force365.25) 
 
-    if ((r2.gcm > r2.real & substr(lower.case(t.unit),1,3)=="day") & !force365.25) {
+    if (force365.25==-1) {
+      print("> > > > FORCING a '360-day' model year! < < < <")
+      yy <- yy0 + floor((tim +(mm0-1)*30+dd0-2)/360)
+      mm <- mod(mm0 + floor((dd0+tim-2)/30)-1,12)+1
+      dd <- mod(dd0+tim-2,30)+1
+      daysayear<- 360
+      force365.25 <- TRUE
+    }  
+    if ( (r2.gcm > r2.real) & (length(rownames(table(diff(tim)))) <= 2) &
+        ( (substr(lower.case(t.unit),1,3)=="day") | (substr(lower.case(t.unit),1,4)=="hour") ) & 
+        !force365.25) {
       print("> > > > Detecting a '360-day' model year! < < < <")
       yy <- yy0 + floor((tim +(mm0-1)*30+dd0-2)/360)
       mm <- mod(mm0 + floor((dd0+tim-2)/30)-1,12)+1
@@ -315,8 +350,10 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
 }
 
 #  print("Latitude:")
-  if (attributes(lat)$"unit"=="degrees_south") lat <- lat * -1
-  if (attributes(lon)$"unit"=="degrees_west") lon <- lon * -1
+  if (!is.null((attributes(lat)$"unit"))) if (attributes(lat)$"unit"=="degrees_south") lat <- lat * -1
+  if (!is.null((attributes(lon)$"unit"))) if (attributes(lon)$"unit"=="degrees_west") lon <- lon * -1
+  if (!is.null((attributes(lat)$"units"))) if (attributes(lat)$"units"=="degrees_south") lat <- lat * -1
+  if (!is.null((attributes(lon)$"units"))) if (attributes(lon)$"units"=="degrees_west") lon <- lon * -1
 
   if (greenwich) {
     lon[lon > 180] <- lon[lon > 180]-360
@@ -334,6 +371,9 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
   ny <- length(lat)
   nt <- length(tim)
 
+  if ((max(mm) > 12) & (max(dd) <= 12)) {
+    mm2 <- mm; mm <- dd; dd <- mm2; rm(mm2)
+  }
   if (!silent) print(paste("First & last records:",yy[1],mm[1],dd[1],
                      "&",yy[length(yy)],mm[length(mm)],dd[length(dd)]))
   
@@ -397,6 +437,24 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
   attr(tim,"unit") <- t.unit
   attr(tim,"time_origin") <- torg
 
+#print(obj.type)
+#print(min(diff(tim)))
+#print(sum(is.element(diff(mm),0)))
+
+  if ((obj.type=="daily.field.object") & (min(diff(tim))>=28) & (regular) &
+      (sum(is.element(diff(mm),0))>0) & (substr(lower.case(t.unit),1,3)=="day")) {
+     if (!silent) print("Problems detected in date-timeunit Quality Control")
+     tim <- 1:length(tim)-1; t.unit <- "month"
+     attr(tim,'unit') <- "months"
+     mm <- mod(mm0 + tim - 1,12)+1
+     yy <- yy0 + floor((tim+mm0-1)/12)
+     dd <- rep(15,length(tim))
+     obj.type <- "monthly.field.object"
+     if (!silent) print("Re-setting the unit to monthly!")
+     if (!silent) print(paste("New First & last dates:",yy[1],mm[1],dd[1],
+                     "&",yy[length(yy)],mm[length(mm)],dd[length(dd)]))
+  }
+
   retrieve.nc  <- list(dat=dat,lon=lon,lat=lat,tim=tim,lev=lev,
                        v.name=v.nam,id.x=id.x,id.t=id.t,
                        yy=yy,mm=mm,dd=dd,n.fld=1,
@@ -408,7 +466,7 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
 
 
 
-
+#----------------------------------------------------------------
 
 fixField <- function(x,torg=NULL,t.unit=NULL,scal=NULL,offs=NULL, 
                      x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,greenwich=TRUE) {

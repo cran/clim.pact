@@ -54,6 +54,7 @@ if (!is.null(attributes(x$tim)$unit)) {
 }
   #print(attributes(x$tim)$units)
   #print(attributes(x$tim)$unit)
+  #print(summary(y))
 
   tunit <- attributes(x$tim)$units
   if (!is.null(tunit)) tunit <- lower.case(substr(tunit,1,3)) else
@@ -77,7 +78,7 @@ if (!is.null(attributes(x$tim)$unit)) {
     ac.fit<-lm(y ~ ac.mod); clim <- ac.fit$fit
   } 
 
-#  print("what?")
+  #print("what?")
   ts <- switch(lower.case(substr(what,1,3)),
                 "ano"=y - clim,
                 "cli"=clim,
@@ -93,8 +94,9 @@ if (!is.null(attributes(x$tim)$unit)) {
   if (is.null(xlab)) xlab <- "Time"
   if (is.null(ylab)) ylab <- attributes(x$dat)$unit
 
+  #print(summary(ts)); print("plot")
   if (!add) {
-
+  
      plot(x$yy+x$mm/12+x$dd/daysayear,ts,type=type,pch=pch,xlim=xlim,ylim=ylim,
        main=main,sub=sub,xlab=xlab,ylab=ylab,col=col,lwd=lwd,lty=lty)
      points(x$yy+x$mm/12+x$dd/daysayear,ts,pch=pch,col=col)
@@ -103,15 +105,15 @@ if (!is.null(attributes(x$tim)$unit)) {
      points(x$yy+x$mm/12+x$dd/daysayear,ts,pch=pch,col=col)
    }
   grid()
-#  print("plotted")
+  #print("plotted")
   
   dd.rng <- range(x$dd)
   if (is.null(attr(x$tim,"units"))) attr(x$tim,"units") <- "unknown"
   if ( (tunit=="mon") |
        ((dd.rng[2]-dd.rng[1]<4) & (x$mm[2]-x$mm[1]>0)) ) {
 #    print("Monthly")
-    results <- station.obj(ts,yy=x$yy,obs.name=x$v.name,unit=attr(x$dat,"unit"),
-                           ele=NA,mm=x$mm,
+    results <- station.obj(ts,yy=x$yy,mm=x$mm,obs.name=x$v.name,
+                           unit=x$attributes$unit,ele=NA,
                            station=NA,lat=round(lat,4),lon==round(lon,4),alt=NA,
                            location="interpolated",wmo.no=NA,
                            start=min(x$yy),yy0=attr(x$tim,"time_origin"),country=NA,
@@ -120,7 +122,7 @@ if (!is.null(attributes(x$tim)$unit)) {
     attr(x$tim,"daysayear") <- daysayear
     results <- station.obj.dm(t2m=ts,precip=rep(NA,length(ts)),
                               dd=x$dd,mm=x$mm,yy=x$yy,
-                              obs.name=x$v.name,unit=attr(x$dat,"unit"),ele=NA,
+                              obs.name=x$v.name,unit=x$attributes$unit,ele=NA,
                               station=NA,lat=round(lat,4),lon=round(lon,4),alt=NA,
                               location="interpolated",wmo.no=NA,
                               start=min(x$yy),yy0=attr(x$tim,"time_origin"),country=NA,

@@ -249,17 +249,21 @@ if (lower.case(options()$device)=="x11")
 }
 
 
+
+
+
 objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
                   mon=NULL,direc="output/",cal.id=NULL,
                   ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
                   method="lm",leps=FALSE,param="t2m",
                   plot.res=FALSE,plot.rate=FALSE,xtr.args="",
-                  swsm="step",predm="predict",lsave=TRUE,rmac=TRUE,
-                  silent=FALSE) {
+                  swsm="step",predm="predict",lsave=FALSE,rmac=TRUE,
+                  silent=FALSE,qualitycontrol=TRUE) {
 
   cmon<-c("Jan","Feb","Mar","Apr","May","Jun",
           "Jul","Aug","Sep","Oct","Nov","Dec")
-  
+  if (options()$device == "none") {plot <- FALSE; plot.res<- FALSE; plot.rate<- FALSE}
+
   dims <- dim(field.obs$dat); ny <- dims[2]; nx <- dims[3]
 #  print(dims)
   wy <- 2*pi*seq(0,ny-1,by=1)/(ny-1)
@@ -279,15 +283,17 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
   result <- list(station=station)
   if (is.null(positive) &
       sum(is.element(c("t2m","tem"),lower.case(substr(field.obs$v.name,1,3))))> 0) {
-    positive <- TRUE
+      positive <- TRUE
   }
   rates <- rep(NA,12)
-
   for (imon in mon) {
-    par(cex.sub=0.6,cex.axis=0.6,cex.lab=0.6,fin=c(2.37,2.37))
-    print(imon)
-    cormap <- corField(field.obs,station,mon=imon,main="")
-    if (lower.case(options()$device)=="x11") {
+    if (plot) {
+      newFig()
+      if (dev.cur() > 1) par(cex.sub=0.6,cex.axis=0.6,cex.lab=0.6,fin=c(2.37,2.37))
+    }
+    #print(imon)
+    cormap <- corField(field.obs,station,mon=imon,main="",plot=FALSE)
+    if ((lower.case(options()$device)=="x11") & (plot)) {
        dev.copy2eps(file=paste(direc,"/cormap_",cmon[imon],".eps",sep=""))
        #dev2bitmap(file=paste("cormap_",cmon[imon],".jpg",sep=""),type="jpeg",width=2.37,height=2.37,res=300)
        dev2bitmap(file=paste("cormap_",cmon[imon],".jpg",sep=""),res=300)
@@ -310,10 +316,17 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     yhat <- predict(y.fit,newdata=lsX); xhat <- predict(x.fit,newdata=lsY);
     yzero <- yhat[2:ny]*yhat[1:(ny-1)]; xzero <- xhat[2:nx]*xhat[1:(nx-1)]
     lonx <- lonx[xzero < 0]; latx <- latx[yzero < 0]
+    #print("TEST: new x.rng/y.rng:")
     x.rng <- c(max(c(min(field.obs$lon),max(lonx[lonx < station$lon])), na.rm=TRUE),
                min(c(max(field.obs$lon),min(lonx[lonx > station$lon])), na.rm=TRUE))
     y.rng <- c(max(c(min(field.obs$lat),max(latx[latx < station$lat])), na.rm=TRUE),
                min(c(max(field.obs$lat),min(latx[latx > station$lat])), na.rm=TRUE))
+    #print(x.rng); print(y.rng)
+    if (x.rng[1] > station$lon-10) x.rng[1] <- station$lon-10
+    if (x.rng[2] < station$lon+10) x.rng[2] <- station$lon+10
+    if (y.rng[1] > station$lat-10) y.rng[1] <- station$lat-10
+    if (y.rng[2] < station$lat+10) y.rng[2] <- station$lat+10
+    #print(x.rng); print(y.rng)
     if (plot) {
       par(cex.sub=0.6,cex.axis=0.6,cex.lab=0.6,fin=c(2.37,2.37),fig=c(0,1,0,1))
       plot(range(c(field.obs$lat,field.obs$lon)),range(cormap$map,na.rm=TRUE),type="n",
@@ -333,7 +346,7 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
       lines(field.obs$lon,as.numeric(xhat),col="red",lwd=2)
       lines(rep(x.rng[1],2),range(cormap$map,na.rm=TRUE),lty=2,col="red")
       lines(rep(x.rng[2],2),range(cormap$map,na.rm=TRUE),lty=2,col="red")
-      if (lower.case(options()$device)=="x11") {
+      if ((lower.case(options()$device)=="x11") & (plot)) {
         dev.copy2eps(file=paste(direc,"/objDS_",cmon[imon],"_1.eps",sep=""))
         dev2bitmap(file=paste("objDS_",cmon[imon],"_1.jpg",sep=""),type="jpeg",width=2.37,height=2.37,res=300)
       }
@@ -344,9 +357,12 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
 #    print(c(sum(!is.finite(field.obs$dat)),sum(!is.finite(field.gcm$dat))))
 #    print(summary(field.obs$lon)); print(summary(field.obs$lat))
 #    print(summary(field.gcm$lon)); print(summary(field.gcm$lat))
+#    print(c(length(field.obs$yy),length(field.obs$mm),length(field.obs$id.t),NA,dim(field.obs$dat)))
+#    print(c(length(field.gcm$yy),length(field.gcm$mm),length(field.gcm$id.t),NA,dim(field.gcm$dat)))
     field.2 <- catFields(field.obs,field.gcm,lon=x.rng,lat=y.rng,mon=imon)
+#    print(c(length(field.2$yy),length(field.2$mm),length(field.2$id.t),NA,dim(field.2$dat)))
     print("EOF:")
-    eof <- EOF(field.2,silent=silent)
+    eof <- EOF(field.2,silent=silent,plot=plot,lsave=FALSE)
     print("DS:")
     ds <- DS(preds=eof,dat=station,direc=direc,cal.id=cal.id,
                   ldetrnd=ldetrnd,i.eofs=i.eofs,ex.tag=ex.tag,
@@ -364,11 +380,15 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
 # Check the rates with those of adjacent months: if very different, do the computation again
 # but with a reduced domain size until a minimum size is reached (10x10 degrees).
 
+  if (qualitycontrol) {
   print("==========================================================")
   print("=================== Quality control! =====================")
   print("==========================================================")
+#print(rates)
   drate <- -(diff(rep(rates,3))[11:22])*(diff(rep(rates,3))[12:23])
+#print(drate)
   icheck <- (drate > 3*var(rates))
+#print(icheck)  
   while (sum(icheck)>0) {
     print(paste("Rates: (drate exceeds ",3*var(rates),")"))
     print(rbind(rates,drate,icheck))
@@ -378,10 +398,16 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
        print(paste("Re-compute ",cmon[ii],": rate=",rates[ii]," drate=",drate[ii]))
        x.rng <- eval(parse(text=paste("result$",cmon[ii],"$x.rng",sep="")))
        y.rng <- eval(parse(text=paste("result$",cmon[ii],"$y.rng",sep="")))
-       if (diff(x.rng) > 25) {x.rng[1] <- x.rng[1]+1; x.rng[2] <- x.rng[2]-1}
-       if (diff(y.rng) > 25) {y.rng[1] <- y.rng[1]+1; y.rng[2] <- y.rng[2]-1}
+       if (diff(x.rng) > 25) {
+         if (station$lon > x.rng[1]+10) x.rng[1] <- x.rng[1]+(station$lon - x.rng[1] - 10)/3
+         if (station$lon < x.rng[2]-10) x.rng[2] <- x.rng[2]-(x.rng[2] - station$lon - 10)/3
+       }
+       if (diff(y.rng) > 25) {
+         if (station$lat > y.rng[1]+10) y.rng[1] <- y.rng[1]+(station$lat - y.rng[1] - 10)/3
+         if (station$lat < y.rng[2]+10) y.rng[2] <- y.rng[2]-(y.rng[2] - station$lat - 10)/3
+       }
        field.2 <- catFields(field.obs,field.gcm,lon=x.rng,lat=y.rng,mon=ii)
-       eof <- EOF(field.2,silent=TRUE)
+       eof <- EOF(field.2,silent=TRUE,lsave=FALSE)
        ds <- DS(preds=eof,dat=station,direc=direc,cal.id=cal.id,
                 ldetrnd=ldetrnd,i.eofs=i.eofs,ex.tag=ex.tag,
                 method=method,plot=FALSE,leps=leps,param=param,
@@ -398,15 +424,18 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
                     " y.rng=",y.rng[1]," - ",y.rng[2],"icheck[ii]=",icheck[ii]))
     }
   }
-
+  }
+  print("The downscaling is complete for this station")
   class(result) <- "objDS"
-
+ 
+  #print("ds.val:")
   ds.val <-cbind(
            result$Jan$pre.gcm,result$Feb$pre.gcm,result$Mar$pre.gcm,
            result$Apr$pre.gcm,result$May$pre.gcm,result$Jun$pre.gcm,
            result$Jul$pre.gcm,result$Aug$pre.gcm,result$Sep$pre.gcm,
            result$Oct$pre.gcm,result$Nov$pre.gcm,result$Dec$pre.gcm)
-  ds.yy <- result$Jan$mm.gcm
+  #print("ds.yy:")
+  ds.yy <- result$Jan$yy.gcm
   station.series <- station.obj(ds.val,ds.yy,obs.name=paste("downscaled",station$obs.name),
                         station$unit,ele=station$ele,mm=NULL,
                         station=station$station,lat=station$lat,lon=station$lon,alt=station$alt,
@@ -415,7 +444,8 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
                         ref=paste("clim.pact >= v2.1-4 > objDS (Benestad, 2004, Eos, vol 85, #42, Oct 19, p.417):",
                                   field.2$filename))
   result$station <- station.series
-  if (plot) plotDSobj(result)
-
+  if (plot) {
+    plotDSobj(result)
+  }
   invisible(result)
 }

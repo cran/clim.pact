@@ -6,11 +6,13 @@
   useful for updating long climate series with new observations from a
   different database. The routine cokpares data for overlapping times
   and prints out diagnostics about the two data sets.}
-\usage{mergeStation(x.1,x.2,plot=FALSE)}
+\usage{mergeStation(x.1,x.2,plot=FALSE,print=TRUE,rescale=TRUE)}
 \arguments{
   \item{x.1}{1st series.}
   \item{x.2}{2nd series.}
   \item{plot}{'TRUE' plots the overlap.}
+  \item{print}{'TRUE' prints diagnostics.}
+  \item{rescale}{'TRUE' uses lm to determine amplitude of second sequence otherwise the amplitude of second sequence is not changed.}
   }
 \value{A climate station series object.}
 \author{R.E. Benestad}}

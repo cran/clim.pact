@@ -30,6 +30,7 @@ if (!is.null(mon)) {
   
   if (is.null(mon)) {
     ny <- length(obs$yy)
+    mm <- rep(1:12,ny)
     value <- t(obs$val)
     if (l.anom) {
       for (im in 1:12) {
@@ -56,6 +57,7 @@ if (!is.null(mon)) {
   } else {
     yy <- obs$yy
     ny <- length(obs$yy)
+    mm <- rep(mon[1],ny)
     value <- obs$val[,mon[1]]
     if (mon==c(12,1,2)) {
       obs$val[2:ny,12] <- obs$val[1:(ny-1),12]

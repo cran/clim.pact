@@ -21,7 +21,8 @@ DS <- function(dat,preds,mon=NULL,direc="output/",cal.id=NULL,
                silent=FALSE) {
 library(ts)
 library(ctest)
-library(chron)
+#library(chron)
+library(date)
 library(xtable)
 
 dir.0<-getwd()
@@ -49,6 +50,13 @@ if (method=="anm") {
   ldetrnd <- FALSE
   rmac <- FALSE
 }
+
+if (class(preds)[2]=="daily.field.object") {
+  good <- eval(parse(text=paste("is.finite(dat$",param,")",sep="")))
+  eval(parse(text=paste("dat$",param," <- dat$",param,"[good]",sep="")))
+  dat$mm <- dat$mm[good]; dat$yy <- dat$yy[good]
+  dat$dd <- dat$dd[good]; dat$tim <- dat$tim[good]
+} 
 
 cmon<-c('Jan','Feb','Mar','Apr','May','Jun',
         'Jul','Aug','Sep','Oct','Nov','Dec')
@@ -162,7 +170,8 @@ if (class(dat)[2]=="monthly.station.record") {
     eval(parse(text=paste("y.o<-dat$",param,sep="")))
     ds.unit <- dat$unit[1]
   }
-  tim.o <- julian(mm.o,dd.o,yy.o,origin.=c(1,1,1970))
+#  tim.o <- julian(mm.o,dd.o,yy.o,origin.=c(1,1,1970))
+  tim.o <- mdy.date(mm.o, dd.o, yy.o)
   nt <- length(tim.o)
   ac.mod<-matrix(rep(NA,nt*6),nt,6)
   ac.mod[,1]<-cos(2*pi*tim.o/365.25); ac.mod[,2]<-sin(2*pi*tim.o/365.25)
@@ -394,7 +403,8 @@ if (length(pre.gcm)==1) {
 #        mean(y.o[yy.o>1980],na.rm=TRUE)))
 
 if ((class(dat)[2]=="daily.station.record") & (rmac)) {
-  tim.cal <- julian(mm.cal,dd.cal,yy.cal,origin.=c(1,1,1970))
+#  tim.cal <- julian(mm.cal,dd.cal,yy.cal,origin.=c(1,1,1970))
+  tim.cal <- mdy.date(mm.cal, dd.cal, yy.cal)
   rm(ac.mod)
   nt.cal <- length(tim.cal)
   ac.mod<-matrix(rep(NA,nt.cal*6),nt.cal,6)
@@ -403,7 +413,8 @@ if ((class(dat)[2]=="daily.station.record") & (rmac)) {
   ac.mod[,5]<-cos(6*pi*tim.cal/365.25); ac.mod[,6]<-sin(6*pi*tim.cal/365.25)
   ac.cal <- data.frame(X=ac.mod)
   rm(ac.mod)
-  tim.gcm <- julian(mm.gcm,dd.gcm,yy.gcm,origin.=c(1,1,1970))
+#  tim.gcm <- julian(mm.gcm,dd.gcm,yy.gcm,origin.=c(1,1,1970))
+  tim.gcm <- mdy.date(mm.gcm, dd.gcm, yy.gcm)
   nt.gcm <- length(tim.gcm)
   ac.mod<-matrix(rep(NA,nt.gcm*6),nt.gcm,6)
   ac.mod[,1]<-cos(2*pi*tim.gcm/365.25); ac.mod[,2]<-sin(2*pi*tim.gcm/365.25)
@@ -411,7 +422,8 @@ if ((class(dat)[2]=="daily.station.record") & (rmac)) {
   ac.mod[,5]<-cos(6*pi*tim.gcm/365.25); ac.mod[,6]<-sin(6*pi*tim.gcm/365.25)
   ac.gcm <- data.frame(X=ac.mod)
   rm(ac.mod)
-  tim.o <- julian(mm.o,dd.o,yy.o,origin.=c(1,1,1970))
+#  tim.o <- julian(mm.o,dd.o,yy.o,origin.=c(1,1,1970))
+  tim.o <- mdy.date(mm.o, dd.o, yy.o)
   nt <- length(tim.o)
   ac.mod<-matrix(rep(NA,nt*6),nt,6)
   ac.mod[,1]<-cos(2*pi*tim.o/365.25); ac.mod[,2]<-sin(2*pi*tim.o/365.25)
@@ -423,9 +435,11 @@ if ((class(dat)[2]=="daily.station.record") & (rmac)) {
   pre.gcm <- pre.gcm + predict(ac.fit,newdata=ac.gcm)  
 }
 
-pre.y   <- pre.y   - mean(pre.y,na.rm=TRUE) + mean(y.o,na.rm=TRUE)
-pre.gcm <- pre.gcm - mean(pre.gcm[yy.gcm<2010],na.rm=TRUE) +
+if (method!="anm") {
+  pre.y   <- pre.y   - mean(pre.y,na.rm=TRUE) + mean(y.o,na.rm=TRUE)
+  pre.gcm <- pre.gcm - mean(pre.gcm[yy.gcm<2010],na.rm=TRUE) +
                      mean(y.o[yy.o>1980],na.rm=TRUE)
+}
 
 if (!silent) print(summary(pre.gcm))
 

@@ -1,5 +1,6 @@
 \name{retrieve.nc}
 \alias{retrieve.nc}
+\alias{field.object}
 \title{Retrieve data from a netCDF file}
 \description{Reads a netCDF file and picks out vectors that look like
   lngitude, latitude and time. Returns the first 3-D field in the file.}
@@ -23,10 +24,23 @@
   }
   \value{A "field.object" list:
     \tabular{ll}{
-      lon \tab a vector of longitudes  \cr
-      lat \tab a vector of latitudes  \cr
-      tim \tab a vector of times from time.0 (see attributes) \cr
-      dat \tab a 3-D matrix with the data \cr
+      dat \tab a 3-D matrix with the data. \cr
+      lon \tab a vector of longitudes.  \cr
+      lat \tab a vector of latitudes.  \cr
+      tim \tab a vector of times from time.0 (see attributes). \cr
+      lev \tab a vector of vertical levels (NULL for single level). \cr
+      v.name \tab variable name.\cr
+      id.x \tab ID labels for the spatial grid (for mixed fields, see \code{\link{mixFields}}). \cr
+      id.t \tab ID labels for the time axis (for combined fields). \cr
+      yy \tab a vector of years corresponding to \code{tim}. \cr
+      mm \tab a vector of months corresponding to \code{tim}. \cr
+      dd \tab a vector of days corresponding to \code{tim}. \cr
+      n.fld \tab number of fields (for mixed fields, see
+      \code{\link{mixFields}}). \cr
+      id.lon \tab ID labels along the longitudes (for mixed fields, see
+      \code{\link{mixFields}}). \cr
+      id.lat \tab ID labels along the latitudes (for mixed fields, see
+      \code{\link{mixFields}}). \cr
       }.}
 \author{R.E. Benestad}}
 \examples{

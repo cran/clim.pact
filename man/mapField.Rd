@@ -2,16 +2,19 @@
 \alias{mapField}
 \title{MapField}
 \description{Draws maps of fields in a field object, eg read using \code{\link{retrieve.nc}}.}
-\usage{mapField(x,l=NULL,greenwich=TRUE,what="ano",method="nice",
-                       col="black",lwd=2,lty=1,add=FALSE,las = 1)}
+\usage{mapField(x,l=NULL,greenwich=TRUE,what="ano",method="nice",val.rng=NULL,
+                       col="black",col.coast="grey",lwd=2,lty=1,add=FALSE,las = 1)}
 \arguments{
     \item{x}{ A field object. }
     \item{l}{The field to map. Default: the last field in the record.}
     \item{what}{What to draw: "ano"-> anomalies, "cli"-> climatological
     values, "abs" -> absolute values. }
-    \item{method}{"nice" -> \code{filled.contour}, otherwise use \code{image}.}
+  \item{method}{"nice" -> \code{filled.contour}, otherwise use
+    \code{image}.}
+    \item{val.rng}{Valid range: interval used for colour scale.}
     \item{greenwich}{'TRUE' centres on Greenwich meridian.}
-    \item{col}{Colour.}
+    \item{col}{Contour line colour for levels.}
+    \item{col.coast}{Contour line colour for coast lines.}
     \item{lwd}{Line width.}
     \item{lty}{Line type.}
     \item{add}{Adds map to old figure.}

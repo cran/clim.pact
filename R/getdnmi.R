@@ -60,13 +60,17 @@ if (file.exists(paste(direc,f.name,sep=""))) {
   no.find <- FALSE 
 
   obs<-read.table(paste(direc,f.name,sep=""))
-  dnmi.meta <- read.table(paste(direc,"dnmi.meta",sep=""))
-
+#  dnmi.meta <- read.table(paste(direc,"dnmi.meta",sep=""))
+  dnmi.meta <- read.table("data/dvh.station.list",header=TRUE,as.is=TRUE)
   station<-obs$V1[1]
-  alt<- dnmi.meta$alt[dnmi.meta$dnmi.no==station]
-  lon<- dnmi.meta$lon[dnmi.meta$dnmi.no==station]
-  lat<- dnmi.meta$lat[dnmi.meta$dnmi.no==station]
-  location <- dnmi.meta$location[dnmi.meta$dnmi.no==station]
+#  alt<- dnmi.meta$alt[dnmi.meta$dnmi.no==station]
+#  lon<- dnmi.meta$lon[dnmi.meta$dnmi.no==station]
+#  lat<- dnmi.meta$lat[dnmi.meta$dnmi.no==station]
+#  location <- dnmi.meta$location[dnmi.meta$dnmi.no==station]
+  alt<- as.numeric(dnmi.meta$Hoh[dnmi.meta$Stnr==station][1])
+  lon<- dnmi.meta$Lon[dnmi.meta$Stnr==station][1]
+  lat<- dnmi.meta$Lat[dnmi.meta$Stnr==station][1]
+  location <- dnmi.meta$Navn[dnmi.meta$Stnr==station][1]
   yy <- obs$V2
   mm <- obs$V3
   YY<-as.numeric(row.names(table(obs$V2)))

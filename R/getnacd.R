@@ -59,6 +59,7 @@ load(fr.name)
 
 station<-obs$V1
 ele<-obs$V2
+
 yy<-obs$V3
 country<-obs$V16
 
@@ -84,30 +85,32 @@ location<-paste(upper.case(location),
                 paste(rep(" ",21-nc),sep="",collapse=""),sep="")
 
 no.find<-FALSE
-if ((sum(is.element(meta.nacd$V5,location) & is.element(meta.nacd$V14,ele))==0) & !(silent)) {
+if ((sum(is.element(meta.nacd$location,location) &
+         is.element(as.numeric(as.character(meta.nacd$element)),ele))==0) &
+    !(silent)) {
   print("getnacd: ERROR - cannot find the right record!")
-  print(sum(is.element(meta.nacd$V5,location) & is.element(meta.nacd$V14,ele)))
+  print(sum(is.element(meta.nacd$location,location) &
+            is.element(meta.nacd$element,ele)))
 
-  print("ele.c")
-  print(ele.c)
   print("location")
   print(location)
-  print("table(ele)")
+  print("levels(meta.nacd$location)")
+  print(levels(meta.nacd$location))
+
+  print("ele")
   print(table(ele))
-  print("levels(meta.nacd$V14)")
-  print(levels(meta.nacd$V14))
-  print("levels(meta.nacd$V5)")
-  print(levels(meta.nacd$V5))
-  print("sum(is.element(meta.nacd$V5,location))")
-  print(sum(is.element(meta.nacd$V5,location)))
-  print("sum(is.element(meta.nacd$V14,ele))")
-  print(sum(is.element(meta.nacd$V14,ele)))
-  print(meta.nacd[is.element(meta.nacd$V5,location),])
+  print("levels(meta.nacd$element)")
+  print(table(as.numeric(as.character(meta.nacd$element))))
+
+  print(paste("sum(is.element(meta.nacd$location,location))=",
+              sum(is.element(meta.nacd$location,location))))
+  print(paste("sum(is.element(meta.nacd$element,ele))=",
+              sum(is.element(meta.nacd$element,ele))))
   no.find<-TRUE
 }
 
-meta<-meta.nacd[is.element(meta.nacd$V5,location) &
-           is.element(meta.nacd$V14,ele),]
+meta<-meta.nacd[is.element(meta.nacd$location,location) &
+           is.element(as.numeric(as.character(meta.nacd$element)),ele),]
 
 if (no.find) {
  print("meta:")
@@ -117,21 +120,21 @@ if (no.find) {
 
  print("country:")
  print(levels(country))
- print(meta$V3)
+ print(meta$country)
 }
  
-iloc<-is.element(station,meta$V2) &
-                (country == meta$V3) 
+iloc<-is.element(station,meta$station.number) &
+                (country == meta$country) 
 
-if (no.find) {
+if (sum(iloc)==0) {
  print("summary(iloc)")
  print(summary(iloc))
  print("sum(iloc)")
  print(sum(iloc))
- print("sum(is.element(station,meta$V2))")
- print(sum(is.element(station,meta$V2)))
- print("sum(country == meta$V3)")
- print(sum(country == meta$V3))
+ print("sum(is.element(station,meta$station.number))")
+ print(sum(is.element(station,meta$station.number)))
+ print("sum(country == meta$country)")
+ print(sum(country == meta$country))
 }
 
 obs.name<-switch(as.character(ele[1]),
@@ -145,7 +148,7 @@ unit<-switch(as.character(ele[1]),
                      '601'='mm',
                      '801'='%')
 #print(as.character(meta$V16))
-quality<-switch(as.character(meta$V16),
+quality<-switch(as.character(meta$quality),
                 ' H'='Homogenous, rigorously tested & adjusted',
                 'H'='Homogenous, rigorously tested & adjusted',
                 ' T'='Tested, maybe adjusted but not perfectly H.',
@@ -157,21 +160,21 @@ quality<-switch(as.character(meta$V16),
                 ' I'='Inhomogenous series which presently are unadjustable',
                 'I'='Inhomogenous series which presently are unadjustable')
 
-lat<-meta$V6 + meta$V7/60
-lon<-meta$V9 + meta$V10/60
-lat[meta$V8==" S"]<-lat[meta$V8==" S"]*-1
-lon[meta$V11==" W"]<-lon[meta$V11==" W"]*-1
+lat<-meta$degN + meta$minN/60
+lon<-meta$degE + meta$minE/60
+lat[meta$N.S==" S"]<-lat[meta$N.S==" S"]*-1
+lon[meta$E.W==" W"]<-lon[meta$E.W==" W"]*-1
 #print(levels(meta$V8))
 #print(levels(meta$V11))
 
 xy<-COn0E65N(lon,lat)
 
-getnacd<-list(val=val[iloc,],station=meta$V1,yy=yy[iloc],
-              lat=lat,lon=lon,alt=meta$V12,
+getnacd<-list(val=val[iloc,],station=meta$station.number,yy=yy[iloc],
+              lat=lat,lon=lon,alt=meta$alt,
               x.0E65N=xy$x,y.0E65N=xy$y,
-              location=location, wmo.no=meta$V4,
-              start=meta$V3,yy0=meta$V15,ele=ele[1],
-              obs.name=obs.name, unit=unit,country=meta$V3,
+              location=location, wmo.no=meta$wmo.number,
+              start=meta$start,yy0=meta$year.1,ele=ele[1],
+              obs.name=obs.name, unit=unit,country=meta$country,
               quality=quality,found=!no.find,
               ref='Frich et al. (1996), DMI scientific report 96-1')
 class(getnacd) <- c("station","monthly.station.record")

@@ -1,15 +1,11 @@
 rm(list=ls())
 library(clim.pact)
-source("clim.pact/R/eof.R")
-source("clim.pact/R/ds.R")
-source("clim.pact/R/cat.fields.R")
-source("clim.pact/R/mix.fields.R")
 
 cmon<-c("Jan","Feb","Mar","Apr","May","Jun",
         "Jul","Aug","Sep","Oct","Nov","Dec")
 
-domains <- c("D9","D10","D1","D2","D3","D4","D5","D6","D7","D8")
-analyses  <- c("DNMI","NCEP")
+domains <- c("D2","D4","D9","D10","D1","D3","D5","D6","D7","D8")
+analyses  <- c("NCEP","DNMI")
 
 for (domain in domains) {
   for (analysis in analyses) {
@@ -58,15 +54,15 @@ gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/HADCM3_B2_slp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=t.rng)
 
 for (im in 1:12) {
-  print("cat.fields")
-  XX.t2m <- cat.fields(obs.t2m,gcm.t2m,mon=im)
-  EOF.t2m <- eof(XX.t2m,plot=FALSE)
-  XX.slp <- cat.fields(obs.slp,gcm.slp,mon=im)
-  EOF.slp <- eof(XX.slp,plot=FALSE)
-  print("mix.fields:")
-  XX <- mix.fields(XX.t2m,XX.slp)
-  print("mix.fields EOF")
-  EOF.t2m.slp <- eof(XX,plot=FALSE)
+  print("catFields")
+  XX.t2m <- catFields(obs.t2m,gcm.t2m,mon=im)
+  EOF.t2m <- EOF(XX.t2m,plot=FALSE)
+  XX.slp <- catFields(obs.slp,gcm.slp,mon=im)
+  EOF.slp <- EOF(XX.slp,plot=FALSE)
+  print("mixFields:")
+  XX <- mixFields(XX.t2m,XX.slp)
+  print("mixFields EOF")
+  EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
 ##################### HadCM3: A2 ########################
@@ -78,15 +74,15 @@ gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/HADCM3_A2_slp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(2000,2099))
 
 for (im in 1:12) {
-  print("cat.fields")
-  XX.t2m <- cat.fields(obs.t2m,gcm.t2m,mon=im)
-  EOF.t2m <- eof(XX.t2m,plot=FALSE)
-  XX.slp <- cat.fields(obs.slp,gcm.slp,mon=im)
-  EOF.slp <- eof(XX.slp,plot=FALSE)
-  print("mix.fields:")
-  XX <- mix.fields(XX.t2m,XX.slp)
-  print("mix.fields EOF")
-  EOF.t2m.slp <- eof(XX,plot=FALSE)
+  print("catFields")
+  XX.t2m <- catFields(obs.t2m,gcm.t2m,mon=im)
+  EOF.t2m <- EOF(XX.t2m,plot=FALSE)
+  XX.slp <- catFields(obs.slp,gcm.slp,mon=im)
+  EOF.slp <- EOF(XX.slp,plot=FALSE)
+  print("mixFields:")
+  XX <- mixFields(XX.t2m,XX.slp)
+  print("mixFields EOF")
+  EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
 ##################### ECHAM4/OPYC3: B2 ########################
@@ -97,12 +93,12 @@ gcm.t2m <- retrieve.nc("/home/kareb/data/ipcc_sres/EH4OPYC_B2_temp.nc",
 gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/EH4OPYC_B2_slp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(2001,2099))
 for (im in 1:12) {
-  XX.t2m <- cat.fields(obs.t2m,gcm.t2m,mon=im)
-  EOF.t2m <- eof(XX.t2m,plot=FALSE)
-  XX.slp <- cat.fields(obs.slp,gcm.slp,mon=im)
-  EOF.slp <- eof(XX.slp,plot=FALSE)
-  XX <- mix.fields(XX.t2m,XX.slp)
-  EOF.t2m.slp <- eof(XX,plot=FALSE)
+  XX.t2m <- catFields(obs.t2m,gcm.t2m,mon=im)
+  EOF.t2m <- EOF(XX.t2m,plot=FALSE)
+  XX.slp <- catFields(obs.slp,gcm.slp,mon=im)
+  EOF.slp <- EOF(XX.slp,plot=FALSE)
+  XX <- mixFields(XX.t2m,XX.slp)
+  EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
 ##################### ECHAM4/OPYC3: A2 ########################
@@ -113,12 +109,12 @@ gcm.t2m <- retrieve.nc("/home/kareb/data/ipcc_sres/EH4OPYC_A2_temp.nc",
 gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/EH4OPYC_A2_slp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(2001,2099))
 for (im in 1:12) {
-  XX.t2m <- cat.fields(obs.t2m,gcm.t2m,mon=im)
-  EOF.t2m <- eof(XX.t2m,plot=FALSE)
-  XX.slp <- cat.fields(obs.slp,gcm.slp,mon=im)
-  EOF.slp <- eof(XX.slp,plot=FALSE)
-  XX <- mix.fields(XX.t2m,XX.slp)
-  EOF.t2m.slp <- eof(XX,plot=FALSE)
+  XX.t2m <- catFields(obs.t2m,gcm.t2m,mon=im)
+  EOF.t2m <- EOF(XX.t2m,plot=FALSE)
+  XX.slp <- catFields(obs.slp,gcm.slp,mon=im)
+  EOF.slp <- EOF(XX.slp,plot=FALSE)
+  XX <- mixFields(XX.t2m,XX.slp)
+  EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
 ##################### CSIRO: B2 ########################
@@ -130,12 +126,12 @@ gcm.t2m <- retrieve.nc("/home/kareb/data/ipcc_sres/CSIRO_B2_temp.nc",
 gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/CSIRO_B2_slp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(1961,2099))
 for (im in 1:12) {
-  XX.t2m <- cat.fields(obs.t2m,gcm.t2m,mon=im)
-  EOF.t2m <- eof(XX.t2m,plot=FALSE)
-  XX.slp <- cat.fields(obs.slp,gcm.slp,mon=im)
-  EOF.slp <- eof(XX.slp,plot=FALSE)
-  XX <- mix.fields(XX.t2m,XX.slp)
-  EOF.t2m.slp <- eof(XX,plot=FALSE)
+  XX.t2m <- catFields(obs.t2m,gcm.t2m,mon=im)
+  EOF.t2m <- EOF(XX.t2m,plot=FALSE)
+  XX.slp <- catFields(obs.slp,gcm.slp,mon=im)
+  EOF.slp <- EOF(XX.slp,plot=FALSE)
+  XX <- mixFields(XX.t2m,XX.slp)
+  EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
 ##################### CSIRO: A2 ########################
@@ -146,12 +142,12 @@ gcm.t2m <- retrieve.nc("/home/kareb/data/ipcc_sres/CSIRO_A2_temp.nc",
 gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/CSIRO_A2_slp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(1961,2099))
 for (im in 1:12) {
-  XX.t2m <- cat.fields(obs.t2m,gcm.t2m,mon=im)
-  EOF.t2m <- eof(XX.t2m,plot=FALSE)
-  XX.slp <- cat.fields(obs.slp,gcm.slp,mon=im)
-  EOF.slp <- eof(XX.slp,plot=FALSE)
-  XX <- mix.fields(XX.t2m,XX.slp)
-  EOF.t2m.slp <- eof(XX,plot=FALSE)
+  XX.t2m <- catFields(obs.t2m,gcm.t2m,mon=im)
+  EOF.t2m <- EOF(XX.t2m,plot=FALSE)
+  XX.slp <- catFields(obs.slp,gcm.slp,mon=im)
+  EOF.slp <- EOF(XX.slp,plot=FALSE)
+  XX <- mixFields(XX.t2m,XX.slp)
+  EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
 
@@ -163,12 +159,12 @@ gcm.t2m <- retrieve.nc("/home/kareb/data/ipcc_sres/CCCma_B2_temp.nc",
 gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/CCCma_B2_slp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(2001,2099))
 for (im in 1:12) {
-  XX.t2m <- cat.fields(obs.t2m,gcm.t2m,mon=im)
-  EOF.t2m <- eof(XX.t2m,plot=FALSE)
-  XX.slp <- cat.fields(obs.slp,gcm.slp,mon=im)
-  EOF.slp <- eof(XX.slp,plot=FALSE)
-  XX <- mix.fields(XX.t2m,XX.slp)
-  EOF.t2m.slp <- eof(XX,plot=FALSE)
+  XX.t2m <- catFields(obs.t2m,gcm.t2m,mon=im)
+  EOF.t2m <- EOF(XX.t2m,plot=FALSE)
+  XX.slp <- catFields(obs.slp,gcm.slp,mon=im)
+  EOF.slp <- EOF(XX.slp,plot=FALSE)
+  XX <- mixFields(XX.t2m,XX.slp)
+  EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
 ##################### CCC: A2 ########################
@@ -179,12 +175,12 @@ gcm.t2m <- retrieve.nc("/home/kareb/data/ipcc_sres/CCCma_A2_temp.nc",
 gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/CCCma_A2_slp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(2001,2099))
 for (im in 1:12) {
-  XX.t2m <- cat.fields(obs.t2m,gcm.t2m,mon=im)
-  EOF.t2m <- eof(XX.t2m,plot=FALSE)
-  XX.slp <- cat.fields(obs.slp,gcm.slp,mon=im)
-  EOF.slp <- eof(XX.slp,plot=FALSE)
-  XX <- mix.fields(XX.t2m,XX.slp)
-  EOF.t2m.slp <- eof(XX,plot=FALSE)
+  XX.t2m <- catFields(obs.t2m,gcm.t2m,mon=im)
+  EOF.t2m <- EOF(XX.t2m,plot=FALSE)
+  XX.slp <- catFields(obs.slp,gcm.slp,mon=im)
+  EOF.slp <- EOF(XX.slp,plot=FALSE)
+  XX <- mixFields(XX.t2m,XX.slp)
+  EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
 
@@ -196,12 +192,12 @@ gcm.t2m <- retrieve.nc("/home/kareb/data/ipcc_sres/NCARCSM_A2_temp.nc",
 gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/NCARCSM_A2_slp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(1990,2099))
 for (im in 1:12) {
-  XX.t2m <- cat.fields(obs.t2m,gcm.t2m,mon=im)
-  EOF.t2m <- eof(XX.t2m,plot=FALSE)
-  XX.slp <- cat.fields(obs.slp,gcm.slp,mon=im)
-  EOF.slp <- eof(XX.slp,plot=FALSE)
-  XX <- mix.fields(XX.t2m,XX.slp)
-  EOF.t2m.slp <- eof(XX,plot=FALSE)
+  XX.t2m <- catFields(obs.t2m,gcm.t2m,mon=im)
+  EOF.t2m <- EOF(XX.t2m,plot=FALSE)
+  XX.slp <- catFields(obs.slp,gcm.slp,mon=im)
+  EOF.slp <- EOF(XX.slp,plot=FALSE)
+  XX <- mixFields(XX.t2m,XX.slp)
+  EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
 
@@ -213,12 +209,12 @@ gcm.t2m <- retrieve.nc("/home/kareb/data/ipcc_sres/NCARPCM_B2_temp.nc",
 gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/NCARPCM_B2_slp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(2001,2099))
 for (im in 1:12) {
-  XX.t2m <- cat.fields(obs.t2m,gcm.t2m,mon=im)
-  EOF.t2m <- eof(XX.t2m,plot=FALSE)
-  XX.slp <- cat.fields(obs.slp,gcm.slp,mon=im)
-  EOF.slp <- eof(XX.slp,plot=FALSE)
-  XX <- mix.fields(XX.t2m,XX.slp)
-  EOF.t2m.slp <- eof(XX,plot=FALSE)
+  XX.t2m <- catFields(obs.t2m,gcm.t2m,mon=im)
+  EOF.t2m <- EOF(XX.t2m,plot=FALSE)
+  XX.slp <- catFields(obs.slp,gcm.slp,mon=im)
+  EOF.slp <- EOF(XX.slp,plot=FALSE)
+  XX <- mixFields(XX.t2m,XX.slp)
+  EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
 ##################### NCARPCM: A2 ########################
@@ -230,12 +226,12 @@ gcm.t2m <- retrieve.nc("/home/kareb/data/ipcc_sres/NCARPCM_A2_temp.nc",
 gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/NCARPCM_A2_slp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(1990,2099))
 for (im in 1:12) {
-  XX.t2m <- cat.fields(obs.t2m,gcm.t2m,mon=im)
-  EOF.t2m <- eof(XX.t2m,plot=FALSE)
-  XX.slp <- cat.fields(obs.slp,gcm.slp,mon=im)
-  EOF.slp <- eof(XX.slp,plot=FALSE)
-  XX <- mix.fields(XX.t2m,XX.slp)
-  EOF.t2m.slp <- eof(XX,plot=FALSE)
+  XX.t2m <- catFields(obs.t2m,gcm.t2m,mon=im)
+  EOF.t2m <- EOF(XX.t2m,plot=FALSE)
+  XX.slp <- catFields(obs.slp,gcm.slp,mon=im)
+  EOF.slp <- EOF(XX.slp,plot=FALSE)
+  XX <- mixFields(XX.t2m,XX.slp)
+  EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
 ##################### GFDL: B2 ########################
@@ -246,12 +242,12 @@ gcm.t2m <- retrieve.nc("/home/kareb/data/ipcc_sres/GFDL_B2_temp.nc",
 gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/GFDL_B2_slp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(1990,2099))
 for (im in 1:12) {
-  XX.t2m <- cat.fields(obs.t2m,gcm.t2m,mon=im)
-  EOF.t2m <- eof(XX.t2m,plot=FALSE)
-#  XX.slp <- cat.fields(obs.slp,gcm.slp,mon=im)
-#  EOF.slp <- eof(XX.slp,plot=FALSE)
-#  XX <- mix.fields(XX.t2m,XX.slp)
-#  EOF.t2m.slp <- eof(XX,plot=FALSE)
+  XX.t2m <- catFields(obs.t2m,gcm.t2m,mon=im)
+  EOF.t2m <- EOF(XX.t2m,plot=FALSE)
+#  XX.slp <- catFields(obs.slp,gcm.slp,mon=im)
+#  EOF.slp <- EOF(XX.slp,plot=FALSE)
+#  XX <- mixFields(XX.t2m,XX.slp)
+#  EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
 ##################### GFDL: A2 ########################
@@ -262,14 +258,15 @@ gcm.t2m <- retrieve.nc("/home/kareb/data/ipcc_sres/GFDL_A2_temp.nc",
 gcm.slp <- retrieve.nc("/home/kareb/data/ipcc_sres/GFDL_A2_slp.nc",
                        x.rng=x.rng,y.rng=y.rng,t.rng=c(1990,2099))
 for (im in 1:12) {
-  XX.t2m <- cat.fields(obs.t2m,gcm.t2m,mon=im)
-  EOF.t2m <- eof(XX.t2m,plot=FALSE)
-#  XX.slp <- cat.fields(obs.slp,gcm.slp,mon=im)
-#  EOF.slp <- eof(XX.slp,plot=FALSE)
-#  XX <- mix.fields(XX.t2m,XX.slp)
-#  EOF.t2m.slp <- eof(XX,plot=FALSE)
+  XX.t2m <- catFields(obs.t2m,gcm.t2m,mon=im)
+  EOF.t2m <- EOF(XX.t2m,plot=FALSE)
+#  XX.slp <- catFields(obs.slp,gcm.slp,mon=im)
+#  EOF.slp <- EOF(XX.slp,plot=FALSE)
+#  XX <- mixFields(XX.t2m,XX.slp)
+#  EOF.t2m.slp <- EOF(XX,plot=FALSE)
 }
 
 }
 }
 
+source("cmp_eofs_rr.R")

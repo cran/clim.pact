@@ -1,5 +1,5 @@
 map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
-                    plot=TRUE,inv.col=FALSE) {
+                    plot=TRUE,inv.col=FALSE,add=FALSE,las = 1) {
 
   if (!is.null(y)) map <- x$map - y$map else  map <- x$map
 
@@ -15,10 +15,11 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
                   c(abs(sin((0:40)*pi/40))),
                   c(c(rep(1,21),seq(1,0,length=20))))
     if (inv.col) my.col <- reverse(my.col)
-    filled.contour(x$lon,x$lat,map,
-                 col = my.col,levels=z.levs,
-                 main=paste(attributes(x$dat)$"long_name"),
-                 sub=date,xlab="Longitude",ylab="Latitude")
+    if (!add) { filled.contour(x$lon,x$lat,map,
+                               col = my.col,levels=z.levs,
+                               main=paste(attributes(x$dat)$"long_name"),
+                               sub=x$date,xlab="Longitude",ylab="Latitude")
+              }
     # From filled.contour in base
     mar.orig <- (par.orig <- par(c("mar","las","mfrow")))$mar
     on.exit(par(par.orig))
@@ -26,7 +27,7 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
     w <- (3 + mar.orig[2]) * par('csi') * 2.54
     layout(matrix(c(2, 1), nc=2), widths=c(1, lcm(w)))
     
-    par(las = 1)
+    par(las = las)
     mar <- mar.orig
     mar[4] <- 1
     par(mar=mar)

@@ -1,7 +1,11 @@
 \name{composite.field}
 \alias{composite.field}
 \title{Composite maps}
-\description{Produce composites of maps.}
+\description{Produce composites of maps based on station observations,
+  weights, or years. For a station object, assign +/- 1 weights
+  according to whether the values stored in \code{val} (monthly station
+  objects)  are greater than mean + sd or less than
+  mean - sd.}
 \usage{composite.field(x,y,lsig.mask=TRUE,sig.lev=0.05,s=0.42,mon=NULL,
                       lty=1,col="black",lwd=1)}
 \arguments{

@@ -1,9 +1,11 @@
 # R.E. Benestad
 
-mapField <- function(x,l=NULL,greenwich=TRUE,what="ano",method="nice",
-                       col="black",lwd=2,lty=1,add=FALSE,las = 1) {
-  if ((class(x)!="monthly.field.object") & (class(x)!="field.object") &
-      (class(x)!="daily.field.object") & (class(x)!="field")) {
+mapField <- function(x,l=NULL,greenwich=TRUE,
+                     what="ano",method="nice",val.rng=NULL,
+                     col="black",col.coast="grey",lwd=2,lty=1,
+                     add=FALSE,las = 1) {
+  if ((class(x)[2]!="monthly.field.object") & (class(x)[2]!="field.object") &
+      (class(x)[2]!="daily.field.object") & (class(x)[1]!="field")) {
       stop("Need a field.object") }
   if (is.null(l)) l <- length(x$tim)
   nx <- length(x$lon)
@@ -19,12 +21,11 @@ mapField <- function(x,l=NULL,greenwich=TRUE,what="ano",method="nice",
     }
   } else {
       ac.mod<-matrix(rep(NA,nt*6),nt,6)
-      ac.mod[,1]<-cos(2*pi*x$tim/365.25)
-      ac.mod[,2]<-sin(2*pi*x$tim/365.25)
-      ac.mod[,3]<-cos(4*pi*x$tim/365.25)
-      ac.mod[,4]<-sin(4*pi*x$tim/365.25)
-      ac.mod[,5]<-cos(6*pi*x$tim/365.25)
-      ac.mod[,6]<-sin(6*pi*x$tim/365.25)
+      if (substr(lower.case(attributes(x$tim)$units),1,3)=="day") jtime <- x$tim
+      if (substr(lower.case(attributes(x$tim)$units),1,4)=="hour")  jtime <- x$tim/24
+      ac.mod[,1]<-cos(2*pi*jtime/365.25); ac.mod[,2]<-sin(2*pi*jtime/365.25)
+      ac.mod[,3]<-cos(4*pi*jtime/365.25); ac.mod[,4]<-sin(4*pi*jtime/365.25)
+      ac.mod[,5]<-cos(6*pi*jtime/365.25); ac.mod[,6]<-sin(6*pi*jtime/365.25)               
       dim(x$dat) <- c(nt,ny*nx)
       dim(clim) <- c(ny*nx)
       for (ip in seq(1,ny*nx,by=1)) {
@@ -67,8 +68,10 @@ mapField <- function(x,l=NULL,greenwich=TRUE,what="ano",method="nice",
                 "ano"="anomaly",
                 "cli"="climatological",
                 "abs"="absolute value")
+  if (is.null(val.rng)) {
   z.levs <- seq(-max(abs(as.vector(map)),na.rm=TRUE),
                  max(abs(as.vector(map)),na.rm=TRUE),length=41)
+  } else z.levs <- seq(val.rng[1],val.rng[2],length=41)
   my.col <- rgb(c(seq(0,1,length=20),rep(1,21)),
                 c(abs(sin((0:40)*pi/40))),
                 c(c(rep(1,21),seq(1,0,length=20))))
@@ -76,7 +79,7 @@ mapField <- function(x,l=NULL,greenwich=TRUE,what="ano",method="nice",
         image(x$lon,x$lat,t(map),levels=z.levs,
         main=paste(attributes(x$dat)$"long_name",descr),
         sub=date,xlab="Longitude",ylab="Latitude")
-       } else {
+       } else if (!add) {
          filled.contour(x$lon,x$lat,t(map),
                         col = my.col,levels=z.levs,
                         main=paste(attributes(x$dat)$"long_name",descr),
@@ -94,8 +97,8 @@ mapField <- function(x,l=NULL,greenwich=TRUE,what="ano",method="nice",
   mar <- mar.orig
   mar[4] <- 1
   par(mar=mar)
-  contour(x$lon,x$lat,t(map),add=TRUE,col=col,lwd=lwd,lty=lty)
-  addland()
+  contour(x$lon,x$lat,t(map),add=TRUE,col=col,lwd=lwd,lty=lty,levels=z.levs)
+  addland(col=col.coast)
   results <- list(map=t(map),lon=x$lon,lat=x$lat,tim=x$tim,
                   date=date,description=descr,attributes=x$attributes)
   class(results) <- "map"

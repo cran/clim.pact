@@ -3,7 +3,8 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,t.rng=NULL) {
   library(netCDF)
-  library(chron)
+#  library(chron)
+  library(date)
   if (!file.exists(f.name)) {
     stop(paste("Sorry,",f.name," does not exist!"))
   }
@@ -21,6 +22,7 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
   }
   d <- rep(0,nvars)
   dat <- NULL
+  
 #  print("Searching for variables")
   for (i in 1:nvars) {
       expr <- parse(text=paste("dim(data$'",vars[i],"')",sep=""))
@@ -109,9 +111,9 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
   if (!is.null(torg)) {
     yy0 <- as.numeric(substr(torg,8,11))
     dd0 <- as.numeric(substr(torg,1,2))
-    mm0 <- switch(substr(torg,4,6),
-                  "Jan"=1,"Feb"=2,"Mar"=3,"Apr"=4,"May"=5,"Jun"=6,
-                  "Jul"=7,"Aug"=8,"Sep"=9,"Oct"=10,"Nov"=11,"Dec"=12)
+    mm0 <- switch(lower.case(substr(torg,4,6)),
+                  "jan"=1,"feb"=2,"mar"=3,"apr"=4,"may"=5,"jun"=6,
+                  "jul"=7,"aug"=8,"sep"=9,"oct"=10,"nov"=11,"dec"=12)
   } else if (grep("since",lower.case(t.unit))) {
     # Format: time:units = "hours since 1-1-1 00:00:0.0" (NCEP reanalysis)
     t.org.pos <- regexpr("since",lower.case(t.unit))
@@ -134,16 +136,19 @@ retrieve.nc <- function(f.name="data/ncep_t2m.nc",v.nam="AUTO",
     dd <- rep(15,length(tim))
     obj.type <- "monthly.field.object"
   } else if (substr(lower.case(t.unit),1,3)=="day") {
-    mmddyy<-month.day.year(tim,origin=c(mm0,dd0,yy0))
+#    mmddyy<-month.day.year(tim,origin=c(mm0,dd0,yy0))
+    mmddyy <- date.mdy(tim + mdy.date(mm0,dd0,yy0,nineteen=FALSE), weekday = FALSE)
     mm <- mmddyy$month
     yy <- mmddyy$year
     dd <- mmddyy$day
     obj.type <- "daily.field.object"
   } else if (substr(lower.case(t.unit),1,4)=="hour") {
-    mmddyy<-month.day.year(tim/24,origin=c(mm0,dd0,yy0))
+#    mmddyy<-month.day.year(tim/24,origin=c(mm0,dd0,yy0))
+    mmddyy <- date.mdy(tim/24 + mdy.date(mm0,dd0,yy0,nineteen=FALSE),weekday = FALSE)
     mm <- mmddyy$month
     yy <- mmddyy$year
     dd <- mmddyy$day
+    t.unit <- "day"
     obj.type <- "field.object"
   }
 #  print("Latitude:")

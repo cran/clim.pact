@@ -54,7 +54,16 @@ if (!is.null(attributes(x$tim)$unit)) {
       ii <- mod((1:nt)-1,12)+1 == im
       clim[ii] <- mean(y[ii],na.rm=T)
     }
-  }
+  } else {
+    ac.mod<-matrix(rep(NA,nt*6),nt,6)
+    if (substr(lower.case(attributes(x$tim)$units),1,3)=="day") jtime <- x$tim
+    if (substr(lower.case(attributes(x$tim)$units),1,4)=="hour")  jtime <- x$tim/24
+    ac.mod[,1]<-cos(2*pi*jtime/365.25); ac.mod[,2]<-sin(2*pi*jtime/365.25)
+    ac.mod[,3]<-cos(4*pi*jtime/365.25); ac.mod[,4]<-sin(4*pi*jtime/365.25)
+    ac.mod[,5]<-cos(6*pi*jtime/365.25); ac.mod[,6]<-sin(6*pi*jtime/365.25)
+    ac.fit<-lm(y ~ ac.mod); clim <- ac.fit$fit
+  } 
+    
   ts <- switch(lower.case(substr(what,1,3)),
                 "ano"=y - clim,
                 "cli"=clim,

@@ -58,17 +58,20 @@ if (class(y)[1]=="station") {
 #  print(range(x$mm))
 #  print(range(dd))
 #  print(range(x$dd))
-#  print(c(sum(i1),sum(i2)))  
+#  print(c(sum(i1),sum(i2)))
+#  print(c(sum(i.plus),sum(i.minus)))
   for (j in 1:nj) {
     for (i in 1:ni) {
       vec1 <- x$dat[i2,j,i]
-      yy <- x$yy[i2]
-      yy.plus <- yy[i.plus]
-      yy.minus <- yy[i.minus]
-      plus  <- vec1[i.plus]
-      minus  <- vec1[i.minus]
-      map[j,i] <- mean(plus,na.rm=TRUE) - mean(minus,na.rm=TRUE)
-      p.val[j,i] <- t.test(plus,minus)$p.value
+      if (sum(is.finite(vec1)) > 10) {
+        yy <- x$yy[i2]
+        yy.plus <- yy[i.plus]
+        yy.minus <- yy[i.minus]
+        plus  <- vec1[i.plus]
+        minus  <- vec1[i.minus]
+        map[j,i] <- mean(plus,na.rm=TRUE) - mean(minus,na.rm=TRUE)
+        p.val[j,i] <- t.test(plus,minus)$p.value
+      } 
     }
   }
 

@@ -5,7 +5,6 @@ EOF2field <- function(eof,anomalies=FALSE) {
   if (!anomalies) { 
     for (i in 1:eof$size[1]) x[i,,] <- x[i,,] + clim
   }
-
   retrieve.nc  <- list(dat=x,lon=eof$lon,lat=eof$lat,tim=eof$tim,lev=NULL,
                        v.name=eof$v.name,id.x=eof$id.x,id.t=eof$id.t,
                        yy=eof$yy,mm=eof$mm,dd=eof$dd,n.fld=eof$n.fld,

@@ -30,7 +30,7 @@ cdfcont <- function(filename,path="") {
     torg  <- substr(torg,t.org.pos+6,s[2]-1)
     dash <- instring("-",torg)
     spc <- instring(" ",torg)
-    if (spc==0) spc <- nchar(torg)+1
+    if (spc[1]==0) spc <- nchar(torg)+1
     yy0 <- as.numeric(substr(torg,1,dash[1]-1))
     while (nchar(yy0) < 4) yy0 <- paste("0",yy0,sep="")
     mm0 <- as.numeric(substr(torg,dash[1]+1,dash[2]-1))
@@ -38,7 +38,7 @@ cdfcont <- function(filename,path="") {
     while (nchar(dd0) < 2) dd0 <- paste("0",dd0,sep="")
     torg <- paste(dd0,cmon[mm0],yy0)
  #   print(paste("time.origin=",torg))
-    if (is.na(dd0)) dd0  <- 15
+    if (is.na(dd0[1])) dd0  <- 15
   } else {
     s<- instring('\"',torg)
     if (length(s)==2) torg<-substr(torg,s[1]+1,s[2]-1)
@@ -52,7 +52,7 @@ cdfcont <- function(filename,path="") {
   offs <- cdfhead[grep("add_offset",lower.case(cdfhead))]
   if (length(offs)>0) {
     e <- instring('=',offs);  f <- regexpr("f;",offs) # f <- instring('f',offs)
-    if (f <= 0) f <- regexpr("f ;",offs)
+    if (f[1] <= 0) f <- regexpr("f ;",offs)
     if (f[1]>0) f<-f[length(f)] else f<-nchar(offs)
     yes <- (nchar(offs)>0) & (length(e)>0) & (length(f)>0)
     if (yes) offs<-substr(offs,e+1,f-1) else offs<-"0"
@@ -61,7 +61,7 @@ cdfcont <- function(filename,path="") {
   scal <- cdfhead[grep("scale_factor",lower.case(cdfhead))]
   if (length(offs)>0) {
     e <- instring('=',scal);  f <- regexpr("f;",scal) # f <- instring('f',scal)
-    if (f <= 0) f <- regexpr("f ;",scal)
+    if (f[1] <= 0) f <- regexpr("f ;",scal)
     if (f[1]>0) f<-f[length(f)] else f<-nchar(scal)
     yes <- (nchar(scal)>0) & (length(e)>0) & (length(f)>0)
     if (yes) scal<-substr(scal,e+1,f-1) else scal<-1
@@ -71,7 +71,7 @@ cdfcont <- function(filename,path="") {
   if (length(miss)>0) {
     if (length(miss) > 1) miss <- miss[1]
     e <- instring('=',miss);   f <- regexpr("f;",miss) #f <- instring('f',miss)
-    if (f <= 0) f <- regexpr("f ;",miss)
+    if (f[1] <= 0) f <- regexpr("f ;",miss)
     if (f[1]>0) f<-f[length(f)] else f<-nchar(miss)
     yes <- (nchar(miss)>0) & (length(e)>0) & (length(f)>0)
     if (yes) miss<-substr(miss,e+1,f-1) else miss<-NULL

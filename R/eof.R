@@ -136,6 +136,7 @@ if (class(fields)[2]=="monthly.field.object") {
 #print("file name...")
 
 preds.names <- row.names(table(lower.case(fields$id.t)))
+
 preds.id <- ""; scen <- ""
 if (sum(grep("gsdio",preds.names))>0) scen <- "-gsdio"
 if (sum(grep("is92a",preds.names))>0) scen <- "-is92a"
@@ -147,13 +148,13 @@ if (sum(grep("a2",preds.names))>0) scen <- "-a2"
 for (i.pred in 1:length(preds.names)) {
   eos <- nchar(preds.names[i.pred])
 
-  if (instring("_",preds.names[i.pred])> 0) {
+  if (instring("_",preds.names[i.pred])[1]> 0) {
     eos <- instring("_",preds.names[i.pred])-1
     if (length(eos) > 1) eos <- eos[1]
-  } else if (instring("-",preds.names[i.pred])> 0) {
+  } else if (instring("-",preds.names[i.pred])[1]> 0) {
     eos <- instring("-",preds.names[i.pred])-1
     if (length(eos) > 1) eos <- eos[1]
-  } else if (instring(".",preds.names[i.pred])> 0) {
+  } else if (instring(".",preds.names[i.pred])[1]> 0) {
     eos <- instring(".",preds.names[i.pred])-1
     if (length(eos) > 1) eos <- eos[1]
   } else eos <- nchar(preds.names[i.pred])
@@ -161,11 +162,11 @@ for (i.pred in 1:length(preds.names)) {
                      "+",sep="")
 }
 
-print(preds.id)
-vnames <- fields$v.name[1]
-if (length(fields$v.name)>1) {
-  for (i in 2:length(fields$v.name)) vnames <- paste(vnames,"+",fields$v.name[i],sep="")
-}
+vnames <- substr(fields$v.name[1],1,min(nchar(fields$v.name[1]),4))
+#if (length(fields$v.name)>1) {
+#  for (i in 2:length(fields$v.name)) vnames <- paste(vnames,"+",strip(fields$v.name[i]),sep="")
+#}
+print(c("pred.names=",preds.names,"scen=",scen,"preds.id=",preds.id,"vnames=",vnames))
 fname<-paste(direc,"eof_", preds.id,scen,"_",vnames,"_",region,"_",
        c.mon,'_',tunit,".Rdata",sep="")
 print(paste("File name:",fname,"sum(i.mm)=",sum(i.mm)))
@@ -189,19 +190,20 @@ for (i in 1:fields$n.fld) {
   id.lon <- fields$id.lon
   id.lat <- fields$id.lat
 #  print("i.lon/i.lat:")
-  i.lon <- id.lon == id[i]
-  i.lat <- id.lat == id[i]
+  i.lon <- fields$id.lon == id[i]
+  i.lat <- fields$id.lat == id[i]
 #  print("lonx/latx:")
   lon.x <- fields$lon[i.lon]
   lat.x <- fields$lat[i.lat]
 #  print("id.lon/id.lat:")
-  id.lon <- id.lon[i.lon]
-  id.lat <- id.lat[i.lat]
+  id.lon <- fields$id.lon[i.lon]
+  id.lat <- fields$id.lat[i.lat]
 #  print("nx/ny:")
   nx <- length(lon.x)
   ny <- length(lat.x)
 #  print("dat:")
-  dat.x <- dat[,ii]
+#  print(dim(fields$dat))
+  dat.x <- fields$dat[,ii]
 #  print("ix/iy:")
   ix <- ((lon.x >= min(lon)) & (lon.x <= max(lon)))
   iy <- ((lat.x >= min(lat)) & (lat.x <= max(lat)))
@@ -217,13 +219,13 @@ for (i in 1:fields$n.fld) {
   dim(dat.x) <- c(length(yy),ny,nx)
   dat.x <- dat.x[,iy,ix]
 
-#print("Stdv[i]")  
+#  print("Stdv[i]")  
   ny <- length(lat.x)
   nx <- length(lon.x)
   nt <- length(yy)
   stdv[i] <- sd(dat.x,na.rm=TRUE)
 
-print("Remove mean values at each grid point")
+#  print("Remove mean values at each grid point")
   for (j.y in 1:ny) {
     for (i.x in 1:nx) {
       ixy <- ixy + 1
@@ -232,14 +234,14 @@ print("Remove mean values at each grid point")
     }
   }
 
-  print("Add geographical weighting")
+#  print("Add geographical weighting")
   if (l.wght) {
     print(paste("Weighting according to area. Field",i))
     Wght <-matrix(nrow=ny,ncol=nx)
     for (j in 1:nx)  Wght[,j]<-sqrt(abs(cos(pi*lat.x/180)))
     Wght[Wght < 0.01]<-NA     
     for (it in 1:nt) dat.x[it,,] <- dat.x[it,,]*Wght/stdv[i]
-    print(paste("Wght.",i,"<-Wght",sep=""))
+#    print(paste("Wght.",i,"<-Wght",sep=""))
     eval(parse(text=paste("Wght.",i,"<-Wght",sep="")))
   }
   
@@ -279,7 +281,7 @@ print("Remove mean values at each grid point")
 if (sum(is.na(dat.d2))>0) print(paste(sum(is.na(dat.d2)),
                             ' missing values of ',nx*ny*nt))
 aver <- 0
-print(paste("Find max autocorr in",ny*nx,"grid boxes."))
+# print(paste("Find max autocorr in",ny*nx,"grid boxes."))
 for (i in 1:(ny*nx)) {
   vec <- as.vector(dat.d2[,i])
   i.bad <- is.na(vec)

@@ -1,6 +1,6 @@
 Package: clim.pact
-Version: 2.1-1
-Date: May 19 2004
+Version: 2.1-2
+Date: June 17 2004
 Title: Climate analysis and downscaling package for monthly and daily data.
 Author: Rasmus E. Benestad <rasmus.benestad@met.no>
 Maintainer: Rasmus E. Benestad <rasmus.benestad@met.no>

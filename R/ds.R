@@ -333,7 +333,7 @@ calibrate.str <- paste(calibrate.str,"yy=as.vector(yy.cal),mm=as.vector(mm.cal),
 #print(calibrate.str)
 calibrate <- eval(parse(text=calibrate.str))
 
-#print(summary(calibrate))
+print(summary(calibrate))
 # Due to a bug in step, 'attatch' cannot be used, so it's done
 # in a more complicated way.
 attach(calibrate)
@@ -345,22 +345,24 @@ for (i.eof in 1:n.eofs) {
 for (i.eof in 1:n.eofs) {  
   exprn <- paste(exprn," + X",i.eofs[i.eof],sep="")
 }
-if (method!="anm") exprn <- paste(exprn,xtr.args,")",sep="") else 
+#if (method!="anm") exprn <- paste(exprn,xtr.args,")",sep="") else 
+#                   exprn <- paste(exprn,",","data=calibrate",xtr.args,")",sep="") 
+if (method!="anm") exprn <- paste(exprn,xtr.args,",data=calibrate)",sep="") else 
                    exprn <- paste(exprn,",","data=calibrate",xtr.args,")",sep="") 
 
 if (!silent) print(paste("Model: ",exprn))
-expr <- parse(text=exprn)
-lm.mod <- eval(expr)
+#print(c(length(y),length(X1),length(X2),length(X3)))
+lm.mod <- eval(parse(text=exprn))
+#print(summary(lm.mod))
 lm.mod$coefficients[!is.finite(lm.mod$coefficients)] <- 0
-
 meths <- methods(class(lm.mod))
-if (!silent) print("Stepwise..")
+if (!silent) print(paste("Stepwise:   ",swsm,"(lm.mod,trace=0)",sep=""))
 if ((swsm!="none") & !is.null(swsm)) {
   step.wise <- eval(parse(text=paste(swsm,"(lm.mod,trace=0)",sep="")))
 }  else step.wise<-lm.mod
 step.wise$coefficients[!is.finite(step.wise$coefficients)] <- 0
 
-#print("ANOVA from step-wise regression:")
+print("ANOVA from step-wise regression:")
 
 stat <- summary(step.wise)
 if (length(step.wise$coefficients)>1) {

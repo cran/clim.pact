@@ -6,7 +6,7 @@
 #------------------------------------------------------------------------
 
 
-retrieve.nc <- function(filename="data/ncep_t2m.nc",v.nam="AUTO",
+retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
                         l.scale=TRUE,greenwich=TRUE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,t.rng=NULL,force.chron=TRUE) {
@@ -15,6 +15,10 @@ retrieve.nc <- function(filename="data/ncep_t2m.nc",v.nam="AUTO",
     stop(paste("Sorry,",filename," does not exist!"))
   }
 
+  if (lower.case(Sys.info()[1])=="windows") {
+   stop("Sorry, this function currently only works on Linux systems!")
+  }  
+  
   dat.att <- cdfcont(filename)
   ncid1 <- open.ncdf(filename)
   if (v.nam=="AUTO") {
@@ -134,10 +138,10 @@ retrieve.nc <- function(filename="data/ncep_t2m.nc",v.nam="AUTO",
     yy0 <- as.numeric(substr(torg,1,dash[1]-1))
     mm0 <- as.numeric(substr(torg,dash[1]+1,dash[2]-1))
     dd0 <- as.numeric(substr(torg,dash[2]+1,spc[1]-1))
-    if (is.na(dd0)) dd0  <- 15
+    if (is.na(dd0[1])) dd0  <- 15
   }
   print(paste("Time origin: (year-month-day)",yy0,"-",mm0,"-",dd0))
-  if (yy0==0) {
+  if (yy0[1]==0) {
     print('There is no year zero (Press et al., Numerical recipies)')
     print("'> print(julday(1,1,1)-julday(1,1,-1))' gives 365")
     print('julday wont work unless the time is fixed')

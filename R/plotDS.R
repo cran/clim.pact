@@ -18,7 +18,7 @@ if (class(ds.obj)!="ds") stop("Need a 'ds' object!")
 attach(ds.obj)
 
 # Plotting: -----------------------------------------------
-      
+  
 pred.descr <- paste("Empirical Downscaling (",id.1,"[")
 
 lons <- lon.loc
@@ -27,10 +27,11 @@ if (!is.finite(lons)) lons <- mean(ds.obj$lon,na.rm=TRUE)
 if (!is.finite(lats)) lats <- mean(ds.obj$lat,na.rm=TRUE)
 
 for (i in 1:n.fld) {
-  eval(parse(text=paste("x.srt<-order(lon.",i,")",sep="")))
-  eval(parse(text=paste("y.srt<-order(lat.",i,")",sep="")))
+  eval(parse(text=paste("x.srt<-order(ds.obj$lon.",i,")",sep="")))
+  eval(parse(text=paste("y.srt<-order(ds.obj$lat.",i,")",sep="")))
   eval(parse(text=paste("ds.obj$lons<-ds.obj$lon.",i,"[x.srt]",sep="")))
   eval(parse(text=paste("ds.obj$lats<-ds.obj$lat.",i,"[y.srt]",sep="")))
+  ds.obj$X.1 <- ds.obj$X.1[y.srt,x.srt]
   eval(parse(text=paste("ds.obj$X.",i,"<-ds.obj$X.",i,"[y.srt,x.srt]",sep="")))
   lons <- eval(parse(text=paste("c(lons,lon.",i,")",sep="")))
   lats <- eval(parse(text=paste("c(lats,lat.",i,")",sep="")))
@@ -45,7 +46,6 @@ if (is.null(ylab)) ylab <- paste(v.name,"(",unit,")")
 
 #print(paste("subtitle:",subtitle))
 
-
 y.lim.tr <- range(c(y.o,pre.y,pre.gcm),na.rm=TRUE)
 yymm.o<-yy.o + (mm.o-0.5)/12 + (dd.o-0.5)/365.25
 yymm.gcm<-yy.gcm + (mm.gcm-0.5)/12 + (dd.gcm-0.5)/365.25
@@ -58,8 +58,8 @@ if ((!add) & (plot.map)) {
     postscript(file = figname,onefile=TRUE,horizontal=FALSE,paper="a4")
   } else eval(parse(text=paste(lower.case(options()$device),"()",sep="")))
   par(ps=16,cex.sub=0.7,cex.main=0.9)
-  plot(c(floor(min(lons)),ceiling(max(lons))),
-       c(floor(min(lats)),ceiling(max(lats))),type="n",
+  plot(c(floor(min(lons,na.rm=TRUE)),ceiling(max(lons,na.rm=TRUE))),
+       c(floor(min(lats,na.rm=TRUE)),ceiling(max(lats,na.rm=TRUE))),type="n",
        main=main,sub=sub,xlab=xlab,ylab=ylab)
 
   col.tab=c("darkblue","darkred","darkgreen","brown")
@@ -67,22 +67,22 @@ if ((!add) & (plot.map)) {
   ds.map <- list(tim=NULL,date=NULL,n.maps=NULL)
   ds.map$tim<-month; ds.map$date<-t.rng; ds.map$n.maps=n.fld
   for (i in 1:n.fld) {
-    eval(parse(text=paste("lines(c(min(lon.",i,"),max(lon.",i,")),",
-                              "c(min(lat.",i,"),min(lat.",i,")),",
+    eval(parse(text=paste("lines(c(min(ds.obj$lon.",i,"),max(ds.obj$lon.",i,")),",
+                              "c(min(ds.obj$lat.",i,"),min(ds.obj$lat.",i,")),",
                               "col=col.tab[i],lty=2)",sep="")))
-    eval(parse(text=paste("lines(c(min(lon.",i,"),max(lon.",i,")),",
-                              "c(max(lat.",i,"),max(lat.",i,")),",
+    eval(parse(text=paste("lines(c(min(ds.obj$lon.",i,"),max(ds.obj$lon.",i,")),",
+                              "c(max(ds.obj$lat.",i,"),max(ds.obj$lat.",i,")),",
                               "col=col.tab[i],lty=2)",sep="")))
-    eval(parse(text=paste("lines(c(min(lon.",i,"),min(lon.",i,")),",
-                              "c(min(lat.",i,"),max(lat.",i,")),",
+    eval(parse(text=paste("lines(c(min(ds.obj$lon.",i,"),min(ds.obj$lon.",i,")),",
+                              "c(min(ds.obj$lat.",i,"),max(ds.obj$lat.",i,")),",
                               "col=col.tab[i],lty=2)",sep="")))
-    eval(parse(text=paste("lines(c(max(lon.",i,"),max(lon.",i,")),",
-                              "c(min(lat.",i,"),max(lat.",i,")),",
+    eval(parse(text=paste("lines(c(max(ds.obj$lon.",i,"),max(ds.obj$lon.",i,")),",
+                              "c(min(ds.obj$lat.",i,"),max(ds.obj$lat.",i,")),",
                               "col=col.tab[i],lty=2)",sep="")))
-    eval(parse(text=paste("contour(lon.",i,",lat.",i,",t(ds.obj$X.",i,
+    eval(parse(text=paste("contour(ds.obj$lon.",i,",ds.obj$lat.",i,",t(ds.obj$X.",i,
                "),nlevels=7,add=TRUE,lwd=2,col=col.tab[i])",sep="")))
-    eval(parse(text=paste("ds.map$lon.",i,"<-lon.",i,sep="")))
-    eval(parse(text=paste("ds.map$lat.",i,"<-lat.",i,sep="")))
+    eval(parse(text=paste("ds.map$lon.",i,"<-ds.obj$lon.",i,sep="")))
+    eval(parse(text=paste("ds.map$lat.",i,"<-ds.obj$lat.",i,sep="")))
     eval(parse(text=paste("ds.map$map.",i,"<-t(ds.obj$X.",i,")",sep="")))
   }
   class(ds.map) <- "map"; attr(ds.map,"descr") <- "ds: large-scale pattern"
@@ -97,8 +97,8 @@ if ((!add) & (plot.map)) {
 
 
   if (n.fld > 1) {
-    legend(min(c(lons,lon.loc)),
-         max(c(lats,lat.loc)),
+    legend(min(c(lons,lon.loc,na.rm=TRUE)),
+         max(c(lats,lat.loc,na.rm=TRUE)),
          c(pred.name[1:n.fld]),
          col=c(col.tab[1:n.fld]),
          lwd=2,lty=1,merge=TRUE,bg="grey95")

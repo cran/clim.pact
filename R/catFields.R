@@ -194,7 +194,7 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
     dd <- field.1$dd
     id.t <- field.1$id.t
   }
-  id.x <- field.1$id.x
+  id.x <- matrix(rep(field.1$id.x[1],ny.1*nx.1),ny.1,nx.1)
   attr(tim,"unit") <- tim.unit1
   attr(tim,"time_origin") <- tim.torg1
   if (field.1$v.name==field.2$v.name) var.name <- field.1$v.name else

@@ -7,8 +7,11 @@
   See also \code{\link{cdfextract}} (large data files). 
 
 This version uses \code{\link{cdfcont}} to obtain vital meta data for
-handling the data in the netCDF file and constructing a 'field' object.}
-\usage{retrieve.nc(filename="data/ncep_t2m.nc",v.nam="AUTO",
+handling the data in the netCDF file and constructing a 'field' object.
+
+This routine unfortunately only currently works on Linux platforms since the 
+\code{\link[ncdf]{ncdf}}-package is only available for Linux systems.}
+\usage{retrieve.nc(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
                         l.scale=TRUE,greenwich=TRUE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,t.rng=NULL,force.chron=TRUE)

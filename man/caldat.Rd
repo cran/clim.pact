@@ -10,7 +10,7 @@ dependency to the \code{chron} and \code{date} packages. See also \code{\link{ju
 \arguments{
     \item{julian}{The Julian day from 1-1-1.}
  }
-\value{real}
+\value{a list with: month, day, and year}
 \author{R.E. Benestad}}
 \examples{
 caldat(1)        # month=1, day=2, year=-4713

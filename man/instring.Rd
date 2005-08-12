@@ -5,7 +5,11 @@
   vector). Similar to regexpr(), but a test with regexpr() failed with
   some characters. instring() returns all position with a character
   match, whereas regexpr() only returns the first position for a pattern
-  match.}
+  match.
+
+  New version: in addition to finding position of one character, it also finds
+  the beginning position of a given test pattern.
+}
 \usage{instring(c,target,case.match=TRUE)
 }
 \arguments{
@@ -29,5 +33,7 @@ regexpr(".","file.name")
 #[1] 1
 instring(".","file.name")
 #[1] 5
+instring("where","guess where the word where is")
+# 
 }
 \keyword{character}

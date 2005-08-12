@@ -28,7 +28,8 @@ getnordklim <- function(location="prompt",ele.c='101',
 #  location <- locs.name[i.loc]
 #}
 ele <- c(101,111,112,113,121,122,123,401,601,602,701,801,911)
-  
+
+#print(ele.c)  
 if (is.character(ele.c)) {
   ele.c<-lower.case(ele.c)
   ele.c<-switch(ele.c,
@@ -121,29 +122,16 @@ scale <- switch(as.character(ele[1]),
 val<-as.matrix(obs[,4:15])*scale
 val[val <= -99.9] <- NA
 
-#print(obs[1,])
-#print(meta[1,])
-#print(c(as.character(meta$V1[1]),as.character(meta$V2[1]),
-#        as.character(meta$V3[1]),as.character(meta$V4[1]),
-#        as.character(meta$V5[1]),as.character(meta$V6[1]),
-#        as.character(meta$V7[1]),as.character(meta$V8[1]),
-#        as.character(meta$V9[1]),as.character(meta$V10[1]),
-#        as.character(meta$V11[1]),as.character(meta$V12[1]),
-#        as.character(meta$V13[1]),as.character(meta$V14[1]),
-#        as.character(meta$V15[1]),as.character(meta$V16[1])))
-
-#print(paste("GETNORDKLIM: call strip for ",location))
-#location<-upper.case(strip(abbreviate(location)))
-location<-upper.case(strip(location))
-#print("GETNORDKLIM: call strip for meta$location")
-#meta$location<-upper.case(strip(abbreviate(meta$location)))
-meta$location<-upper.case(strip(meta$location))
+#print(paste("GETNORDKLIM: ",location))
+location<-upper.case(substr(location,1,4))
 
 #print("search appendix:")
 #print(as.character(meta$V5))
-in.app<-is.element(meta$location,location) 
+locations <- upper.case(substr(as.character(meta$location),1,4))
+in.app<-is.element(locations,location) 
 #print("in.app=")
 #print(sum(in.app))
+location <- strip(as.character(meta$location[in.app]))
 
 no.find<-FALSE
 if ((sum(in.app)==0) & !(silent)) {
@@ -183,9 +171,9 @@ if ((sum(in.app)==0) & !(silent)) {
 # print("sum(country == meta$V3)")
 # print(sum(country == meta$V3))
 #}
-
 }
 
+#print(length(!no.find))
 if (!no.find) {
   meta<-meta[in.app,]
 #print(meta)

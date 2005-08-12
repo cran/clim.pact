@@ -54,9 +54,12 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
   }
     
   if (class(y)[1]=="station") {
+    good <- is.finite(y.ts)
     yy <- sort(rep(y$yy,12))
     mm <- rep(1:12,length(y$yy))
     dd <- rep(15,length(yy))
+    #print(sum(good))
+    y.ts <- y.ts[good]; yy <- yy[good]; mm <- mm[good]; dd <- dd[good]
   } else {
     yy <- y$yy; mm <- y$mm;  dd <- y$dd
   }
@@ -69,16 +72,11 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
   nj <- length(x$lat)
   map <- matrix(rep(NA,ni*nj),nj,ni)
   p.val <- matrix(rep(NA,ni*nj),nj,ni)
-#  print(range(yy))
-#  print(range(x$yy))
-#  print(range(mm))
-#  print(range(x$mm))
-#  print(range(dd))
-#  print(range(x$dd))
-#  print(c(sum(i1),sum(i2)))
-#  print(dim(x$dat[i2,,]))
-#  print(dim(y.ts[i1,,]))
-#  print(class(y)[1])
+
+#  print(range(yy)); print(range(x$yy)); print(range(mm)); print(range(x$mm))
+#  print(range(dd)); print(range(x$dd)); print(c(sum(i1),sum(i2)))
+#  print(dim(x$dat[i2,,])); print(dim(y.ts[i1,,])); print(class(y)[1])
+
   for (j in 1:nj) {
     for (i in 1:ni) {
       if (class(y)[1]=="station") r.test <- cor.test(x$dat[i2,j,i],y.ts[i1]) else
@@ -89,16 +87,14 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
   }
 
   if (is.null(z.levs)) {
-    z.levs <- seq(-max(abs(as.vector(map)),na.rm=TRUE),
-                   max(abs(as.vector(map)),na.rm=TRUE),length=41)
+    z.levs <- seq(-1,1,length=41)
   }
   if (is.null(my.col)) {
     my.col <- rgb(c(seq(0,1,length=20),rep(1,21)),
                   c(abs(sin((0:40)*pi/40))),
                   c(c(rep(1,21),seq(1,0,length=20))))
   }
-  if (lsig.mask) map[p.val > 0.05] <- NA
-  
+
 #  print(dim(map))
 #  print(c(length(x$lon),length(x$lat)))
 
@@ -107,10 +103,17 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
   
   if (is.null(main)) {
     if (class(y)[1]=="station") main <- paste(descr,attributes(x$dat)$"long_name","&",
-                                              y$ele,"at",y$location) else
+                                              y$obs.name,"at",y$location) else
                                 main <- paste(descr,attributes(x$dat)$"long_name","&",
                                               attributes(y$dat)$"long_name")
   }
+
+  if (lsig.mask) {
+     if (sum(p.val < 0.05) > 0)  map[p.val > 0.05] <- NA else {
+      my.col <- rgb(rep(1,21),rep(1,21),rep(1,21)); col="grey80"}
+  }
+  
+
   if ((options()$device != "none") & (plot)) {
   newFig()
   filled.contour(x$lon,x$lat,t(map),

@@ -4,7 +4,7 @@
 \title{Plotting routine for objective downscaling of monthly means}
 \description{Plotting routine for \code{\link{objDS}}.
 }
-\usage{plotDSobj(result,outdir="output",figs=c(1,2,3,4)))}
+\usage{plotDSobj(result,outdir="output",figs=c(1,2,3,4))}
 
 \arguments{
     \item{result}{A 'objDS' object from \code{\link{objDS}}.}

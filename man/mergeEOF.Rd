@@ -4,8 +4,8 @@
 \description{Merges two EOF objects by making the first one resembling
 the second (a bit similar to \code{\link{mergeStation}}). Can be used
 for reconstructing fields.} 
-\usage{mergeEOF((eof1,eof2,plot=TRUE,silent=FALSE,method="lm",
-               match="time",cut.off=8,adjust=TRUE))}
+\usage{mergeEOF(eof1,eof2,plot=TRUE,silent=FALSE,method="lm",
+                match="time",cut.off=8,adjust=TRUE)}
 \arguments{
     \item{eof1}{The EOF object (see \code{\link{EOF}}) for the earliest data (assuming this
     data set contains most errors).}

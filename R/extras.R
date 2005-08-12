@@ -12,9 +12,10 @@ lagStation <- function(x,lag=0) {
 }
 
 ds2station <- function(x,what="scenario") {
-   ele <- switch(lower.case(x$v.name),
-                 "t" = 101, "temp" = 101, "t2m" = 101,
+   ele <- switch(strip(lower.case(x$v.name)),
+                 "t" = 101, "temp" = 101, "t2m" = 101,"mean T(2m)"= 101,
                  "p" = 601, "precip" = 601, "rain" = 601, "precipitation" = 601)
+   if (is.null(ele)) ele <- 101 
    if (what=="scenario") {
      y <- station.obj(x=x$pre.gcm,yy=x$yy.gcm,mm=x$mm.gcm,obs.name=x$v.name,
                       unit=x$unit,ele=ele,lat=x$lat.loc,lon=x$lon.loc,alt=x$alt.loc,

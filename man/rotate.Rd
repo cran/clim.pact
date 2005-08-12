@@ -19,12 +19,14 @@
     and \deqn{\vec{r}_x-\vec{r}_0}{rx-r0}. The angles are estimated by
     taking the inner-product and the arc-cosine.
 }
-\usage{rotate(lons,lats,lon.0=NULL,lat.0=NULL)}
+\usage{rotate(lons,lats,lon.0=NULL,lat.0=NULL, method = "Cayley-Klein", test = TRUE)}
 \arguments{
     \item{lons}{Longitude coordinates to be rotated.}
     \item{lats}{Latitude coordinates to be rotated.}
     \item{lon.0}{Longitude coordinate of point corresponding to new 'north'pole.}
     \item{lat.0}{Latitude coordinate of point corresponding to new 'north'pole.}
+    \item{method}{}
+    \item{test}{}
  }
 \value{list containing \code{phi} and \code{theta}, the new spherical coordinates.}
 \author{R.E. Benestad}}

@@ -5,7 +5,7 @@ bergen.dm <- list(dd=obs0$day,mm=obs0$month,yy=obs0$year,
             obs.name=c("Daily mean temperature","Daily precipitation"),
             unit=c("deg C","mm/day"),station=obs0$station.number[1],
             lat=60.38,lon=5.33,alt=12,ele=c("tam","rr"),
-            x.0E65N=NULL,y.0E65N=NULL,found=T,
+            x.0E65N=NULL,y.0E65N=NULL,found=TRUE,
             location="Bergen-Florida",wmo.no=NULL,
             start=1949,yy0=1980, country="Norway",ref="www.met.no")
 class(bergen.dm) <- c("station","daily.station.record")

@@ -8,7 +8,7 @@
   station records available (in a given subdirectory).
 }
 \usage{plotStation(obs,l.anom=TRUE,mon=NULL,
-                        leps=FALSE,out.dir="output",what="b",trend=TRUE,
+                        leps=FALSE,out.dir="output",what="b",trend=TRUE,std.lev=TRUE,
                         type="l",pch=26,col="black",lwd=3,lty=3,add=FALSE,
                         main=NULL,sub=NULL,xlab=NULL,ylab=NULL,normal.period=NULL)}
 
@@ -19,8 +19,9 @@
     months. mon=c(12,1,2) plots the DJF mean.  }
   \item{leps}{Flag: T -> produce EPS files (hard copy). }
   \item{out.dir}{Directory where to store hard copies.}
-  \item{what}{"t"=timeseries; "d"=distribution; "b"=both.}
+  \item{what}{"t"=timeseries; "d"=distribution; "b"=both; "n"=no graphics but return results.}
   \item{trend}{show best-fit polynomial (5th order) trend}
+  \item{std.lev}{show +/- sd levels.}
   \item{type}{same as in \code{\link{plot}}.}
   \item{pch}{same as in \code{\link{plot}}.}
   \item{col}{colour, same as in \code{\link{plot}}.}

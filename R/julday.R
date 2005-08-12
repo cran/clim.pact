@@ -7,6 +7,11 @@
 #
 # R.E. Benestad, met.no, Oslo, Norway 04.09.2003
 # rasmus.benestad@met.no
+# Bug correction. 04.02.2005: 'jy[im] <- iyyy' -> 'jy[im] <- iyyy[im]'
+# 'jm[im]' <- 'mm+1' -> 'jm[im] <- mm[im]+1', 
+# 'jy[im] <- iyyy-1' -> 'jy[im] <- iyyy[im]-1'
+# 'jm[im] <- mm+13' -> 'jm[im] <- mm[im]+13'
+# Previous warnings: 'number of items to replace is not a multiple of replacement length'
 #------------------------------------------------------------------------
 
 julday <- function(mm,id,iyyy) {
@@ -23,13 +28,13 @@ julday <- function(mm,id,iyyy) {
   jy <- mm*0; jm <- mm*0; ja <- mm*0; 
   im <-  (mm > 2)
   if (sum(im)>0) {
-    jy[im] <- iyyy
-    jm[im] <- mm+1
+    jy[im] <- iyyy[im]
+    jm[im] <- mm[im]+1
   }
   im <-  (mm <= 2)
   if (sum(im)>0) {
-    jy[im] <- iyyy-1
-    jm[im] <- mm+13
+    jy[im] <- iyyy[im]-1
+    jm[im] <- mm[im]+13
   }
   jul <- trunc(365.25*jy) + trunc(30.6001*jm) + id + 1720995
   im <- (id+31*(mm+12*iyyy)>= igreg)

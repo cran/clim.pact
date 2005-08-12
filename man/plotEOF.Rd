@@ -8,7 +8,7 @@
   "plotEOF\_2.eps" and "plotEOF\_3.eps" respectively.
 }
 \usage{plotEOF(x,i.eof=1,nlevs=5,
-                   col=c("red","blue","darkgreen","steelblue")),
+                   col=c("red","blue","darkgreen","steelblue"),
                    main=NULL,sub=NULL)}
 \arguments{
     \item{x}{An \code{\link{EOF}} object.}

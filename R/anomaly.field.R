@@ -26,8 +26,7 @@ anomaly.field <- function(x,period=NULL) {
     }
   } else {
     nt <- sum(i.yy)
-#    time <- julian(x$mm,x$dd,x$yy)
-    time <- julday(x$mm,x$dd,x$yy)
+    time <- julday(x$mm,x$dd,x$yy) - julday(1,1,1950)
     if (!is.null(x$attributes$daysayear)) daysayear <- x$attributes$daysayear else
                                           daysayear <- 365.25
     x.1<-cos(2*pi*time/daysayear)
@@ -40,7 +39,7 @@ anomaly.field <- function(x,period=NULL) {
     for (ip in seq(1,ny*nx,by=1)) {
       if (sum(is.finite(x$dat[,ip])) > 0) {
         calibrate <- data.frame(y=x$dat[i.yy,ip],x1=x.1[i.yy],x2=x.2[i.yy],
-                       x3=x.3[i.yy],x4=x.4[i.yy],x5=x.5[i.yy],x6=x.6[i.yy])
+                                x3=x.3[i.yy],x4=x.4[i.yy],x5=x.5[i.yy],x6=x.6[i.yy])
         ac.fit<-lm(y ~ x1 + x2 + x3 + x4 + x5 + x6, data=calibrate)
         ac <- data.frame(x1=x.1,x2=x.2,x3=x.3,x4=x.4,x5=x.5,x6=x.6)
         x$dat[,ip]<- x$dat[,ip] - predict(ac.fit,newdata=ac)

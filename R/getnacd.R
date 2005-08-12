@@ -145,16 +145,28 @@ if (sum(iloc)==0) {
  print(sum(country == meta$country))
 }
 
+# Element 101, Mean monthly air-temperature.
+# Element 111, Mean maximum monthly air-temperature.
+# Element 112, Absolute maximum monthly air-temperature.
+# Element 121, Mean minimum monthly air-temperature.
+# Element 122, Aboslute minimum air-temperature.
+# Element 401, Mean monthly sea level pressure.
+# Element 601, Mean monthly precipitation sum.
+# Element 602, Highest monthly 1-day precipitation.
+# Element 701, Mean monthly days with snow cover > 50 %
+# Element 801, Mean monthly cloud cover.
+
 obs.name<-switch(as.character(ele[1]),
-                     '101'='monthly mean T(2m)',
+                     '101'='monthly mean T(2m)','111'='mean maximum monthly air-temperature.',
+                     '112'='absolute maximum monthly air-temperature',
+                     '122'='aboslute minimum air-temperature',
                      '401'='monthly mean SLP',
-                     '601'='monthly precipitation sum',
-                     '801'='monthly mean cloud cover')
+                     '601'='monthly precipitation sum','602'='highest monthly 1-day precipitation',
+                     '701'='mean monthly days with snow cover > 50 %','801'='monthly mean cloud cover')
 unit<-switch(as.character(ele[1]),
-                     '101'='degree Celsius',
-                     '401'='hPa',
-                     '601'='mm',
-                     '801'='%')
+                     '101'='degree Celsius','111'='degree Celsius','112'='degree Celsius',
+                     '122'='degree Celsius','401'='hPa',
+                     '601'='mm','701'='days','801'='%')
 #print(as.character(meta$V16))
 quality<-switch(as.character(meta$quality),
                 ' H'='Homogenous, rigorously tested & adjusted',

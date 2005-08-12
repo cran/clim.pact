@@ -7,12 +7,13 @@
   squares fit to the 6 leading harmonics, depending on the
   appropriateness. Also see \code{\link{anomaly.field}}.}
 \usage{
-anomaly.station(obs,period=c(1961,1990))
+anomaly.station(obs,period=c(1961,1990),param=c("t2m","precip"))
 }
 \arguments{
     \item{obs}{Monthly station series}
     \item{period}{Period to use as climatology 
            NULL -> the entire series as reference clim.}
+    \item{param}{For daily objects: identifies the names of the parameters.}
   }
 \value{Station series object.}
 \author{R.E. Benestad}}

@@ -10,6 +10,10 @@ strip<-function(in.str) {
   if (is.factor(in.str)) { lfac <- TRUE }
   in.str<-as.character(in.str)
   
+# Leading spaces
+  
+  while (instring(" ",in.str)[1]==1) in.str <- substr(in.str,2,nchar(in.str))  
+
 #  print(in.str)
   out.str<-in.str
 

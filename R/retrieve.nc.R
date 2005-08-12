@@ -114,19 +114,20 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
   varsize <- count
   lon.we <- lon
   if (!is.null(x.rng)) {
-    #if (!silent) print(paste("Longitudes: ",min(lon),"-",max(lon),attr(lon,"unit")))
-    #if (!silent) print(paste("extract: ",min(x.rng),"-",max(x.rng)))
+    if (!silent) print(paste("Longitudes: ",min(lon),"-",max(lon),attr(lon,"unit")))
+    if (!silent) print(paste("extract: ",min(x.rng),"-",max(x.rng)))
     if (min(x.rng) < 0 & max(lon > 180)) 
 
     start[1] <- max(sum(lon < min(x.rng)),1)
     ix <- (lon >= min(x.rng) & lon <= max(x.rng))
+    if (!silent) print(paste("sum(ix)=",sum(ix)))
     lon <- lon[ix]
      attr(lon,"unit") <- eval(parse(text=paste("ncid$'dim$",cdfdims[ilon],"$units'",sep="")))
     count[1] <- length(lon)
   }
   if (!is.null(y.rng)) {
-    #if (!silent) print(paste("Latitudes: ",min(lat),"-",max(lat),attr(lat,"unit")))
-    #if (!silent) print(paste("extract: ",min(y.rng),"-",max(y.rng)))
+    if (!silent) print(paste("Latitudes: ",min(lat),"-",max(lat),attr(lat,"unit")))
+    if (!silent) print(paste("extract: ",min(y.rng),"-",max(y.rng)))
     start[2] <- max(sum(lat < min(y.rng)),1)
     iy <- (lat >= min(y.rng) & lat <= max(y.rng))
     lat <- lat[iy]    
@@ -185,6 +186,8 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
     yy0 <- datestr2num(torg)[1]
     mm0 <- datestr2num(torg)[2]
     dd0 <- datestr2num(torg)[3]
+    if (is.na(dd0)) dd0 <- 1
+    if (is.na(mm0)) mm0 <- 15  
   } else torg <- readline("Give me the time origin (format='15-Dec-1949'):")
 
   if (!silent) print(paste("Time origin: (year-month-day)",yy0,"-",mm0,"-",dd0))
@@ -233,8 +236,8 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
     obj.type <- "daily.field.object"
   } 
 
+  nt <- length(tim)
   if (!is.null(t.rng)) {
-    nt <- length(tim)
     if (!is.character(t.rng)) {
       start[nd] <- t.rng[1]
       if (start[nd] > nt) {
@@ -261,48 +264,67 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
       yy <- yy[it1:it2]; mm <- mm[it1:it2]; dd <- dd[it1:it2]
     }       
   }
+  nt <- length(tim); ny <- length(lat)
  
   if (!silent) print(cbind(start,count,varsize))
-  #if (!silent) print(lat)
   if (!is.null(y.rng) & lat[1] > lat[length(lat)]) {
     start[2] <- varsize[2] - start[2] - count[2] + 1
-    #print(cbind(start,count,varsize))
   }
-  nx <- length(lon); ny <- length(lat); nt <- length(tim)
-  #if (!silent) print(paste("Reading",v1))
-  data <- get.var.ncdf(ncid,v1,start=start,count=count)
 
+  start[!is.finite(start)] <- 1; start[is.element(start,0)] <- 1; start[!is.numeric(start)] <- 1
+  count[!is.finite(count)] <- 1; count[is.element(count,0)] <- 1; count[!is.numeric(count)] <- 1
+  if (count[1]*count[2]*count[3] > 0) {
+    #if (!silent) 
+    print(cbind(start,count,varsize))
+    nx <- length(lon); ny <- length(lat); nt <- length(tim)
+    if (!silent) print(paste("Reading",v1))
+    data <- get.var.ncdf(ncid,v1,start=start,count=count)
+    dim(data) <- count
+  } else data <- NULL
+  
   if (min(x.rng) < 0 & max(lon.we > 180)) {
-    #print("read the data from western hemisphere also")
+    if (!silent) print("read the data from western hemisphere also")
     lon.we[lon.we > 180] <- lon.we[lon.we > 180] - 360
     #print(lon.we)
     start[1] <- seq(1,length(lon.we),by=1)[(lon.we >= min(x.rng)) & (lon.we < 0)][1]
     ix <- (lon.we >= min(x.rng) & lon.we < 0)
-    lon.we <- lon.we[ix]
-    #print(lon.we)
-    count[1] <- length(lon.we)
-    #if (!silent) print(cbind(start,count,varsize))
-    data.w <- get.var.ncdf(ncid,v1,start=start,count=count)
-    dat <- matrix(nrow=nt,ncol=ny*(nx+count[1]))
-    #print(c(dim(dat),NA,nt,ny,nx+count[1]))
-    dim(dat) <- c(nt,ny,nx+count[1])
-    #print("Combine west & east...")
-    for (i in 1:nt) dat[i,,] <- t(rbind(as.matrix(data.w[,,i]),as.matrix(data[,,i])))
-    lon <- c(lon.we,lon)
-    attr(lon,"unit") <- eval(parse(text=paste("ncid$dim$",cdfdims[ilon],"$units",sep="")))
-    rm(data,data.w)
+    if (sum(ix)> 0) {
+      lon.we <- lon.we[ix]
+      #print(lon.we)
+      count[1] <- length(lon.we)
+      lon <- c(lon.we,lon)
+      nx <- length(lon)  
+      if (!silent) print(cbind(start,count,varsize))
+      start[!is.finite(start)] <- 1; start[is.element(start,0)] <- 1; start[!is.numeric(start)] <- 1
+      count[!is.finite(count)] <- 1; count[is.element(count,0)] <- 1; count[!is.numeric(count)] <- 1
+      data.w <- get.var.ncdf(ncid,v1,start=start,count=count)
+      dim(data.w) <- count
+      dat <- matrix(nrow=nt,ncol=ny*(nx+count[1]))
+      dim(dat) <- c(nt,ny,nx+count[1])
+      for (i in 1:nt) {
+        if (!is.null(data)) dat[i,,] <- t(rbind(matrix(data.w[,,i],sum(ix),ny),matrix(data[,,i],nx,ny))) else
+                            dat[i,,] <- t(matrix(data.w[,,i],sum(ix),ny))
+      }
+      attr(lon,"unit") <- eval(parse(text=paste("ncid$dim$",cdfdims[ilon],"$units",sep="")))
+      rm(data,data.w)
+    } else {
+       dat <- data*NA; dim(dat) <- c(nt,ny,nx)
+       for (i in 1:nt) dat[i,,] <- t(as.matrix(data[,,i]))
+       rm(data)
+    }
+    #print("East and west combined!")
   } else {
-  
   
  # Re-order the data: (old convention)
 
-#  print(c(nt,ny,nx,NA,dim(data)))
+    if (!silent)print(c(nt,ny,nx,NA,dim(data)))
     dat <- data*NA; dim(dat) <- c(nt,ny,nx)
     for (i in 1:nt) dat[i,,] <- t(as.matrix(data[,,i]))
     rm(data)
   }
   close.ncdf(ncid)
-
+  nx <- length(lon)  
+  print("dim(dat):"); print(dim(dat))
 
 # Check for 'model dates', i.e. 360-day year
   #print("---- --- -- - Check for 'model dates', i.e. 360-day year . .. ... ...."); print(nd)

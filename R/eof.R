@@ -13,6 +13,8 @@ EOF<-function(fields,l.wght=TRUE,lc180e=FALSE,direc="data/",
 #=========================================================================
 #library(ts)
 
+#print("EOF-0:")
+#print(dim(fields$dat))
 if ((class(fields)[2]!="monthly.field.object") &
     (class(fields)[2]!="daily.field.object") &
     (class(fields)[1]!="field")) {
@@ -81,6 +83,8 @@ if (class(fields)[2]=="monthly.field.object") {
       if (min(mm)==max(mm)) c.mon <- months[mm[1]]  else
                c.mon<-paste(months[min(mm)],"-",months[max(mm)],sep="")
       i.mm <- is.finite(mm)      
+      #print("EOF-1a (mon = NULL):")
+      #print(c(length(yy),length(mm),length(dd),length(tim),length(id.t),NA,dim(dat)))
   } else {
       c.mon<-months[mon]
       i.mm <- is.element(mm,mon)
@@ -90,18 +94,19 @@ if (class(fields)[2]=="monthly.field.object") {
       dd <- dd[i.mm]
       id.t <- id.t[i.mm]
       tim <- tim[i.mm]
-      #print(c(length(yy),length(mm),length(dd),length(tim),length(id.t),NA,dim(fields$PC)))
+      #print("EOF-1b:")
+      #print(c(length(yy),length(mm),length(dd),length(tim),length(id.t),NA,dim(dat)))
     }
 } else if (class(fields)[2]=="daily.field.object") {
   if (!silent) print("daily.field.object")
-
+  jtim <- julday(mm, dd, yy) - julday(1,1,1950)
   ac.mod<-matrix(rep(NA,nt*6),nt,6)
-  ac.mod[,1]<-cos(2*pi*tim/daysayear)
-  ac.mod[,2]<-sin(2*pi*tim/daysayear)
-  ac.mod[,3]<-cos(4*pi*tim/daysayear)
-  ac.mod[,4]<-sin(4*pi*tim/daysayear)
-  ac.mod[,5]<-cos(6*pi*tim/daysayear)
-  ac.mod[,6]<-sin(6*pi*tim/daysayear)
+  ac.mod[,1]<-cos(2*pi*jtim/daysayear)
+  ac.mod[,2]<-sin(2*pi*jtim/daysayear)
+  ac.mod[,3]<-cos(4*pi*jtim/daysayear)
+  ac.mod[,4]<-sin(4*pi*jtim/daysayear)
+  ac.mod[,5]<-cos(6*pi*jtim/daysayear)
+  ac.mod[,6]<-sin(6*pi*jtim/daysayear)
   if (l.rm.ac) {
     for (ip in seq(1,np,by=1)) {
       ac.fit<-lm(dat[,ip] ~ ac.mod)
@@ -128,10 +133,12 @@ if (class(fields)[2]=="monthly.field.object") {
     id.t <- id.t[i.mm]
     tim <- tim[i.mm]
   }
-#  print("Months:")
-#  print(table(mm))
-#  print(paste("Season:",mon))
-#  print(season)
+  #print("Months:")
+  #print(table(mm))
+  #print(paste("Season:",mon))
+  #print(season)
+  #print("EOF-2:")
+  #print(c(length(yy),length(mm),length(dd),length(tim),length(id.t),NA,dim(dat)))
 } else if (tunit=="mon") {
      if (!silent) print("Field with unspecified time unit - set to month")
      c.mon<-months[as.numeric(row.names(table(mm)))]
@@ -176,7 +183,7 @@ vnames <- substr(fields$v.name[1],1,min(nchar(fields$v.name[1]),4))
 #if (length(fields$v.name)>1) {
 #  for (i in 2:length(fields$v.name)) vnames <- paste(vnames,"+",strip(fields$v.name[i]),sep="")
 #}
-if (!silent) print(c("pred.names=",preds.names,"scen=",scen,"preds.id=",preds.id,"vnames=",vnames))
+#if (!silent) print(c("pred.names=",preds.names,"scen=",scen,"preds.id=",preds.id,"vnames=",vnames))
 fname<-paste(direc,"eof_", preds.id,scen,"_",vnames,"_",region,"_",
        c.mon,'_',tunit,".Rdata",sep="")
 if (!silent) print(paste("File name:",fname,"sum(i.mm)=",sum(i.mm)))
@@ -235,7 +242,7 @@ for (i in 1:fields$n.fld) {
   nt <- length(yy)
   stdv[i] <- sd(dat.x,na.rm=TRUE)
 
-  if (!silent) print("Remove mean values at each grid point")
+  if (!silent) print(paste("Remove mean values at each grid point",nx*ny))
   for (j.y in 1:ny) {
     for (i.x in 1:nx) {
       ixy <- ixy + 1
@@ -288,7 +295,6 @@ for (i in 1:fields$n.fld) {
 #    print(paste("id.lats: ",length(id.lats),length(id.lat)))
   }
 }
-
 if ((sum(is.na(dat.d2))>0) & (!silent)) print(paste(sum(is.na(dat.d2)),
                             ' missing values of ',nx*ny*nt))
 aver <- 0
@@ -309,12 +315,27 @@ if (!silent) print(paste("mean AR(1) =",aver, "n.eff=",n.eff))
 if (!silent) print(paste("Singular Value Decomposition: ",sum(is.na(dat.d2)),
             ' NA-values -> set to zero of ',length(dat.d2)))
 dat.d2[!is.finite(dat.d2)]<-0
+#print("EOF-3:")
+#print(c(length(yy),length(mm),length(dd),length(tim),length(id.t)))
 if (!silent) print(paste("Data range:",min(dat.d2),"-",max(dat.d2)," dimensions=",
-            dim(dat.d2)[1],"x",dim(dat.d2)[2],"  std=",stdv))
+            dim(dat.d2)[1],"x",dim(dat.d2)[2],"  std=",round(stdv,2)))
 
-if (LINPACK) pca<-svd(t(dat.d2)) else 
-             pca<-La.svd(t(dat.d2))
+if (LINPACK) {
+  #print("svd:")
+  pca<-svd(t(dat.d2),LINPACK = TRUE) 
+  } else {
+  #print("La.svd:")
+  pca<-La.svd(t(dat.d2),method="dgesvd")
+}
 if (neofs > dim(dat.d2)[2]) neofs <- dim(dat.d2)[2]
+
+dim.v <- dim(pca$v); dim.u <- dim(pca$v); ; dim.x <- dim(dat.d2)
+if ((dim.v[1] == dim.x[2]) & (dim.v[2] == dim.x[1])) {
+  print("TRANSPOCE V & U:")
+  pca$v <- t(pca$v)
+  pca$u <- t(pca$u)  
+}
+#print(dim(dat.d2));print(dim(pca$v));print(dim(pca$u))
 PC<-pca$v[,1:neofs]
 EOF<-t(pca$u[,1:neofs])
 W<-pca$d[1:neofs]

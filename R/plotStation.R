@@ -1,14 +1,14 @@
 # R.E. Benestad, met.no, Oslo, Norway 22.05.2002
 # rasmus.benestad@met.no
 #-------------------------------------------------------------------
-# PLot data from NORDKLIMstations.
+# PLot data from NORDKLIM stations.
 
 plotStation <- function(obs,l.anom=TRUE,mon=NULL,
-                        leps=FALSE,out.dir="output",what="b",trend=TRUE,
+                        leps=FALSE,out.dir="output",what="b",trend=TRUE,std.lev=TRUE, 
                         type="l",pch=26,col="black",lwd=3,lty=3,add=FALSE,
                         main=NULL,sub=NULL,xlab=NULL,ylab=NULL,normal.period=NULL) {
 
-if (sum(is.element(c("b","t","d"),what))==0) stop("Argumet 'what' must be 'b','t' or 'd'!")
+if (sum(is.element(c("b","t","d","n"),what))==0) stop("Argumet 'what' must be 'b','t', 'n', or 'd'!")
 if ( (class(obs)[2]!="monthly.station.record") &
      (class(obs)[2]!="daily.station.record") ){
   stop(paste("The predictand must be a 'monthly.station.record'",
@@ -23,25 +23,28 @@ if (is.null(main)) {
                                                main <- obs$location
 }
 if (class(obs)[2]=="daily.station.record") {
-  newFig()
-  plot(obs$yy + obs$mm/12 + obs$dd/365.25, obs$t2m,pch=20,cex=0.5,
-       main=main,sub="met.no Klima DataVareHus",
-       xlab="Time",ylab="Temperature (deg C)")
-  grid()
-  lines(obs$yy + obs$mm/12 + obs$dd/365.25, obs$t2m,lty=3,col="grey")
+  if (sum(is.finite(obs$t2m)) > 0) {
+    newFig()
+    plot(obs$yy + obs$mm/12 + obs$dd/365.25, obs$t2m,pch=20,cex=0.5,
+         main=main,sub="met.no Klima DataVareHus",
+         xlab="Time",ylab="Temperature (deg C)")
+    grid()
+    lines(obs$yy + obs$mm/12 + obs$dd/365.25, obs$t2m,lty=3,col="grey")
+  }
 
-  newFig()
-  plot(obs$yy + obs$mm/12 + obs$dd/365.25, obs$precip,pch=20,cex=0.5,
-       main=main,sub="met.no Klima DataVareHus",
-       xlab="Time",ylab="Precipitation (mm)")
-  grid()
-  lines(obs$yy + obs$mm/12 + obs$dd/365.25, obs$precip,lty=3,col="grey")
+  if (sum(is.finite(obs$precip)) > 0) {
+    newFig()
+    plot(obs$yy + obs$mm/12 + obs$dd/365.25, obs$precip,pch=20,cex=0.5,
+         main=main,sub="met.no Klima DataVareHus",
+         xlab="Time",ylab="Precipitation (mm)")
+    grid()
+    lines(obs$yy + obs$mm/12 + obs$dd/365.25, obs$precip,lty=3,col="grey")
+  }
   plotStation <- obs
 
 
 } else if (class(obs)[2]=="monthly.station.record") {
   
-
 if ((!obs$found) | (sum(is.finite(obs$val))==0)) stop("No valid data!")
 
 cmon<-c("Jan","Feb","Mar","Apr","May","Jun",
@@ -149,16 +152,16 @@ if (!is.null(mon)) {
         newFig()
         par(cex.sub=0.8)
         plot(yymm,value,type=type,lwd=lwd,col=col,pch=pch,lty=lty,
-                     main=main,sub=sub.tit,xlab="Time",ylab=obs$unit)
+                     main=main,sub=sub.tit,xlab="Time",ylab=obs$unit,cex=0.6)
       } else {
         if (type!="p") lines(yymm,value,lwd=lwd,col=col,lty=lty) 
-        if ((type=="p") | (type=="b")) points(yymm,value,col=col,pch=pch) 
+        if ((type=="p") | (type=="b")) points(yymm,value,col=col,pch=pch,cex=0.6) 
       }
       if (trend) lines(yymm,pre.p.fit,col="red") 
-      lines(c(min(yymm),max(yymm)),rep(mean(value,na.rm=TRUE)+
+      if (std.lev) lines(c(min(yymm),max(yymm)),rep(mean(value,na.rm=TRUE)+
                                    1.96*sd(value,na.rm=TRUE),2),
                                    lty=2,col="grey")
-      lines(c(min(yymm),max(yymm)),rep(mean(value,na.rm=TRUE)-
+      if (std.lev) lines(c(min(yymm),max(yymm)),rep(mean(value,na.rm=TRUE)-
                                    1.96*sd(value,na.rm=TRUE),2),
                                    lty=2,col="grey")
       grid()
@@ -250,7 +253,7 @@ if (!is.null(mon)) {
   }
 
   plotStation <- list(yy=yy,mm=mm,yymm=yymm,value=value,loc=obs$location,
-                      histo=histo,x.dist=x.dist,y.dist=y.dist)
+                      histo=histo,x.dist=x.dist,y.dist=y.dist,trend=pre.p.fit)
 }
   invisible(plotStation)
 

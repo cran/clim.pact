@@ -16,8 +16,10 @@ cdfcont <- function(filename,path="") {
   if (!file.exists(paste(path,filename,sep=""))) {
     stop(paste("Sorry,",paste(path,filename,sep="")," does not exist!"))
   }
+  system("rm -f cdfcont.txt")
   system(paste("ncdump -h  ",paste(path,filename,sep="")," > cdfcont.txt",sep=""),intern=T)
   cdfhead <- readLines("cdfcont.txt")
+  #print(cdfhead)
   cdfvars <- cdfhead[c(grep("float",lower.case(cdfhead)),
                        grep("short",lower.case(cdfhead)),
                        grep("double",lower.case(cdfhead)))]
@@ -34,6 +36,7 @@ cdfcont <- function(filename,path="") {
   torg <- cdfhead[grep("time_origin",lower.case(cdfhead))]
   if (length(torg)==0) {
     torg <- cdfhead[grep("since",lower.case(cdfhead))]
+    #print(torg)
     t.org.pos <- regexpr("since",lower.case(torg))
     s<- instring('\"',torg)
     torg  <- substr(torg,t.org.pos+6,s[2]-1)
@@ -45,7 +48,7 @@ cdfcont <- function(filename,path="") {
     mm0 <- as.numeric(substr(torg,dash[1]+1,dash[2]-1))
     dd0 <- as.numeric(substr(torg,dash[2]+1,spc[1]-1))
     while (nchar(dd0) < 2) dd0 <- paste("0",dd0,sep="")
-    torg <- paste(dd0,cmon[mm0],yy0)
+    torg <- paste(dd0,cmon[mm0],yy0)[1]
     print(paste("time.origin=",torg))
     if (is.na(dd0[1])) dd0  <- 15
   } else {

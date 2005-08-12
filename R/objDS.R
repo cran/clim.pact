@@ -223,9 +223,10 @@ axis(1, 1:24, rep(months,2))
 axis(2)
 grid()
 
+scl <- diff(range(c(rates+err,rates-err),na.rm=TRUE))/10
 polygon(c(1:24,reverse(1:24)),c(rep(rates+err,2),reverse(rep(rates-err,2))),
         col="wheat",border="grey",lwd=2)
-lines(0:24+0.5,c(r2[1],rep(r2,2))/100*max(rates-err,na.rm=TRUE)+min(rates-err,na.rm=TRUE),
+lines(0:24+0.5,c(r2[1],rep(r2,2))/10*scl+min(rates-err,na.rm=TRUE),
       type="S",col="steelblue")
 lines(rep(rates,2),lwd=2)
 points((1:24)[rep(p.val < 5,2)],rep(rates[p.val < 5],2),pch=20,cex=1.5)
@@ -234,9 +235,9 @@ text((1:24)-0.33,rep(rates-0.01*diff(range(c(rates+err,rates-err),na.rm=TRUE)),2
        cex=0.8,col="grey45")
 
 for (i in 0:10) {
-  lines(c(23.8,24),rep(i/10*max(rates-err,na.rm=TRUE)+min(rates-err,na.rm=TRUE),2),col="steelblue")
-  lines(c(0,24),rep(i/10*max(rates-err,na.rm=TRUE)+min(rates-err,na.rm=TRUE),2),lty=3,col="steelblue")
-  text(23.5,i/10*max(rates-err,na.rm=TRUE)+min(rates-err,na.rm=TRUE),paste(i*10,'%',sep=""),
+  lines(c(23.8,24),rep(i*scl + min(rates-err,na.rm=TRUE),2),col="steelblue")
+  lines(c(0,24),rep(i*scl +    min(rates-err,na.rm=TRUE),2),lty=3,col="steelblue")
+  text(23.5,i*scl +            min(rates-err,na.rm=TRUE),paste(i*10,'%',sep=""),
         cex=0.8,col="steelblue")
   }
 mtext("R-squared (%) from calibration regression",side=4,col="steelblue",cex=0.80)
@@ -258,7 +259,7 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
                   method="lm",leps=FALSE,param="t2m",
                   plot.res=FALSE,plot.rate=FALSE,xtr.args="",
                   swsm="step",predm="predict",lsave=FALSE,rmac=TRUE,
-                  silent=FALSE,qualitycontrol=TRUE) {
+                  silent=FALSE,qualitycontrol=TRUE,LINPACK=TRUE,wOBS=0.25) {
 
   cmon<-c("Jan","Feb","Mar","Apr","May","Jun",
           "Jul","Aug","Sep","Oct","Nov","Dec")
@@ -281,6 +282,7 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
   if (is.null(mon)) mon  <-  1:12
   
   result <- list(station=station)
+  print(paste("objDS: field.obs$v.name=",field.obs$v.name))
   if (is.null(positive) &
       sum(is.element(c("t2m","tem"),lower.case(substr(field.obs$v.name,1,3))))> 0) {
       positive <- TRUE
@@ -352,18 +354,36 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
       }
     }
     print("catFields:")
-#    print(">>> Check REB 11.02.2004!")
-#    print(x.rng)
-#    print(c(sum(!is.finite(field.obs$dat)),sum(!is.finite(field.gcm$dat))))
-#    print(summary(field.obs$lon)); print(summary(field.obs$lat))
-#    print(summary(field.gcm$lon)); print(summary(field.gcm$lat))
-#    print(c(length(field.obs$yy),length(field.obs$mm),length(field.obs$id.t),NA,dim(field.obs$dat)))
-#    print(c(length(field.gcm$yy),length(field.gcm$mm),length(field.gcm$id.t),NA,dim(field.gcm$dat)))
+    #print(">>> Check REB 11.02.2004!")
+    #print(x.rng)
+    #print(c(sum(!is.finite(field.obs$dat)),sum(!is.finite(field.gcm$dat))))
+    #print(summary(field.obs$lon)); print(summary(field.obs$lat))
+    #print(summary(field.gcm$lon)); print(summary(field.gcm$lat))
+    #print(c(length(field.obs$yy),length(field.obs$mm),length(field.obs$id.t),NA,dim(field.obs$dat)))
+    #print(c(length(field.gcm$yy),length(field.gcm$mm),length(field.gcm$id.t),NA,dim(field.gcm$dat)))
+
     field.2 <- catFields(field.obs,field.gcm,lon=x.rng,lat=y.rng,mon=imon)
-#    print(c(length(field.2$yy),length(field.2$mm),length(field.2$id.t),NA,dim(field.2$dat)))
-    print("EOF:")
-    eof <- EOF(field.2,silent=silent,plot=plot,lsave=FALSE)
-    print("DS:")
+
+    #print(c(length(field.2$yy),length(field.2$mm),length(field.2$id.t),NA,dim(field.2$dat)))
+    if (!is.null(wOBS)) {                                    #REB 21.03.05
+      if (!silent) print("Weight down GCM:")
+      t.wgt <- wOBS*length(field.obs$id.t)/length(field.gcm$id.t)
+      i.gcm <- is.element(field.2$id.t,field.gcm$id.t[1])
+      field.2$dat[i.gcm,,] <- field.2$dat[i.gcm,,]*t.wgt
+    }
+    if (!silent) print("EOF:")
+    eof <- EOF(field.2,silent=silent,plot=plot,lsave=FALSE,LINPACK=LINPACK)
+    if (!is.null(wOBS)) {                                    #REB 21.03.05XS
+      if (!silent) print("Weight up GCM:")
+      i.gcm <- is.element(eof$id.t,field.gcm$id.t[1])
+      eof$PC[i.gcm,] <- eof$PC[i.gcm,]/t.wgt
+    }
+
+#REB 09.03.05
+#print(dim(eof$PC))
+#print(length(eof$id.t))
+
+    if (!silent) print("DS:")
     ds <- DS(preds=eof,dat=station,direc=direc,cal.id=cal.id,
                   ldetrnd=ldetrnd,i.eofs=i.eofs,ex.tag=ex.tag,
                   method=method,plot=FALSE,leps=leps,param=param,
@@ -371,7 +391,20 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
                   swsm=swsm,predm=predm,lsave=lsave,rmac=rmac,
                   silent=silent)
     ds$x.rng <- x.rng; ds$y.rng <- y.rng
-    print(paste("result$",cmon[imon]," <- ds",sep=""))
+
+    print("Grading for spatial pattern")
+    field.x <- catFields(field.obs,lon=field.2$lon,lat=field.2$lat,mon=imon)
+    cormap <- corField(field.x,station,mon=imon,main="",plot=FALSE)
+    patt.1 <- c(t(cormap$map))
+    patt.2 <- c(ds$X.1) 
+    valid <- is.finite(patt.1) & is.finite(patt.2)
+    if (sum(valid) > 30) grade.pattern <- round(10*cor(patt.1[valid],patt.2[valid]))/10 else
+                         grade.pattern <- NA
+    print(paste("Spatial correlation: ",sum(valid),"valid points. r=",grade.pattern))
+
+    ds$grade.pattern <- grade.pattern
+
+    #print(paste("result$",cmon[imon]," <- ds",sep=""))
     eval(parse(text=paste("result$",cmon[imon]," <- ds",sep="")))
     rates[imon] <- ds$rate.ds
   }
@@ -380,15 +413,16 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
 # Check the rates with those of adjacent months: if very different, do the computation again
 # but with a reduced domain size until a minimum size is reached (10x10 degrees).
 
-  if (qualitycontrol) {
-  print("==========================================================")
-  print("=================== Quality control! =====================")
-  print("==========================================================")
 #print(rates)
   drate <- -(diff(rep(rates,3))[11:22])*(diff(rep(rates,3))[12:23])
 #print(drate)
   icheck <- (drate > 3*var(rates))
 #print(icheck)  
+
+  if (qualitycontrol) {
+  print("==========================================================")
+  print("=================== Quality control! =====================")
+  print("==========================================================")
   while (sum(icheck)>0) {
     print(paste("Rates: (drate exceeds ",3*var(rates),")"))
     print(rbind(rates,drate,icheck))
@@ -407,7 +441,18 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
          if (station$lat < y.rng[2]+10) y.rng[2] <- y.rng[2]-(y.rng[2] - station$lat - 10)/3
        }
        field.2 <- catFields(field.obs,field.gcm,lon=x.rng,lat=y.rng,mon=ii)
-       eof <- EOF(field.2,silent=TRUE,lsave=FALSE)
+       if (!is.null(wOBS)) {                                    #REB 21.03.05
+         if (!silent) print("Weight down GCM:")
+         t.wgt <- wOBS*length(field.obs$id.t)/length(field.gcm$id.t)
+         i.gcm <- is.element(field.2$id.t,field.gcm$id.t[1])
+         field.2$dat[i.gcm,,] <- field.2$dat[i.gcm,,]*t.wgt
+       }
+       eof <- EOF(field.2,silent=TRUE,lsave=FALSE,LINPACK=LINPACK)
+       if (!is.null(wOBS)) {                                    #REB 21.03.05XS
+         if (!silent) print("Weight up GCM:")
+         i.gcm <- is.element(eof$id.t,field.gcm$id.t[1])
+         eof$PC[i.gcm,] <- eof$PC[i.gcm,]/t.wgt
+       }
        ds <- DS(preds=eof,dat=station,direc=direc,cal.id=cal.id,
                 ldetrnd=ldetrnd,i.eofs=i.eofs,ex.tag=ex.tag,
                 method=method,plot=FALSE,leps=leps,param=param,
@@ -415,17 +460,23 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
                 swsm=swsm,predm=predm,lsave=lsave,rmac=rmac,
                 silent=TRUE)
        ds$x.rng <- x.rng; ds$y.rng <- y.rng
+
+
        rates[ii] <- ds$rate.ds
        eval(parse(text=paste("result$",cmon[ii]," <- ds",sep="")))
        drate <- -(diff(rep(rates,3))[11:22])*(diff(rep(rates,3))[12:23])
        icheck[ii] <- (drate[ii] > 3*var(rates))
        if ((diff(x.rng) <= 15) & (diff(y.rng) <= 15)) icheck[ii] <- FALSE
-        print(paste("New rate=",rates[ii]," drate=",drate[ii]," x.rng=",x.rng[1]," - ",x.rng[2],
+       print(paste("New rate=",rates[ii]," drate=",drate[ii]," x.rng=",x.rng[1]," - ",x.rng[2],
                     " y.rng=",y.rng[1]," - ",y.rng[2],"icheck[ii]=",icheck[ii]))
     }
   }
   }
-  print("The downscaling is complete for this station")
+
+  grade.trend <- 1 - sum(icheck)/length(icheck)
+  ds$grade.trend <- grade.trend
+
+  if (!silent) print("The downscaling is complete for this station")
   class(result) <- "objDS"
  
   #print("ds.val:")
@@ -437,15 +488,19 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
   #print("ds.yy:")
   ds.yy <- result$Jan$yy.gcm
   station.series <- station.obj(ds.val,ds.yy,obs.name=paste("downscaled",station$obs.name),
-                        station$unit,ele=station$ele,mm=NULL,
-                        station=station$station,lat=station$lat,lon=station$lon,alt=station$alt,
-                        location=station$location,wmo.no=station$wmo.no,
-                        start=station$start,yy0=min(ds.yy),country=station$country,
-                        ref=paste("clim.pact >= v2.1-4 > objDS (Benestad, 2004, Eos, vol 85, #42, Oct 19, p.417):",
-                                  field.2$filename))
+                                station$unit,ele=station$ele,mm=NULL,
+                                station=station$station,lat=station$lat,
+                                lon=station$lon,alt=station$alt,
+                                location=station$location,wmo.no=station$wmo.no,
+                                start=station$start,yy0=min(ds.yy),country=station$country,
+   ref=paste("clim.pact >= v2.1-4 > objDS (Benestad, 2004, Eos, vol 85, #42, Oct 19, p.417):",
+                                field.2$filename))
   result$station <- station.series
+
+#print("objDS - HERE... plot?")
   if (plot) {
     plotDSobj(result)
   }
+#print("exit objDS")
   invisible(result)
 }

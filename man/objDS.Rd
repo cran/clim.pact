@@ -21,7 +21,7 @@ of a rectangle).
           method="lm",leps=FALSE,param="t2m",
           plot.res=FALSE,plot.rate=FALSE,xtr.args="",
           swsm="step",predm="predict",lsave=FALSE,rmac=TRUE,
-          silent=FALSE,qualitycontrol=TRUE)}
+          silent=FALSE,qualitycontrol=TRUE,LINPACK=TRUE,wOBS=0.25)}
 
 \arguments{
     \item{field.obs}{ The gridded observation predictor \code{\link{retrieve.nc}}.}
@@ -60,6 +60,8 @@ of a rectangle).
       data.}
     \item{silent}{TRUE -> no output to screen.}
     \item{qualitycontrol}{TRUE: perform a qualitry control consisting of comparing the smoothness of the monthly trend estimates throughout the year and repeat the downscaling with a smaller domain if adjacent trend estimates vary significantly (diff greater than 3*variance of rates).}
+    \item{LINPACK}{'TRUE': svd; 'FALSE':La.svd}
+    \item{wOBS}{Used for weighting down GCM results in the common EOF analysis. The GCM results are re-scaled after the analysis.\code{wOBS=NULL} skips this scaling/re-scaling.}
 }
 
 \value{An 'objDS' object -  a list of objects:

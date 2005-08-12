@@ -30,7 +30,7 @@ upper.case <- function(u.case) {
                       j="J",k="K",l="L",m="M",n="N",o="O",p="P",q="Q",r="R",
                       s="S",t="T",u="U",v="V",w="W",x="X",y="Y",z="Z")
       if (length(u.l) == 0) u.l<-sstr
-#    print(c(sstr,u.l,upper.case))
+      #print(c(sstr,u.l,upper.case))
       upper.case[is]<-paste(upper.case[is],u.l,sep="")
     }
   }

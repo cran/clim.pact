@@ -68,6 +68,11 @@ is: \deqn{y= c_1 + 2 c_2 x + 3 c_3 x^2 +  4 c_4 x^3 + 5 c_5 x^4.}{y= c1
   reference to statistical modelling and regression.
 
   DS provides the basis for an 'objective' downscaling though \code{\link{objDS}}.
+
+  Changes - 02.02.2005: Improved the representation of the correct constant level:
+  \code{#  pre.gcm <- pre.gcm - gcm.mean + obs.mean2   # REB 26.08.2004: 'obs.mean' replaced with 'obs.mean2'}
+  \code{pre.gcm <- pre.gcm - cal.mean + obs.mean2      # REB 02.02.2005: 'gcm.mean' replaced with 'cal.mean'}
+  
 }
 \usage{DS(dat,preds,mon=NULL,direc="output/",cal.id=NULL,
               ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",

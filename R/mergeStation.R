@@ -32,7 +32,8 @@ yymm.2 <- sort(rep(x.2$yy,12)) + (rep(1:12,ny.2)-0.5)/12
 i.1 <- is.element(yymm.1,yymm.2)
 i.2 <- is.element(yymm.2,yymm.1)
 #print(yymm.1); print(i.1)
-if (sum(i.1)) {
+
+if ((sum(i.1)>0) & (sum(i.2)>0)) {
   if (print) print(range(yymm.1[i.1]))
   ovrlp <- data.frame(y=y.1[i.1],x=y.2[i.2])
   new.dat <- data.frame(x=y.2[!i.2])
@@ -46,10 +47,15 @@ if (sum(i.1)) {
   agree <- lm(y ~ 1 + x, data=ovrlp)
   if (print) print(summary(agree))
   coefs <- agree$coefficients
-  if (!rescale) coefs[2] <- 1
+  if (!rescale) {
+     adjust <- mean(Y.1,na.rm=TRUE) - mean(Y.2,na.rm=TRUE)
+     if (print) print(paste("mergeStation: adjust= ",adjust," mean.1=",mean(Y.1,na.rm=TRUE),
+                      " mean.2=",mean(Y.2,na.rm=TRUE),sep=""))
+     y <- c(y.1, y.2[!i.2] + adjust)
+  } else   y <- c(y.1,coefs[1] + coefs[2]* y.2[!i.2])
 
 #print("New series")
-  y <- c(y.1,coefs[1] + coefs[2]* y.2[!i.2])
+
 #print("Years")
   yy <- c(x.1$yy,as.numeric(row.names(table(floor(yymm.2[!i.2])))))
   ny <- length(yy)

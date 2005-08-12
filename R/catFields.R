@@ -170,8 +170,11 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
   dim(dat.2)<-c(nt.2,ny.1,nx.1)
   l.different <- TRUE
   if ( (ny.1==ny.2) & (nx.1==nx.2) ) {
-    if ( (sum(field.1$lat==field.2$lat)==ny.1) &
-         (sum(field.1$lon==field.2$lon)==nx.1) ) l.different <- FALSE
+#    if ( (sum(field.1$lat==field.2$lat)==ny.1) &
+#         (sum(field.1$lon==field.2$lon)==nx.1) ) l.different <- FALSE
+# REB 29.03.2005: problem with above lines: 'Error in field.1$lat == field.2$lat : non-conformable arrays'
+    if ( (sum(is.element(field.1$lat,field.2$lat))==ny.1) &
+         (sum(is.element(field.1$lon,field.2$lon))==nx.1) ) l.different <- FALSE
   }
 
 #  print(c(l.one,l.different,l.newgrid))

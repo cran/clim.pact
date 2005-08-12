@@ -5,7 +5,7 @@ oslo.dm <- list(day=obs0$day,month=obs0$month,year=obs0$year,
             obs.name=c("Daily mean temperature","Daily precipitation"),
             unit=c("deg C","mm/day"),station=obs0$station.number[1],
             lat=67.33223,lon=-3.1614,alt=12,ele=c("tam","rr"),
-            x.0E65N=NULL,y.0E65N=NULL,found=T,
+            x.0E65N=NULL,y.0E65N=NULL,found=TRUE,
             location="Oslo-Blindern",wmo.no=NULL,
             start=1949,yy0=1980, country="Norway",ref="www.met.no")
 class(oslo.dm) <- "daily.station.record"

@@ -6,7 +6,11 @@
   from Press et al. (1989), "Numerical Recipes  
   in Pascal", Cambridge, p. 10. See also \code{chron} and \code{date}
 for similar functions. This function was included to avoid the
-dependency to the \code{chron} and \code{date} packages. See also \code{\link{caldat}}.}
+dependency to the \code{chron} and \code{date} packages. See also \code{\link{caldat}}.
+
+Bug correction: 04.02.2005: got rid of 'Warning messages:
+1: number of items to replace is not a multiple of replacement length'
+}
 \usage{julday(mm,id,iyyy)}
 \arguments{
     \item{mm}{month.}

@@ -99,13 +99,16 @@ if (!is.null(mon)) {
     #print(dim(obs$val))
     #print(length(rowMeans(obs$val[,mon])))
     #print(length(colMeans(obs$val[,mon])))
-    if ((length(mon)==3) & (mon[1]==12) & (mon[2]==1) & (mon[3]==2)) {
+    if ( (length(mon)==3) & (mon[1]==12) & (mon[2]==1) & (mon[3]==2)) {
       obs$val[2:ny,12] <- obs$val[1:(ny-1),12]
       obs$val[1,12] <- NA
-  }
+    } else if ( (length(mon)==3) & (mon[1]==11) & (mon[2]==12) & (mon[3]==1)) {  # REB Fix 21.10.2005
+      obs$val[2:ny,11:12] <- obs$val[1:(ny-1),11:12]
+      obs$val[1,11:12] <- NA
+    } 
+
     if (length(mon)>1) value <- rowMeans(obs$val[,mon]) else
                        value <- obs$val[,mon]
-
     if (is.element(obs$ele,c(101,111,121,401,601,701,801,911)))
           for (i in 1:ny) value[i] <- mean(obs$val[i,mon],na.rm=TRUE)
     if (is.element(obs$ele,c(112,602)))

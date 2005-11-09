@@ -6,12 +6,13 @@
 #------------------------------------------------------------------------
 
 
-retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
+retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO",
                         l.scale=FALSE,greenwich=TRUE,silent=FALSE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,
                         force.chron=TRUE,force365.25=FALSE,regular=TRUE,daysayear=365.25,
-                        forceBC=TRUE) {
+                        forceBC=TRUE,use.cdfcont=FALSE) {
+#print("retrieve.nc:")
   library(ncdf)
   if (!file.exists(filename)) {
     stop(paste("Sorry,",filename," does not exist!"))
@@ -38,12 +39,12 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
   nd <- ncid$var[[ipick]]$ndims
   cdfdims <- rep("-",nd)
   for (i in 1:nd) cdfdims[i] <- ncid$var[[ipick]]$dim[[i]]$name
-  #print(cdfdims)
+#print(cdfdims)
   ilon <- grep("lon",lower.case(cdfdims))
   ilat <- grep("lat",lower.case(cdfdims))
   itim <- grep("tim",lower.case(cdfdims))
   ilev <- grep("lev",lower.case(cdfdims))
-  #print(c(ilon,ilat,itim,ilev)) 
+#print(c(ilon,ilat,itim,ilev)) 
   torg<- NULL; scal <- NULL; offs <- NULL
 
   arv <- att.get.ncdf(ncid, cdfvars[ipick], 'scale_factor')
@@ -65,13 +66,14 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
   arv <- att.get.ncdf(ncid, cdfdims[itim], 'calendar')
   if( arv$hasatt ) calendar <- arv$value else
        calendar <- "ordinary"
-  #print(calendar)
+print(calendar)
   if (calendar=="noleap") {
     print("Detected 'noleap' Calendar: set daysayear=365")
     daysayear <- 365
   }
 
-  if (lower.case(a[1])=="linux") {
+  if ( (lower.case(a[1])=="linux") & (use.cdfcont) ) {
+     if (!silent) print("Linux & use.cdfcont : call cdfconf()")
      torg <- cdfcont(filename)$time.origin
      t.unit <- cdfcont(filename)$time.unit
   } else {
@@ -80,10 +82,14 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
        torg <- NULL
        print("Attribute time_origin not found")  
     }
-   arv <- att.get.ncdf(ncid, cdfdims[itim], 'unit')
-     if( arv$hasatt ) t.unit <- arv$value else t.unit <- NULL
-  }
-
+   arv <- att.get.ncdf(ncid, cdfdims[itim], 'time_unit')
+     if( arv$hasatt ) t.unit <- arv$value else {
+       arv <- att.get.ncdf(ncid, cdfdims[itim], 'unit')
+       if( arv$hasatt ) t.unit <- arv$value else t.unit <- NULL
+     } 
+}
+#print(torg); print(t.unit)
+  
   if (!silent) print(paste("Reading",v1))
   arv <- att.get.ncdf(ncid, v1, 'long_name')
   if( arv$hasatt ) lon.nam <- arv$value else lon.nam <- v1
@@ -93,7 +99,7 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
   lat <- get.var.ncdf(ncid,cdfdims[ilat])
   tim <- get.var.ncdf(ncid,cdfdims[itim])
 
-  #print("Attributes:")
+#print("Attributes:")
   attr(lon,"unit") <- eval(parse(text=paste("ncid$dim$'",cdfdims[ilon],"'$units",sep="")))
   attr(lat,"unit") <- eval(parse(text=paste("ncid$dim$'",cdfdims[ilat],"'$units",sep="")))
   print(paste("ncid$dim$'",cdfdims[itim],"$units'",sep=""))
@@ -116,9 +122,8 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
   if (!is.null(x.rng)) {
     if (!silent) print(paste("Longitudes: ",min(lon),"-",max(lon),attr(lon,"unit")))
     if (!silent) print(paste("extract: ",min(x.rng),"-",max(x.rng)))
-    if (min(x.rng) < 0 & max(lon > 180)) 
-
-    start[1] <- max(sum(lon < min(x.rng)),1)
+    if (min(x.rng) < 0 & max(lon > 180)) start[1] <- max(c(sum(lon < min(x.rng))),1) else  # REB fix 21.10.2005
+                                         start[1] <- max(sum(lon < min(x.rng)))            # REB fix 21.10.2005
     ix <- (lon >= min(x.rng) & lon <= max(x.rng))
     if (!silent) print(paste("sum(ix)=",sum(ix)))
     lon <- lon[ix]
@@ -280,25 +285,27 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
     if (!silent) print(paste("Reading",v1))
     data <- get.var.ncdf(ncid,v1,start=start,count=count)
     dim(data) <- count
+#x11(); image(lon,lat,data[,,1],main="eastern H."); addland()
   } else data <- NULL
   
   if (min(x.rng) < 0 & max(lon.we > 180)) {
     if (!silent) print("read the data from western hemisphere also")
     lon.we[lon.we > 180] <- lon.we[lon.we > 180] - 360
-    #print(lon.we)
+#print(lon.we)
     start[1] <- seq(1,length(lon.we),by=1)[(lon.we >= min(x.rng)) & (lon.we < 0)][1]
     ix <- (lon.we >= min(x.rng) & lon.we < 0)
     if (sum(ix)> 0) {
       lon.we <- lon.we[ix]
-      #print(lon.we)
+#print(lon.we)
       count[1] <- length(lon.we)
-      lon <- c(lon.we,lon)
-      nx <- length(lon)  
+      lon <- lon[!is.element(lon,lon.we)]
       if (!silent) print(cbind(start,count,varsize))
       start[!is.finite(start)] <- 1; start[is.element(start,0)] <- 1; start[!is.numeric(start)] <- 1
       count[!is.finite(count)] <- 1; count[is.element(count,0)] <- 1; count[!is.numeric(count)] <- 1
       data.w <- get.var.ncdf(ncid,v1,start=start,count=count)
       dim(data.w) <- count
+      lon <- c(lon.we,lon)
+#x11(); image(lon.we,lat,data.w[,,1],main="western H."); addland()
       dat <- matrix(nrow=nt,ncol=ny*(nx+count[1]))
       dim(dat) <- c(nt,ny,nx+count[1])
       for (i in 1:nt) {
@@ -306,13 +313,16 @@ retrieve.nc <- function(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
                             dat[i,,] <- t(matrix(data.w[,,i],sum(ix),ny))
       }
       attr(lon,"unit") <- eval(parse(text=paste("ncid$dim$",cdfdims[ilon],"$units",sep="")))
+#print(lon); print(dim(t(dat[1,,]))); print(dim(dat)); print(length(lon)); print(length(lat))
+#print(dim(data));   print(dim(data.w)); print(sum(ix))       
+#x11(); image(lon,lat,t(dat[1,,]),main="east+west"); addland()
+    #print("East and west combined!")
       rm(data,data.w)
     } else {
        dat <- data*NA; dim(dat) <- c(nt,ny,nx)
        for (i in 1:nt) dat[i,,] <- t(as.matrix(data[,,i]))
        rm(data)
     }
-    #print("East and west combined!")
   } else {
   
  # Re-order the data: (old convention)

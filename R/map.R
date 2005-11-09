@@ -1,6 +1,6 @@
 map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
-                    plot=TRUE,inv.col=FALSE,add=FALSE,las = 1,
-                    levels=NULL,main=NULL,sub=NULL,xlim=NULL,ylim=NULL) {
+                plot=TRUE,inv.col=FALSE,add=FALSE,las = 1,
+                levels=NULL,main=NULL,sub=NULL,xlim=NULL,ylim=NULL) {
   library(akima)
 
   if (options()$device=="none") plot=FALSE

@@ -1,4 +1,4 @@
-plotDSobj <- function(result,outdir="output",figs=c(1,2,3,4)) {
+plotDSobj <- function(result,outdir="output",figs=c(1,2,3,4),main="") {
 
 if (class(result)!="objDS") {
   stop("The argument is not an 'objDS' object!")
@@ -40,6 +40,8 @@ for (mon in months) {
            result$Dec$yy.gcm + (result$Dec$mm.gcm - 0.5)/12)
   y.gcm <- as.vector(t(ds.all.gcm))
   yymm.gcm <-  as.vector(t(yymm.all.gcm))
+  ibad <- c(1,diff(yymm.gcm)) < 0
+  yymm.gcm[ibad] <- NA
 
   ds.all.cal <-cbind(
            result$Jan$pre.y,result$Feb$pre.y,result$Mar$pre.y,
@@ -91,9 +93,10 @@ if (!is.null(result$Jan$f.name)) {
 
 
 if (sum(is.element(figs,1))>0) {newFig()
+par(cex.main=0.8)
 plot(range(yymm.obs,yymm.gcm,na.rm=TRUE),
      range(y.obs,y.gcm,y.cal,na.rm=TRUE),type="n",
-     main="",sub=subtitle,xlab="Time",ylab=result$Jan$unit)
+     main=main,sub=subtitle,xlab="Time",ylab=result$Jan$unit)
 #plot(range(yymm.obs,yymm.gcm,na.rm=TRUE),
 #     range(y.obs,y.gcm,y.cal,na.rm=TRUE),type="n",
 #     main=paste("Downscaled ",result$Jan$v.name," anomalies at ",result$Jan$location,
@@ -159,6 +162,7 @@ dev.copy2eps(file=paste(outdir,"/plotDSobj_2.eps",sep=""))
 }
 
 if (sum(is.element(figs,3))>0) { newFig()
+par(cex.main=0.8)
 brks <- seq(res.rng[1]-1,res.rng[2]+1,length=25)
 h.jan<-hist(result$Jan$step.wise$residual,breaks=brks)$density
 h.feb<-hist(result$Feb$step.wise$residual,breaks=brks)$density
@@ -213,7 +217,7 @@ p.val <- as.numeric(c(result$Jan$gcm.trnd.p,result$Feb$gcm.trnd.p,result$Mar$gcm
            result$Oct$gcm.trnd.p,result$Nov$gcm.trnd.p,result$Dec$gcm.trnd.p))
 
 if (sum(is.element(figs,4))>0) {newFig()
-par(col.axis="white")
+par(col.axis="white",cex.main=0.8)
 plot(c(0,25),range(c(rates+err,rates-err),na.rm=TRUE),type="n",
      main=paste("Linear trend rates ",result$Jan$v.name," derived ",result$Jan$location,
                           "     (",round(result$Jan$lat.loc,2),"N/",round(result$Jan$lon.loc,2),"E)",sep=""),

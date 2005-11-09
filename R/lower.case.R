@@ -13,11 +13,11 @@ lower.case <- function(u.case="NO INPUT") {
                                         # object. Then the output is converted to
                                         # factor.
   
-  if (is.factor(u.case)) { lfac <- TRUE }
-  if ((!is.character(u.case)) & (!is.factor(u.case))) return()
   if (is.null(u.case)) return()
+  if (is.factor(u.case)) { lfac <- TRUE }
+  if ( (!is.character(u.case)) & (!is.factor(u.case)) ) return()
   str<-as.character(u.case)
-  if ((nchar(str)==0) & (is.null(str))) return()
+  if ( (min(nchar(str))==0) & (is.null(str)) ) return()
 #  print(str)
   lower.case<-str
 

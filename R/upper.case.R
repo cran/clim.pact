@@ -13,10 +13,11 @@ upper.case <- function(u.case) {
                                         # object. Then the output is converted to
                                         # factor.
   
-  if (is.factor(u.case)) { lfac <- TRUE }
-  
   if (is.null(u.case)) return()
+  if (is.factor(u.case)) { lfac <- TRUE }
+  if ( (!is.character(u.case)) & (!is.factor(u.case)) ) return()  
   str<-as.character(u.case)
+  if ( (min(nchar(str))==0) & (is.null(str)) ) return()
 #  print(str)  
   upper.case<-str
 

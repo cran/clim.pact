@@ -4,13 +4,14 @@
 \title{Plotting routine for objective downscaling of monthly means}
 \description{Plotting routine for \code{\link{objDS}}.
 }
-\usage{plotDSobj(result,outdir="output",figs=c(1,2,3,4))}
+\usage{plotDSobj(result,outdir="output",figs=c(1,2,3,4),main="")}
 
 \arguments{
     \item{result}{A 'objDS' object from \code{\link{objDS}}.}
     \item{outdir}{Directory for storing EPS-files with figures}
     \item{figs}{Figs to plot: 1 - time series, 2 - time series of 
     residuals, 3 - distribution of residuals, 4 - rates of change.}
+    \item{main}{title of plot}
 }
 \value{}
 }

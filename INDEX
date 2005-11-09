@@ -1,4 +1,4 @@
-addland                 Coordinates of coast line.
+addClim.station         Add climatology
 addland                 Add land contours to map.
 adjust.eof              Adjust common EOFs
 anomaly.field           Anomalies of a field object.
@@ -8,10 +8,13 @@ bergen.dm               Daily Bergen record.
 bergen.t2m              Monthly mean temperature in Bergen.
 caldat                  Converts Julian days to month, day, and year
 catFields               catFields
+CCA                     Canonical correlation analysis
 cdfcont                 netCDF names and dimensions.
 cdfextract              Extract a subfield from a netCDF file.
 composite.field         Composite maps
 COn0E65N                Convert long-lat to km-km
+continental coast line
+                        Coordinates of coast line.
 corEOF                  Field correlation
 corField                Field correlation
 datestr2num             datestr2num
@@ -20,22 +23,22 @@ dist2norm               Transform a series to a normally distributed
                         series.
 distAB                  Distance between two points on Earth
 DNMI.t2m                Gridded monthly mean climate data
-ds2station              Convert ds to station object
 DS                      Downscaling of monthly or daily means
+ds2station              Convert ds to station object
+EOF                     Empirical Orthogonal Functions (EOFs).
 EOF2field               Reconstructs a field from EOF products
 eof.c                   Monthly common EOF.
 eof.dc                  Daily common EOF.
 eof.dmc                 Daily common EOF.
 eof.mc                  Monthly mixed-common EOF.
-EOF                     Empirical Orthogonal Functions (EOFs).
 eof.slp                 EOF of NCEP reanalysis SLP.
 getdnmi                 Retrieve station record from DNMI database
                         filed.
-getgiss                 Retrieve station record from the GISS data set
-                        from URL.
+getecsn                 Retrieve daily station record from ECSN set.
+getgiss                 Retrieve station record from the GISS or NARP
+                        data set from URL.
 getnacd                 Retreave station record from the NACD set.
-getnordklim             Retrieve station record from the Nordklima
-                        set.
+getnordklim             Retrieve station record from the Nordklima set.
 grd.box.ts              Grid box time series
 helsinki.t2m            Monthly mean temperature in Helsinki.
 instring                instring
@@ -46,35 +49,38 @@ km2lon                  Convert long-lat to km-km
 koebenhavn.t2m          Monthly mean temperature in Copenhagen.
 lagStation              Introduce a lag in station values
 lower.case              convert to lower case
+map                     Produce a map
 map.eof                 Map eof
 mapField                MapField
-map                     Produce a map
 meanField               Mean field
 mergeEOF                Merge EOFs
 mergeStation            Merge climate station series.
 mixFields               mixFields
 mod                     Modulus of a division.
+MVR                     Multivariate regression analysis
 newFig                  Create a new Window
 num2str                 Convert numbers to string and format
 objDS                   Objective downscaling of monthly means
 oslo.dm                 Daily Oslo record.
 oslo.t2m                Monthly mean temperature in Oslo.
 patternIndex            Create a Index for a spatial pattern
+plotDS                  Plot downscaled results
 plotDSobj               Plotting routine for objective downscaling of
                         monthly means
-plotDS                  Plot downscaled results
 plotEOF                 Plot EOFs
 plotField               plotField
 plotStation             Plots monthly station records.
 plumePlot               Plot downscaled time series as plumes
+POP                     Principal Oscillating Patterns
 r2cdf                   Save as netCDF file.
 retrieve.nc             Retrieve data from a netCDF file
 reverse                 Reverse
 rotate                  Rotate spherical coordinates
 satellite               Satellite view / polar stereographic
+SSA                     Singular Spectrum Analysis
 stationmap              Plot climate station map.
-station.obj.dm          Make daily climate station series object.
 station.obj             Make monthly climate station series object.
+station.obj.dm          Make daily climate station series object.
 stockholm.t2m           Monthly mean temperature in Stockholm.
 strip                   String operation functions
 tromsoe.t2m             Monthly mean temperature in Tromsoe.

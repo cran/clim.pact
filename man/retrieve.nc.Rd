@@ -17,11 +17,11 @@ This routine reequres the \code{\link[ncdf]{ncdf}}-package is currently only ava
 }
 
 \usage{
-       retrieve.nc(filename=file.path("data","ncep_t2m.nc"),v.nam="AUTO",
+       retrieve.nc(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO",
                         l.scale=FALSE,greenwich=TRUE,silent=FALSE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,force.chron=TRUE,
-                        force365.25=FALSE,regular=TRUE,daysayear=365.25,forceBC=TRUE)
+                        force365.25=FALSE,regular=TRUE,daysayear=365.25,forceBC=TRUE,use.cdfcont=FALSE)
        fixField(x,torg=NULL,t.unit=NULL,scal=NULL,offs=NULL, 
                      x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,greenwich=TRUE)
        monthly(x,param="t2m")
@@ -54,6 +54,7 @@ This routine reequres the \code{\link[ncdf]{ncdf}}-package is currently only ava
     \item{offs}{constant offset}
     \item{silent}{To turn off printing to console.}
     \item{param}{Parameter to convert to monthly value}
+    \item{use.cdfcont}{Flag for Linux versions only: if TRUE use old lines calling 'cdfcont()'}
   }
   \value{A "field.object" list:
     \tabular{ll}{

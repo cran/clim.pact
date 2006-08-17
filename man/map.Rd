@@ -4,7 +4,7 @@
 \description{Produces maps.}
 \usage{map(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
                plot=TRUE,inv.col=FALSE,add=FALSE,las = 1,
-                    levels=NULL,main=NULL,sub=NULL,xlim=NULL,ylim=NULL)}
+                    levels=NULL,main=NULL,sub=NULL,xlim=NULL,ylim=NULL,newFig=TRUE)}
 \arguments{
     \item{x}{A map object.}
     \item{y}{A map object. If given, \code{map.map} plots the
@@ -23,6 +23,7 @@
     \item{sub}{see \code{\link{plot}}}
     \item{xlim}{see \code{\link{plot}}}
     \item{ylim}{see \code{\link{plot}}}
+    \item{newFig}{True, call \code{\link{newFig}} for new figure.}
  }
 \value{A map object}
 \author{R.E. Benestad}}

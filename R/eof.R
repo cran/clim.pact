@@ -234,7 +234,7 @@ for (i in 1:fields$n.fld) {
   #print(c(length(yy),ny,nx,sum(iy),sum(ix),nt))
 
   dim(dat.x) <- c(length(yy),ny,nx)
-  dat.x <- dat.x[,iy,ix]
+  dat.x <- dat.x[,iy,ix,drop=FALSE]
 
   #print("Stdv[i]")  
   ny <- length(lat.x)
@@ -246,7 +246,7 @@ for (i in 1:fields$n.fld) {
   for (j.y in 1:ny) {
     for (i.x in 1:nx) {
       ixy <- ixy + 1
-      clim[ixy] <- mean(dat.x[,j.y,i.x],na.rm=TRUE)
+      clim[ixy] <- mean(dat.x[,j.y,i.x,drop=FALSE],na.rm=TRUE)
       dat.x[,j.y,i.x] <- dat.x[,j.y,i.x] -  clim[ixy]
     }
   }
@@ -325,7 +325,9 @@ if (LINPACK) {
   pca<-svd(t(dat.d2),LINPACK = TRUE) 
   } else {
   #print("La.svd:")
-  pca<-La.svd(t(dat.d2),method="dgesvd")
+  # REB 17.08.2006: As from R 2.3.0, using 'method="dgesvd"' is deprecated.
+  #pca<-La.svd(t(dat.d2),method="dgesvd")
+  pca<-La.svd(t(dat.d2))
 }
 if (neofs > dim(dat.d2)[2]) neofs <- dim(dat.d2)[2]
 
@@ -410,7 +412,7 @@ eof<-list(EOF=EOF,W=W,PC=PC,id=preds.id,n.fld=fields$n.fld,tot.var=tot.var,
           v.name=fields$v.name,c.mon=c.mon,f.name=fname,clim=clim,
           attributes=fields$attributes)
 class(eof) <- c("eof",class(fields))
-save(file='data/ceof.Rdata',eof,ascii=FALSE)
+#save(file='data/ceof.Rdata',eof,ascii=FALSE)
 if (lsave) save(file=fname,eof,ascii=FALSE) 
 
 invisible(eof)

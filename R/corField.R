@@ -18,19 +18,49 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
          'Jul','Aug','Sep','Oct','Nov','Dec') 
   descr <- 'Correlation:'
   date <- ""
+  d <- dim(x$dat); dim(x$dat) <- c(d[1],d[2]*d[3])                                   # REB 12.01.2006
+  nyears <- max(x$yy)-min(x$yy)+1                                                    # REB 12.01.2006
+  dat <- rep(NA,nyears*d[2]*d[3]); dim(dat) <- c(nyears,d[2]*d[3])                   # REB 12.01.2006
+  yy <- rep(NA,nyears); mm <- yy; dd <- yy; tim <- yy; id.t <- yy                    # REB 12.01.2006
   if (!is.null(mon)) {
-    im <- is.element(x$mm,mon)
-    x$dat <- x$dat[im,,]
-    x$yy <- x$yy[im]
-    x$mm <- x$mm[im]
-    x$dd <- x$dd[im]
-    x$tim <- x$tim[im]
-    x$id.t <- x$id.t[im]
-    date <- cmon[mon]
+    iyear <- 0                                                                       # REB 12.01.2006
+    for (year in min(x$yy):max(x$yy)) {                                              # REB 12.01.2006
+      iyear <-iyear + 1                                                              # REB 12.01.2006
+# REB before 12.01.2006:         im <- is.element(x$mm,mon) 
+      im <- is.element(x$mm,mon) & is.element(x$yy,year)                             # REB 12.01.2006
+      #print(c(iyear,year,sum(im)))
+# REB before 12.01.2006:   x$dat <- x$dat[im,,]
+      if (sum(im)>1) dat[iyear,] <- colMeans(x$dat[im,]) else                        # REB 12.01.2006
+        if (sum(im)==1) dat[iyear,] <- x$dat[im,]                                    # REB 12.01.2006
+      if (sum(im) > 0) {
+        yy[iyear] <- x$yy[im]                                                        # REB 12.01.2006
+        if (class(x)[1]=="daily.field.object") {                                     # REB 12.01.2006
+          x$mm[iyear] <- x$mm[im]                                                    # REB 12.01.2006
+          x$dd[iyear] <- x$dd[im]                                                    # REB 12.01.2006     
+        } else { mm[iyear] <- mon[1]; dd[iyear] <- 15 }                              # REB 12.01.2006
+        tim <- x$tim[im]                                                             # REB 12.01.2006
+        id.t <- x$id.t[im]                                                           # REB 12.01.2006
+      }
+    }                                                                                # REB 12.01.2006
+    ok <- is.finite(yy)
+    x$dat <- dat[ok,]; x$yy <- yy[ok]; x$mm <- mm[ok]; x$dd <- dd[ok]; x$tim <- tim[ok]; x$id.t <- id.t[ok]   # REB 12.01.2006
+    nyears <- sum(ok)
+    rm(dat,yy,mm,dd,tim,id.t)                                                        # REB 12.01.2006
+    #print(c(dim(x$dat),NA,d,NA,nyears))                                             # REB 12.01.2006
+    dim(x$dat) <- c(nyears,d[2],d[3])                                                # REB 12.01.2006
+    if (length(mon)==1) date <- cmon[mon] else
+                        date <- paste(cmon[mon[1]],"-",cmon[mon[length(mon)]])
+    date <- paste(date,": ",min(x$yy)," - ",max(x$yy),sep="")
+  } else {
+    dim(x$dat) <- c(d[1],d[2],d[3])
   }
 
-  if (class(y)[1]=="station") y.ts <- as.vector(t(y$val)) else
-  {
+# REB before 12.01.2006:  if (class(y)[1]=="station") y.ts <- as.vector(t(y$val)) else
+  if (class(y)[1]=="station") {
+    if (length(mon) > 1) y.ts <- rowMeans(y$val[,mon]) else                           # REB 12.01.2006
+                         y.ts <- y$val[,mon]                                          # REB 12.01.2006
+    #print(paste("length(y.ts)=",length(y.ts),"dim(y$val[,mon])=",dim(y$val[,mon])))
+  } else {
     l.diffgrid <- TRUE
     if ( (length(x$lon)==length(y$lon)) & (length(x$lat)==length(y$lat)) ) {
       if ( (sum(x$lon==y$lon)==length(x$lon)) &
@@ -55,8 +85,11 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
     
   if (class(y)[1]=="station") {
     good <- is.finite(y.ts)
-    yy <- sort(rep(y$yy,12))
-    mm <- rep(1:12,length(y$yy))
+# REB before 12.01.2006:       yy <- sort(rep(y$yy,12))
+# REB before 12.01.2006:       mm <- rep(1:12,length(y$yy))
+# REB before 12.01.2006:       dd <- rep(15,length(yy))
+    yy <- y$yy
+    mm <- rep(mon[1],length(yy))
     dd <- rep(15,length(yy))
     #print(sum(good))
     y.ts <- y.ts[good]; yy <- yy[good]; mm <- mm[good]; dd <- dd[good]
@@ -64,28 +97,51 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
     yy <- y$yy; mm <- y$mm;  dd <- y$dd
   }
   
-  i1<-is.element(yy*10000+mm*100+dd,
-                 x$yy*10000+x$mm*100+x$dd)
-  i2<-is.element(x$yy*10000+x$mm*100+x$dd,
-                 yy*10000+mm*100+dd)
+    i1<-is.element(yy*10000+mm*100+dd,
+                   x$yy*10000+x$mm*100+x$dd)
+    i2<-is.element(x$yy*10000+x$mm*100+x$dd,
+                   yy*10000+mm*100+dd)
+  #print(rbind(yy[i1]*100+mm[i1],x$yy[i2]*100+x$mm[i2]))
   ni <- length(x$lon)
   nj <- length(x$lat)
   map <- matrix(rep(NA,ni*nj),nj,ni)
   p.val <- matrix(rep(NA,ni*nj),nj,ni)
 
-#  print(range(yy)); print(range(x$yy)); print(range(mm)); print(range(x$mm))
-#  print(range(dd)); print(range(x$dd)); print(c(sum(i1),sum(i2)))
-#  print(dim(x$dat[i2,,])); print(dim(y.ts[i1,,])); print(class(y)[1])
+  #print(range(yy)); print(range(x$yy)); print(range(mm)); print(range(x$mm))
+  #print(range(dd)); print(range(x$dd)); print(c(sum(i1),sum(i2)))
+  ##print(dim(x$dat[i2,,]));  print(dim(y.ts)); print(dim(y.ts[i1,,])); print(class(y)[1])
+  #print(table(yy))
+  #print(dim(x$dat[i2,,]));  print(length(y.ts)); print(length(y.ts[i1])); print(class(y)[1])
 
-  for (j in 1:nj) {
-    for (i in 1:ni) {
-      if (class(y)[1]=="station") r.test <- cor.test(x$dat[i2,j,i],y.ts[i1]) else
-                                  r.test <- cor.test(x$dat[i2,j,i],y.ts[i1,j,i])
-      map[j,i] <- r.test$estimate
-      p.val[j,i] <- r.test$p.value
+    for (j in 1:nj) {
+      for (i in 1:ni) {
+
+        if ( (class(y)[1]=="station") & (sum(is.finite(x$dat[i2,j,i]))> 10) ) {
+                                    good <- is.finite(y.ts[i1]) & is.finite(x$dat[i2,j,i])
+                                    ii1 <- i1 & good
+                                    ii2 <- i2 & good
+#        if (length(i1) != length(ii1)) print(c(length(i1),length(ii1),length(good),
+#                                               length(y.ts[i1]),length(x$dat[i2,j,i])))
+#        if (length(i2) != length(ii2)) print(c(length(i2),length(ii2),length(good),
+#                                               length(y.ts[i1]),length(x$dat[i2,j,i])))
+#        print(rbind(yy[ii1]*100+mm[ii1],
+#                    x$yy[ii2]*100+x$mm[ii2]))
+                                    r.test <- cor.test(x$dat[ii2,j,i],y.ts[ii1])
+                                  } else if (class(y)[1]=="field") {
+                                    good <- is.finite(y.ts[i1,j,i]) & is.finite(x$dat[i2,j,i])
+                                    ii1 <- i1 & good
+                                    ii2 <- i2 & good
+                                    r.test <- cor.test(x$dat[ii2,j,i],y.ts[ii1,j,i])
+                                  } else {
+                                    #print(c(i,j,sum(is.finite(x$dat[i2,j,i]))))
+                                    r.test <- list(estimate=NA,p.value=NA) }
+        map[j,i] <- r.test$estimate
+        p.val[j,i] <- r.test$p.value
+      }
+      #good <- is.finite(y.ts[i1]) & is.finite(x$dat[i2,j,i]); ii1 <- i1 & good; ii2 <- i2 & good
+      #print(c(sum(i1),sum(i2),sum(ii1),sum(ii2),sum(is.finite(x$dat[,j,i])),sum(is.finite(x$dat[i2,j,i])),
+      #        sum(is.finite(y.ts[i1])),map[j,i],p.val[j,i]))
     }
-  }
-
   if (is.null(z.levs)) {
     z.levs <- seq(-1,1,length=41)
   }
@@ -109,7 +165,7 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
   }
 
   if (lsig.mask) {
-     if (sum(p.val < 0.05) > 0)  map[p.val > 0.05] <- NA else {
+     if (sum(p.val < 0.05,na.rm=TRUE) > 0)  map[p.val > 0.05] <- NA else {
       my.col <- rgb(rep(1,21),rep(1,21),rep(1,21)); col="grey80"}
   }
   

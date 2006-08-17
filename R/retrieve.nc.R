@@ -11,7 +11,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,
                         force.chron=TRUE,force365.25=FALSE,regular=TRUE,daysayear=365.25,
-                        forceBC=TRUE,use.cdfcont=FALSE) {
+                        forceBC=TRUE,use.cdfcont=FALSE,torg=NULL,t.unit=NULL) {
 #print("retrieve.nc:")
   library(ncdf)
   if (!file.exists(filename)) {
@@ -45,7 +45,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   itim <- grep("tim",lower.case(cdfdims))
   ilev <- grep("lev",lower.case(cdfdims))
 #print(c(ilon,ilat,itim,ilev)) 
-  torg<- NULL; scal <- NULL; offs <- NULL
+  scal <- NULL; offs <- NULL
 
   arv <- att.get.ncdf(ncid, cdfvars[ipick], 'scale_factor')
   if( arv$hasatt ) scal <- arv$value else
@@ -72,22 +72,27 @@ print(calendar)
     daysayear <- 365
   }
 
-  if ( (lower.case(a[1])=="linux") & (use.cdfcont) ) {
-     if (!silent) print("Linux & use.cdfcont : call cdfconf()")
-     torg <- cdfcont(filename)$time.origin
-     t.unit <- cdfcont(filename)$time.unit
-  } else {
-     arv <- att.get.ncdf(ncid, cdfdims[itim], 'time_origin')
-     if( arv$hasatt ) torg <- arv$value else {
-       torg <- NULL
-       print("Attribute time_origin not found")  
+  if ( (is.null(torg)) | is.null(t.unit)) {
+    if ( (lower.case(a[1])=="linux") & (use.cdfcont) ) {
+       if (!silent) print("Linux & use.cdfcont : call cdfconf()")
+       if (is.null(torg)) torg <- cdfcont(filename)$time.origin
+       if (is.null(t.unit)) t.unit <- cdfcont(filename)$time.unit
+    } else {
+       arv <- att.get.ncdf(ncid, cdfdims[itim], 'time_origin')
+       if( arv$hasatt & is.null(torg)) torg <- arv$value else {
+         if (is.null(torg)) print("Attribute time_origin not found")  
+      }
+     arv <- att.get.ncdf(ncid, cdfdims[itim], 'time_unit')
+       if( arv$hasatt & is.null(t.unit)) t.unit <- arv$value else {
+         arv <- att.get.ncdf(ncid, cdfdims[itim], 'unit')
+         if( arv$hasatt & is.null(t.unit)) t.unit <- arv$value else {
+           arv <- att.get.ncdf(ncid, cdfdims[itim], 'units')
+           if( arv$hasatt & is.null(t.unit)) t.unit <- arv$value 
+         } 
+       }
     }
-   arv <- att.get.ncdf(ncid, cdfdims[itim], 'time_unit')
-     if( arv$hasatt ) t.unit <- arv$value else {
-       arv <- att.get.ncdf(ncid, cdfdims[itim], 'unit')
-       if( arv$hasatt ) t.unit <- arv$value else t.unit <- NULL
-     } 
-}
+  }
+
 #print(torg); print(t.unit)
   
   if (!silent) print(paste("Reading",v1))
@@ -172,7 +177,7 @@ print(calendar)
     print(paste("length(tim)=",length(tim),"nt=",nt))
   }
 
-  if ((!is.null(torg)) & (regexpr("since",t.unit)[1]>0)) {
+  if ((is.null(torg)) & (regexpr("since",t.unit)[1]>0)) {
     torg <- substr(t.unit,regexpr("since",t.unit)+6,nchar(t.unit))
     t.unit <- substr(t.unit,1,regexpr("since",t.unit)-2)
   }
@@ -224,7 +229,7 @@ print(calendar)
       month <- mm0 + rep(1:12,ceiling(length(year)/12))[1:length(tim)] -1
       day <- rep(15,length(tim))
       mmddyy <- list(day=day,month=month,year=year)
-    } else stop(paste('THere is a problem with the time dimansion - I do not know what to do.',
+    } else stop(paste('There is a problem with the time dimansion - I do not know what to do.',
                       'Can be fixed witrh NCO? (http://sf.net/projects/nco)'))
     mm <- mmddyy$month
     yy <- mmddyy$year
@@ -264,7 +269,7 @@ print(calendar)
       it2 <- max(it[(yy*10000 + mm*100 + dd <= yy.2*10000+mm.2*100+dd.2)],na.rm=TRUE)
       if (!silent) print(c(yy.1,mm.1,dd.1)); print(c(yy.2,mm.2,dd.2)); print(c(it1,it2))
       tim <- tim[it1:it2]
-      start[nd] <- it1
+      start[nd] <- max(c(1,it1),na.rm=TRUE)
       count[nd] <- length(tim)
       yy <- yy[it1:it2]; mm <- mm[it1:it2]; dd <- dd[it1:it2]
     }       
@@ -353,10 +358,15 @@ print(calendar)
 
     if (force365.25==-1) {
       print("> > > > FORCING a '360-day' model year! < < < <")
-      yy <- yy0 + floor((tim +(mm0-1)*30+dd0-2)/360)
-      mm <- mod(mm0 + floor((dd0+tim-2)/30)-1,12)+1
-      dd <- mod(dd0+tim-2,30)+1
-      daysayear<- 360
+      # BUG! REB - dating fixed 20.01.2006
+#      yy <- yy0 + floor((tim +(mm0-1)*30+dd0-2)/360)        
+#      mm <- mod(mm0 + floor((dd0+tim-2)/30)-1,12)+1
+#      dd <- mod(dd0+tim-2,30)+1
+      juldays <- caldat(tim+julday(mm0,dd0,yy0));            # REB 20.1.2006
+      yy <- caldat(juldays)$year
+      mm <- caldat(juldays)$month
+      dd <- caldat(juldays)$day
+      daysayear<- 365.25
       force365.25 <- TRUE
     }  
     if ( (r2.gcm > r2.real) & (length(rownames(table(diff(tim)))) <= 2) &
@@ -441,7 +451,7 @@ print(calendar)
     dat <- dat - 273
     unit <- "deg C"
   }
-    if ((unit=="Pa") | (unit=="Pascal") |
+    if ((unit=="Pa") | (substr(strip(lower.case(unit)),1,6)=="pascal") |
       (unit=="N/m^2") |
       (unit=="N m^{-1}")) {
     dat <- dat/100

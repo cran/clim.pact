@@ -15,7 +15,9 @@
 #------------------------------------------------------------------------
 
 
-stationmap <- function(ele=101,NORDKLIM=TRUE,NACD=TRUE,silent=TRUE) {
+stationmap <- function(ele=101,NORDKLIM=TRUE,NACD=TRUE,silent=TRUE,names=FALSE,
+                       name.len=4,x.offs=0.1,y.offs=-0.5,str.cex=0.7,
+                       countries=NULL,x.rng=NULL,y.rng=NULL) {
 
 # Load libraries, and compile function:
   
@@ -57,32 +59,53 @@ if ((NORDKLIM) & (NACD)) {
 } else if (NORDKLIM) locs<-as.character(strip(as.character(meta$location))) else
        if (NACD) locs<-as.character(nacd.meta$V5[is.element(nacd.meta$V14,ele)])
 
+keep <- rep(TRUE,length(locs))
+if (!is.null(countries)) {
+  countries <- switch(lower.case(countries),
+                    "sweden"="S","sverige"="S","finland"="FIN","denmark"="DK",
+                    "danmark"="DK","norway"="N","norge"="N","noreg"="N",
+                    "island"="IS","iceland"="IS","faeroe islands"="FR",
+                    "belgium"="B","greenland"="G","great britain"="GB",
+                    "united kingdom"="GB","uk"="GB","u.k."="GB",
+                    "ireland"="IRL","netherlands"="NL","holland"="NL")
+  keep <- keep & c(is.element(strip(nacd.meta$V3),countries),
+                   is.element(strip(meta$country),countries))
+}
+
+locs <- locs[keep]
+
 plot(c(-80,40),c(50,82),type="n",
      main=ele.c,xlab="Longitude",ylab="Latitude")
 addland()
 if (!silent) print(locs)
 
 for (loc in locs) {
-#  print("NACD:")
   if ((NORDKLIM) & (NACD)) { 
     obs.nacd<-getnacd(loc,silent=TRUE)
     if (obs.nacd$found) {
       points(obs.nacd$lon,obs.nacd$lat,col="blue",pch=20,cex=1.25)
+      if (names) text(obs.nacd$lon+x.offs,obs.nacd$lat+y.offs,col="blue",
+                      substr(loc,1,name.len),cex=str.cex,pos=4)
     }
-#     print("NordKlim")
     obs.nork<-getnordklim(loc,silent=TRUE)
     if (obs.nork$found) {
-        points(obs.nork$lon,obs.nork$lat,col="red",pch=20,cex=0.8)
+      points(obs.nork$lon,obs.nork$lat,col="red",pch=20,cex=0.8)
+      if (names) text(obs.nacd$lon+x.offs,obs.nacd$lat+y.offs,col="red",
+                      substr(loc,1,name.len),cex=str.cex,pos=4)
     }
   } else if (NORDKLIM) {
     obs.nork<-getnordklim(loc,silent=TRUE)
       if (obs.nork$found) {
-        points(obs.nork$lon,obs.nork$lat,col="red",pch=20,cex=0.8)
+      points(obs.nork$lon,obs.nork$lat,col="red",pch=20,cex=0.8)
+      if (names) text(obs.nacd$lon+x.offs,obs.nacd$lat+y.offs,col="red",
+                      substr(loc,1,name.len),cex=str.cex,pos=4)
       }
   } else if (NACD) {
     obs.nacd<-getnacd(loc,silent=TRUE)
     if (obs.nacd$found) {
       points(obs.nacd$lon,obs.nacd$lat,col="blue",pch=20,cex=1.25)
+      if (names) text(obs.nacd$lon+x.offs,obs.nacd$lat+y.offs,col="blue",
+                      substr(loc,1,name.len),cex=str.cex,pos=4)
     }
   }
 }

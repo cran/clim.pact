@@ -2,10 +2,10 @@
 \alias{mapField}
 \title{MapField}
 \description{Draws maps of fields in a field object, eg read using \code{\link{retrieve.nc}}.}
-\usage{mapField(x,l=NULL,greenwich=TRUE,
+\usage{mapField(x,l=NULL,greenwich=TRUE,plot=TRUE,
                      what="ano",method="nice",val.rng=NULL,
                      col="black",col.coast="grey",lwd=2,lty=1,
-                     add=FALSE,las = 1,levels=NULL,xlim=NULL,ylim=NULL)
+                     add=FALSE,las = 1,levels=NULL,xlim=NULL,ylim=NULL,newFig=TRUE)
 }
 \arguments{
     \item{x}{ A field object. }
@@ -16,6 +16,7 @@
     \code{image}.}
     \item{val.rng}{Valid range: interval used for colour scale.}
     \item{greenwich}{'TRUE' centres on Greenwich meridian.}
+    \item{plot}{'TRUE' produces graphic.}
     \item{col}{Contour line colour for levels.}
     \item{col.coast}{Contour line colour for coast lines.}
     \item{lwd}{Line width.}
@@ -25,6 +26,7 @@
     \item{levels}{See \code{\link{contour}}}
     \item{xlim}{see \code{\link{plot}}}
     \item{ylim}{see \code{\link{plot}}}
+    \item{newFig}{TRUE call \code{\link{newFig}} for new figure.}
   }
 \value{}
 \author{R.E. Benestad}}

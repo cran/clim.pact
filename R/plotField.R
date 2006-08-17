@@ -36,10 +36,11 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
   time.ts=FALSE
 
   if (!is.null(lon) & is.null(lat) & is.null(tim)) {
-#    print("Time-lat")
+    print("Time-lat")
     dx <- mean(diff(x$lon),na.rm=TRUE)
     ii <- (x$lon >= min(lon)) & (x$lon < max(lon) + dx)
     if (sum(ii)==1) Z <- x$dat[,,ii] else if (sum(ii)>1) {
+      print("(sum(ii)>1)")
       Z <- x$dat[,,1]*0
       for (j in 1:dims[2]) {
         for (i in 1:dims[1]) {
@@ -54,9 +55,13 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
     tim.lat=TRUE
     np <- dims[2]
     dim(Z) <- c(dims[1],dims[2])
+  } else {
+    # print("did nothing!")
+    
   }
+
   if (is.null(lon) & !is.null(lat) & is.null(tim)) {
-#    print("Time-lon")
+    print("Time-lon")
     dy <- mean(diff(x$lat),na.rm=TRUE)
     ii <- (x$lat >= min(lat)) & (x$lat < max(lat) + dy)
     if (sum(ii)==1) Z <- t(x$dat[,ii,]) else if (sum(ii)>1) {
@@ -76,9 +81,14 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
     dim(Z) <- c(dims[3],dims[1])
   }
   # Map - call lower level plot function:
-  if (is.null(lon) & is.null(lat) & !is.null(tim)) {
-#    print("Map")
+  if ( (is.null(lon) & is.null(lat) & !is.null(tim)) |
+       (is.null(lon) & length(lat)==2 & !is.null(tim)) |
+       (length(lon)==2 & length(lat)==2 & !is.null(tim)) |
+       (length(lon)==2 & is.null(lat) & !is.null(tim)) ){
+    print("Map")
     ii <- (ind >= min(tim)) & (ind < max(tim) + 1)
+    if ( (length(lon)==2) & is.null(xlim) ) xlim <- lon
+    if ( (length(lat)==2) & is.null(ylim) ) ylim <- lat
     if (sum(ii) == 0) {
       ii <- rep(FALSE,length(x$tim))
       ii[tim] <- TRUE
@@ -89,20 +99,20 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
       results <- mapField(x,l=l,what=what,col=col,col.coast=col.coast,lty=lty,
                           lwd=lwd,val.rng=val.rng,xlim=xlim,ylim=ylim)
     } else if (sum(ii) > 1) {
-      map <- meanField(x,t.rng=range(x$yy[ii]))
+      map <- meanField(x,xlim=lon,ylim=lat,t.rng=range(x$yy[ii]))
       results <- mapField(x,col=col,col.coast=col.coast,lty=lty,lwd=lwd,val.rng=val.rng)
     }       
     lon.lat <- TRUE
     invisible(results)
     return()
-  }
+  } 
   # Time series - call lower level plot function:
   if (!is.null(lon) & !is.null(lat)) {
-#    print("plotField: Time-series")
+    print("plotField: Time-series")
     results <- grd.box.ts(x,lon,lat,what=what,col=col,
                           lty=lty,lwd=lwd,pch=pch,type=type,add=add,
                           main=main,sub=sub,xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim)
-#    Z <- results$t2m
+    Z <- results$t2m
     time.ts <- TRUE
 #    print("Now, try to exit this...")
   } 
@@ -145,7 +155,7 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
   }
 
   if (!time.ts) {
-    print("2D-plots")
+    print(paste("2D-plots",what))
     Z <- switch(lower.case(substr(what,1,3)),
                               "ano"=Z - clim,
                               "cli"=clim,

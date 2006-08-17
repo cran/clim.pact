@@ -88,7 +88,7 @@ if (!is.null(mon)) {
     dim(value) <- c(dims[1]*dims[2],1)
     yymm <- sort(rep(obs$yy,12)) + (rep(seq(1,12,by=1),ny)-0.5)/12
     yy <- sort(rep(obs$yy,12)); mm <- rep(seq(1,12,by=1),ny)
-    clim <- mean(obs$val[1,] - obsa$val[1,])
+    clim <- mean(obs$val[1,] - obsa$val[1,],na.rm=TRUE)
 
   } else {
 
@@ -121,28 +121,29 @@ if (!is.null(mon)) {
                      round(obs$lon,2),"degE",
                      round(obs$lat,2),"degN")
     } else sub.tit <- paste(season,": ",loc,sep="")
-    clim <- mean(obs$val[1,mon] - obsa$val[1,mon])
+    clim <- mean(obs$val[1,mon] - obsa$val[1,mon],na.rm=TRUE)
 
   }
   stdv <- sd(value,na.rm=TRUE)
 
-
   # Polinomial trend
 
-  y <- value
-  x <- yymm
-  X <- data.frame(y=value,x = yymm)
-  lm.tr.p<-lm(y ~ x + I(x^2) +I(x^3) + I(x^4) + I(x^5))
-  pre.p.fit<-predict(lm.tr.p,newdata=X)
-  coef.p.fit<-lm.tr.p$coefficients
-  coef.p.fit[is.na(coef.p.fit)] <- 0
-  der.p.fit<-c(coef.p.fit[2],2*coef.p.fit[3],3*coef.p.fit[4],
-             4*coef.p.fit[5],5*coef.p.fit[6])
-  tr.est.p.fit<-(der.p.fit[1] + der.p.fit[2]*yymm + der.p.fit[3]*yymm^2 +
-                 der.p.fit[4]*yymm^3 + der.p.fit[5]*yymm^4)*10
-
+  if (trend) {
+    y <- value
+    x <- yymm
+    X <- data.frame(y=value,x = yymm)
+    lm.tr.p<-lm(y ~ x + I(x^2) +I(x^3) + I(x^4) + I(x^5))
+    pre.p.fit<-predict(lm.tr.p,newdata=X)
+    coef.p.fit<-lm.tr.p$coefficients
+    coef.p.fit[is.na(coef.p.fit)] <- 0
+    der.p.fit<-c(coef.p.fit[2],2*coef.p.fit[3],3*coef.p.fit[4],
+               4*coef.p.fit[5],5*coef.p.fit[6])
+    tr.est.p.fit<-(der.p.fit[1] + der.p.fit[2]*yymm + der.p.fit[3]*yymm^2 +
+                   der.p.fit[4]*yymm^3 + der.p.fit[5]*yymm^4)*10
+  } else pre.p.fit <- NULL
 
   good <- !is.na(value)
+  YYMM <- yymm; YY <- yy; MM <- mm; VALUE <- value; PRE.p.fit <- pre.p.fit
   yymm <- yymm[good]; yy <- yy[good]; mm <- mm[good]
   pre.p.fit <- pre.p.fit[good]
   value <- value[good]
@@ -174,7 +175,6 @@ if (!is.null(mon)) {
       newFig()
       par(cex.sub=0.8)
       if (!is.finite(clim)) clim <- 0
-      if (l.anom) value <- value - clim
       histo <- hist(value[!is.na(value)],breaks=15,lwd=3,freq=FALSE,
          main=main,
          sub=paste(min(round(yy,2)),"--",max(round(yy,2)),
@@ -256,7 +256,8 @@ if (!is.null(mon)) {
   }
 
   plotStation <- list(yy=yy,mm=mm,yymm=yymm,value=value,loc=obs$location,
-                      histo=histo,x.dist=x.dist,y.dist=y.dist,trend=pre.p.fit)
+                      histo=histo,x.dist=x.dist,y.dist=y.dist,trend=PRE.p.fit)
+
 }
   invisible(plotStation)
 

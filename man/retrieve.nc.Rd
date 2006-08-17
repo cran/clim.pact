@@ -21,7 +21,7 @@ This routine reequres the \code{\link[ncdf]{ncdf}}-package is currently only ava
                         l.scale=FALSE,greenwich=TRUE,silent=FALSE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,force.chron=TRUE,
-                        force365.25=FALSE,regular=TRUE,daysayear=365.25,forceBC=TRUE,use.cdfcont=FALSE)
+                        force365.25=FALSE,regular=TRUE,daysayear=365.25,forceBC=TRUE,use.cdfcont=FALSE,torg=NULL,t.unit=NULL)
        fixField(x,torg=NULL,t.unit=NULL,scal=NULL,offs=NULL, 
                      x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,greenwich=TRUE)
        monthly(x,param="t2m")
@@ -48,13 +48,17 @@ This routine reequres the \code{\link[ncdf]{ncdf}}-package is currently only ava
     \item{daysayear}{Number of days in the year on average.}
     \item{forceBC}{TRUE for not accepting year 0 (see e.g. Press et al. (1989), Numerical Recepies in Pascal, Cambridge).}
     \item{x}{a field object.}
-    \item{torg}{time origin.}
-    \item{t.unit}{tim unit}
     \item{scal}{scaling factor}
     \item{offs}{constant offset}
     \item{silent}{To turn off printing to console.}
     \item{param}{Parameter to convert to monthly value}
     \item{use.cdfcont}{Flag for Linux versions only: if TRUE use old lines calling 'cdfcont()'}
+    \item{torg}{Time origin, such as the 'time\_origin' attribute in netCDF
+      files. e.g. '15-Dec-1949'. A NULL value (default) will try to detect from
+      the file header.}
+    \item{t.unit}{Time unit, similar to the 'time\_unit' attribute in
+      netCDF files. e.g. 'day'. A NULL value (default) will try to detect from
+      the file header.}
   }
   \value{A "field.object" list:
     \tabular{ll}{

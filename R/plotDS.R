@@ -2,15 +2,6 @@
 # rasmus.benestad@met.no
 #------------------------------------------------------------------------
 
-newFig <- function() {
-   dev <- paste(options()$device,"()",sep="")
-   #print(paste("newFig: options()$device=",dev))
-   if ((dev!="none()") & (dev!="bitmap()")) eval(parse(text=dev)) else
-   if (dev=="bitmap()") {
-     if (dev.cur() > 1) dev.off()
-     bitmap(file="newFig.jpg",type="jpeg")
-   }
- }
 
 
 plotDS <- function(ds.obj,leps=FALSE,plot.ts=TRUE,plot.map=TRUE, plot.res=FALSE,

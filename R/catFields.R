@@ -96,6 +96,16 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
   field.1$dat[!is.finite(field.1$dat)] <- 0
   field.2$dat[!is.finite(field.2$dat)] <- 0
 
+  if ( (length(dim(field.1$dat)) !=3) |  length(dim(field.2$dat))!=3 ) {
+      print("---------------A potential problem is detected in catFields !------------------")
+      print(paste("dim(field.1$dat): sum(i1)=", sum(i1),"length(i1)=",length(i1)))
+      print(dim(field.1$dat)); print(c(nt.1,ny.1,nx.1))
+      print(paste("dim(field.2$dat): sum(i2)=",sum(i2),"length(i2)=",length(i2)))
+      print(dim(field.2$dat)); print(c(nt.2,ny.2,nx.2))
+      dim(field.1$dat) <- c(nt.1,ny.1,nx.1)
+      dim(field.2$dat) <- c(nt.2,ny.2,nx.2)
+  }
+
   if ((demean) & !l.one) {
     print("Subtracting mean values...")
 #    dim(field.1$dat) <- c(nt.1,ny.1*nx.1)
@@ -105,16 +115,19 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
 #    field.2$dat <- field.2$dat - colMeans(field.2$dat)
 #    dim(field.2$dat) <- c(nt.2,ny.2,nx.2)
 ### Slow...
+
     for (j in 1:ny.1) {
-      for (i in 1:nx.1) {
-        field.1$dat[,j,i] <- field.1$dat[,j,i]-mean(field.1$dat[,j,i])
-      }
+        for (i in 1:nx.1) {
+          field.1$dat[,j,i] <- field.1$dat[,j,i]-mean(field.1$dat[,j,i])
+        }
     }
+         
     for (j in 1:ny.2) {
       for (i in 1:nx.2) {
         field.2$dat[,j,i] <- field.2$dat[,j,i]-mean(field.2$dat[,j,i])
       }
-    } 
+    }
+    print("---")
   }
   if (!is.null(lat) & !is.null(lon)) {
     interpolate <- !((length(lat)==2) & (length(lon)==2))

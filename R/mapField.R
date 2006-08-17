@@ -1,9 +1,9 @@
 # R.E. Benestad
 
-mapField <- function(x,l=NULL,greenwich=TRUE,
+mapField <- function(x,l=NULL,greenwich=TRUE,plot=TRUE,
                      what="ano",method="nice",val.rng=NULL,
                      col="black",col.coast="grey",lwd=2,lty=1,
-                     add=FALSE,las = 1,levels=NULL,xlim=NULL,ylim=NULL) {
+                     add=FALSE,las = 1,levels=NULL,xlim=NULL,ylim=NULL,newFig=TRUE) {
   if ((class(x)[2]!="monthly.field.object") & (class(x)[2]!="field.object") &
       (class(x)[2]!="daily.field.object") & (class(x)[1]!="field")) {
       stop("Need a field.object") }
@@ -91,40 +91,45 @@ mapField <- function(x,l=NULL,greenwich=TRUE,
                 "ano"="anomaly",
                 "cli"="climatological",
                 "abs"="absolute value")
-  if (is.null(val.rng)) {
-    #print("set range")
-    nn <- floor(-max(abs(as.vector(map[is.finite(map)]))))
-    xx <- ceiling(max(abs(as.vector(map[is.finite(map)]))))
-    nl <- xx-nn
-    while (nl > 20) {
-      nl <- nl/10
-    }
-    while (nl < 5) {
-      nl <- nl*2
-    }
-    scl <- 10^floor(log(max(abs(as.vector(map[is.finite(map)]))))/log(10))
-    print(paste("Scaling is",scl," and range of values is",min(as.vector(map[is.finite(map)])),
-                "-",max(as.vector(map[is.finite(map)])), "[PS. won't plot magnitudes less than 0.001]"))
-    if (is.null(levels)) z.levs <- round(seq(nn,xx,length=nl)/scl,2)*scl else {
-                         z.levs <- levels; nl <- length(z.levs) }
+
+  if (plot) {
+
+    if (is.null(val.rng)) {
+      #print("set range")
+      nn <- floor(-max(abs(as.vector(map[is.finite(map)]))))
+      xx <- ceiling(max(abs(as.vector(map[is.finite(map)]))))
+      nl <- xx-nn
+     while (nl > 20) {
+        nl <- nl/10
+      }
+      while (nl < 5) {
+        nl <- nl*2
+      }
+      scl <- 10^floor(log(max(abs(as.vector(map[is.finite(map)]))))/log(10))
+
+      
+      print(paste("Scaling is",scl," and range of values is",min(as.vector(map[is.finite(map)])),
+                  "-",max(as.vector(map[is.finite(map)])), "[PS. won't plot magnitudes less than 0.001]"))
+      if (is.null(levels)) z.levs <- round(seq(nn,xx,length=nl)/scl,2)*scl else {
+                           z.levs <- levels; nl <- length(z.levs) }
 #    print(z.levs)
-    my.col <- rgb(c(seq(0,1,length=floor(nl/2)),rep(1,ceiling(nl/2))),
-                  c(abs(sin((0:(nl-1))*pi/(nl-1)))),
-                  c(c(rep(1,ceiling(nl/2)),seq(1,0,length=floor(nl/2)))))
+      my.col <- rgb(c(seq(0,1,length=floor(nl/2)),rep(1,ceiling(nl/2))),
+                    c(abs(sin((0:(nl-1))*pi/(nl-1)))),
+                    c(c(rep(1,ceiling(nl/2)),seq(1,0,length=floor(nl/2)))))
 #    print(nl)
-  } else {
-    z.levs <- seq(val.rng[1],val.rng[2],length=41)
-    my.col <- rgb(c(seq(0,1,length=20),rep(1,21)),
-                  c(abs(sin((0:40)*pi/40))),
-                  c(c(rep(1,21),seq(1,0,length=20))))
-  }
-  if ((!add) & (method!="nice")) {
-        newFig()
+    } else {
+      z.levs <- seq(val.rng[1],val.rng[2],length=41)
+      my.col <- rgb(c(seq(0,1,length=20),rep(1,21)),
+                    c(abs(sin((0:40)*pi/40))),
+                    c(c(rep(1,21),seq(1,0,length=20))))
+    }
+    if ((!add) & (method!="nice")) {
+        if (newFig) newFig()
         image(x$lon,x$lat,t(round(map,3)),levels=seq(nn,xx,length=101),
         main=paste(attributes(x$dat)$"long_name",descr),
         sub=date,xlab="Longitude",ylab="Latitude")
        } else if (!add) {
-         newFig()
+         if (newFig) newFig()
          if (is.null(xlim)) xlim <- range(x$lon,na.rm=TRUE)
          if (is.null(ylim)) ylim <- range(x$lat,na.rm=TRUE)
 
@@ -135,23 +140,24 @@ mapField <- function(x,l=NULL,greenwich=TRUE,
        }
 
 # From filled.contour in base
-  mar.orig <- (par.orig <- par(c("mar","las","mfrow")))$mar
-  on.exit(par(par.orig))
+    mar.orig <- (par.orig <- par(c("mar","las","mfrow")))$mar
+    on.exit(par(par.orig))
 
-  w <- (3 + mar.orig[2]) * par('csi') * 2.54
-  layout(matrix(c(2, 1), nc=2), widths=c(1, lcm(w)))
+    w <- (3 + mar.orig[2]) * par('csi') * 2.54
+    layout(matrix(c(2, 1), nc=2), widths=c(1, lcm(w)))
     
-  par(las = las)
-  mar <- mar.orig
-  mar[4] <- 1
-  par(mar=mar)
-  contour(x$lon,x$lat,t(round(map,3)),add=TRUE,col=col,lwd=lwd,lty=lty,levels=z.levs)
-  addland(col=col.coast)
+    par(las = las)
+    mar <- mar.orig
+    mar[4] <- 1
+    par(mar=mar)
+    contour(x$lon,x$lat,t(round(map,3)),add=TRUE,col=col,lwd=lwd,lty=lty,levels=z.levs)
+    addland(col=col.coast)
+  }   # plot
+  
   results <- list(map=t(round(map,3)),lon=x$lon,lat=x$lat,tim=x$tim,
                   date=date,description=descr,attributes=x$attributes)
   class(results) <- "map"
   attr(results,"long_name") <- attr(x$dat,"long_name")
   attr(results,"descr") <- descr
   invisible(results)
-
 }

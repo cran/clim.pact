@@ -1,6 +1,6 @@
 map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
                 plot=TRUE,inv.col=FALSE,add=FALSE,las = 1,
-                levels=NULL,main=NULL,sub=NULL,xlim=NULL,ylim=NULL) {
+                levels=NULL,main=NULL,sub=NULL,xlim=NULL,ylim=NULL,newFig=TRUE) {
   library(akima)
 
   if (options()$device=="none") plot=FALSE
@@ -55,6 +55,8 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
   if (is.null(xlim)) xlim <- range(x$lon[is.finite(x$lon)]) 
   if (is.null(ylim)) ylim <- range(x$lat[is.finite(x$lat)]) 
   if (plot) {
+    if (newFig) newFig()
+    
     my.col <- rgb(c(seq(0,1,length=nc1),rep(1,nc2)),
                   c(abs(sin((0:(length(z.levs)-1))*pi/(length(z.levs)-1)))),
                   c(c(rep(1,nc2),seq(1,0,length=nc1))))

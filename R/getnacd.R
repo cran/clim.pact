@@ -82,53 +82,65 @@ val[val <= -99.9] <- NA
 #        as.character(meta.nacd$V13[1]),as.character(meta.nacd$V14[1]),
 #        as.character(meta.nacd$V15[1]),as.character(meta.nacd$V16[1])))
 
+iele <- is.element(as.numeric(as.character(meta.nacd$element)),ele)
+
 if (is.character(location)) {
-  nc<-nchar(location)
-  location<-paste(upper.case(location),
-                paste(rep(" ",21-nc),sep="",collapse=""),sep="")
+  name <- upper.case(as.character(location))
+  nc <- nchar(name)
+  print(name)
+  names <- substr(upper.case(as.character(meta.nacd$location)),1,nc)
+
+
+#  nc<-nchar(location)
+#  location<-paste(upper.case(location),
+#                paste(rep(" ",21-nc),sep="",collapse=""),sep="")
 
   no.find<-FALSE
-  if ((sum(is.element(meta.nacd$location,location) &
-            is.element(as.numeric(as.character(meta.nacd$element)),ele))==0) &
-      !(silent)) no.find<-TRUE
-  meta<-meta.nacd[is.element(meta.nacd$location,location) &
-                  is.element(as.numeric(as.character(meta.nacd$element)),ele),]
-
+#  if ((sum(is.element(meta.nacd$location,location) &
+#            is.element(as.numeric(as.character(meta.nacd$element)),ele))==0) &
+#      !(silent)) no.find<-TRUE
+#  meta<-meta.nacd[is.element(meta.nacd$location,location) &
+#                  is.element(as.numeric(as.character(meta.nacd$element)),ele),]
+  imatch <- is.element(names,name)
 } else if (is.numeric(location)){
-  if ((sum(is.element(meta.nacd$station.number,location) &
-            is.element(as.numeric(as.character(meta.nacd$element)),ele))==0) &
-      !(silent)) no.find<-TRUE
-  meta<-meta.nacd[is.element(meta.nacd$station.number,location) &
-                  is.element(as.numeric(as.character(meta.nacd$element)),ele),]
+  imatch <- is.element(meta.nacd$station.number,location)
+#  if ((sum(is.element(meta.nacd$station.number,location) &
+#            is.element(as.numeric(as.character(meta.nacd$element)),ele))==0) &
+#      !(silent)) no.find<-TRUE
+#  meta<-meta.nacd[is.element(meta.nacd$station.number,location) &
+#                  is.element(as.numeric(as.character(meta.nacd$element)),ele),]
 }
+if (sum(imatch & iele)==0) {no.find<-TRUE; meta <- NULL} else
+                           meta<-meta.nacd[imatch & iele ,]
 
 if (no.find) {
   print("getnacd: ERROR - cannot find the right record!")
-  print(sum(is.element(meta.nacd$location,location) &
-              is.element(meta.nacd$element,ele)))
+  if (!silent) print(c(sum(imatch),sum(iele),sum(imatch & iele)))
 
-  print("location")
-  print(location)
-  print("levels(meta.nacd$location)")
-  print(levels(meta.nacd$location))
+  if (sum(imatch>0)) {
+    if (!silent) print("location station-number")
+    if (!silent) print(c(location,meta.nacd$station.number[imatch]))
+  }
+  if (!silent) print("table(meta.nacd$location[iele])")
+  if (!silent) print(table(meta.nacd$location[iele]))
 
-  print("ele")
-  print(table(ele))
-  print("levels(meta.nacd$element)")
-  print(table(as.numeric(as.character(meta.nacd$element))))
+  if (!silent) print("ele")
+  if (!silent) print(table(ele))
+  if (!silent) print("levels(meta.nacd$element)")
+  if (!silent) print(table(as.numeric(as.character(meta.nacd$element))))
+  if (!silent) print(table(as.numeric(as.character(meta.nacd$element[imatch]))))
 
-  print(paste("sum(is.element(meta.nacd$location,location))=",
-              sum(is.element(meta.nacd$location,location))))
-  print(paste("sum(is.element(meta.nacd$element,ele))=",
-              sum(is.element(meta.nacd$element,ele)))) 
-  print("meta:")
-  print(meta)
-  print("station:")
-  print(summary(station))
+  if (!silent) print(paste("sum(is.element(meta.nacd$location,location))=",sum(imatch)))
+  if (!silent) print(paste("sum(is.element(meta.nacd$element,ele))=",sum(iele)))
 
-  print("country:")
-  print(levels(country))
-  print(meta$country)
+  if (!silent) print("meta:")
+  if (!silent) print(meta)
+  if (!silent) print("station:")
+  if (!silent) print(summary(station))
+
+  if (!silent) print("country:")
+  if (!silent) print(levels(country))
+  if (!silent) print(meta$country)
 }
  
 iloc<-is.element(station,meta$station.number) &

@@ -17,6 +17,7 @@ station.obj <- function(x,yy,obs.name,unit,ele=NULL,mm=NULL,
   yrs <- table(yy)
   ny <- length(row.names(yrs))
   yrs <- as.numeric(row.names(yrs))
+  if (is.null(mm)) mm <- rep(1:12,ny)
 #  print(table(yy))
 #  print(table(mm))
 #  print(c(mm[1],mm[length(mm)],ny))  

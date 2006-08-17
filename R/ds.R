@@ -18,9 +18,9 @@ DS <- function(dat,preds,mon=NULL,direc="output/",cal.id=NULL,
                method="lm",plot=TRUE,leps=FALSE,param="t2m",
                plot.res=FALSE,plot.rate=FALSE,xtr.args="",
                swsm="step",predm="predict",lsave=FALSE,rmac=TRUE,
-               silent=FALSE) {
+               silent=FALSE,exit.on.screening.failure=FALSE) {
 
-
+screening.failure <-  FALSE
 dir.0<-getwd()
 if (!file.exists(direc)){
   if (!silent) print(paste("The directory",direc,"does not exists.. Creates it.."))
@@ -334,21 +334,31 @@ scen.gcm <- eval(parse(text=scen.gcm.str))
 calibrate.str <- paste(calibrate.str,"yy=as.vector(yy.cal),mm=as.vector(mm.cal),dd=as.vector(dd.cal))",sep="")
 #print("Calibration:")
 #print(calibrate.str); print(c(length(y),NA,dim(X.cal)))
+if (exists("calibrate")) rm(calibrate)
 calibrate <- eval(parse(text=calibrate.str))
 
 #print(summary(calibrate))
 # Due to a bug in step, 'attatch' cannot be used, so it's done
 # in a more complicated way.
-attach(calibrate)
+#attach(calibrate)
 
 # Stepwise regression
 if ((!silent) & (method!="anm")) print("stepwise regression:")
 exprn <- paste(method,"(y ~ 1",sep="")
-for (i.eof in 1:n.eofs) {  
-  eval(parse(text=
-             paste("X",i.eofs[i.eof]," <- calibrate$X",i.eofs[i.eof],sep="")))
-  valid.cal2 <- valid.cal2 & is.finite(eval(parse(text=paste("calibrate$X",i.eofs[i.eof],sep=""))))
+for (i.eof in 1:n.eofs) {
+  if (sum(is.finite(eval(parse(text=paste("calibrate$X",i.eofs[i.eof],sep="")))))==0) {
+    print(paste("No valid data in calibrate$X",i.eofs[i.eof]," i.eofs[i.eof]=",i.eofs[i.eof],
+                "excludes this PC from further analysis!",sep=""))
+    i.eofs[i.eof] <- NA
+  } else {
+    eval(parse(text=
+               paste("X",i.eofs[i.eof]," <- calibrate$X",i.eofs[i.eof],sep="")))
+    valid.cal2 <- valid.cal2 & is.finite(eval(parse(text=paste("calibrate$X",i.eofs[i.eof],sep=""))))
+  }
 }
+
+i.eofs <- i.eofs[is.finite(i.eofs)]; n.eofs <- length(i.eofs)
+
 for (i.eof in 1:n.eofs) {  
   exprn <- paste(exprn," + X",i.eofs[i.eof],sep="")
 }
@@ -369,10 +379,23 @@ if ((swsm!="none") & !is.null(swsm)) {
 }  else step.wise<-lm.mod
 step.wise$coefficients[!is.finite(step.wise$coefficients)] <- 0
 
+if (!silent) print(paste("                    - - - - - length(step.wise$coefficients)=",length(step.wise$coefficients)))
+
 #print(paste(">---5: length y.o=",length(y.o),"length(yy.o)=",length(yy.o)))
 if (!silent) print("ANOVA from step-wise regression:")
 
 stat <- summary(step.wise)
+
+if ( length(step.wise$coefficients)==1 ) {
+  print("--------------------------------------------------------------")
+  print("---------- No correlation what so ever -----------------------")
+  print("---------- Stepwise sceeening removed all variables ----------")
+  print("--------------------------------------------------------------")
+  screening.failure <- TRUE
+  x <-  list(screening.failure=screening.failure);
+  x
+  if (exit.on.screening.failure) return()
+}
 if (length(step.wise$coefficients)>1) {
   if (!is.null(stat$r.squared)) {
     r2 <- round(stat$r.squared*100)
@@ -382,7 +405,7 @@ if (length(step.wise$coefficients)>1) {
   } else if (method=="anm") {
     cor.test(y,eval(parse(text=paste(predm,"(lm.mod)",sep=""))))
     r2.stat <- cor.test(y,predict.anm(lm.mod))
-    r2 <- round(100*r2.stat$estimate^2,2)
+    r2 <- as.numeric(round(100*r2.stat$estimate^2,2))
     p.val <- round(100*r2.stat$p.value,2)
   } else {
     r2.stat <- eval(parse(text=paste("r2.stat <- cor.test(y,",
@@ -411,7 +434,7 @@ for (i.eof in 1:20) {
   eval(parse(text=paste("rm (X",i.eofs[i.eof],")",sep="")))
 }
 #print(paste(">---6: length yy.cal=",length(yy.cal),"length(pre.y)=",length(pre.y)))
-detach(calibrate)
+#detach(calibrate)
 attach(scen.gcm)
 #pre.gcm<-predict(step.wise,newdata=scen.gcm)
 if (method=="anm") {           # REB 18.03.2005
@@ -615,9 +638,9 @@ list.expr <- paste(list.expr,
          "step.wise=step.wise,location=loc,",
          "yy.gcm=yy.gcm, mm.gcm=mm.gcm, dd.gcm=dd.gcm, ",
          "yy.cal=yy.cal, dd.cal=dd.cal,","mm.cal=mm.cal,",
-         "n.fld=n.fld,unit=ds.unit,",
+         "n.fld=n.fld,unit=ds.unit,n.eofs=n.eofs,",
          "rate.ds=rate.ds,rate.err=rate.err,gcm.trnd.p=gcm.trnd.p,",
-         "y.o=y.o,mm.o=mm.o,yy.o=yy.o,dd.o=dd.o,",
+         "y.o=y.o,mm.o=mm.o,yy.o=yy.o,dd.o=dd.o,screening.failure=screening.failure,",
          "fit.p=fit.p,fit.r2=r2,pre.p.fit=pre.p.fit,",
          "pre.gcm=pre.gcm,pre.y=pre.y,gcm.stat=gcm.stat,",
          "month=month,v.name=v.name, region=preds$region,",

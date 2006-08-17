@@ -113,111 +113,44 @@ scale <- switch(as.character(ele[1]),
                '701'=1,
                '801'=1,
                '911'=1)
-#print("scale")
-#print(scale)
-#print(ele[1])
-#print(dim(obs))
-#print(summary(obs))
 
 val<-as.matrix(obs[,4:15])*scale
 val[val <= -99.9] <- NA
-
-#print(paste("GETNORDKLIM: ",location))
 location<-upper.case(substr(location,1,4))
-
-#print("search appendix:")
-#print(as.character(meta$V5))
 locations <- upper.case(substr(as.character(meta$location),1,4))
 in.app<-is.element(locations,location) 
-#print("in.app=")
-#print(sum(in.app))
-location <- strip(as.character(meta$location[in.app]))
 
 no.find<-FALSE
 if ((sum(in.app)==0) & !(silent)) {
   print("getnordklim: ERROR - cannot find the right record!")
   print(sum(is.element(meta$location,location)))
-  
-  print("ele.c")
-  print(ele.c)
-  print("location")
-  print(location)
-  print("table(ele)")
-  print(table(ele))
+  print("ele.c");  print(ele.c)
+  print("location"); print(location)
+  print("table(ele)"); print(table(ele))
   print(as.character(meta$location))
   print("sum(is.element(meta$location,location))")
   print(sum(is.element(meta$location,location)))
-  print("meta:")
-  print(meta)
-  print("station:")
-  print(summary(station))
-
-  print("country:")
-  print(levels(country))
+  print("meta:"); print(meta)
+  print("station:"); print(summary(station))
+  print("country:"); print(levels(country))
   print(meta$V3)
   no.find<-TRUE
-
   print("Available locations:")
   print(meta$location)
-
-  
-#if (no.find) {
-# print("summary(iloc)")
-# print(summary(iloc))
-# print("sum(iloc)")
-# print(sum(iloc))
-# print("sum(is.element(station,meta$V2))")
-# print(sum(is.element(station,meta$V2)))
-# print("sum(country == meta$V3)")
-# print(sum(country == meta$V3))
-#}
-}
-
-#print(length(!no.find))
-if (!no.find) {
+} else if (sum(in.app)>0) {
+  location <- strip(as.character(meta$location[in.app]))
   meta<-meta[in.app,]
-#print(meta)
-#print(table(station))
-#print(meta$number)
-
   iloc<-is.element(station,meta$number)
-
-#print(sum(iloc))
-#print(as.character(meta$V16))
-
-#  print(" Test 1:")
-#  print(meta[1,])
-#  print(c(meta$Lat.deg,meta$Lat.min,meta$Lon.deg,meta$Lon.min))
-
   lat<-meta$Lat.deg + meta$Lat.min/60
   lon<-meta$Lon.deg + meta$Lon.min/60
-#  print(paste("GETNORDKLIM: call strip for N.S & E.W","'",
-#              meta$N.S,"', '",meta$E.W,"'",sep=""))
   meta$N.S<-strip(meta$N.S)
   meta$E.W<-strip(meta$E.W)
   lat[(meta$N.S=="S") | (meta$N.S==" S")]<-lat[(meta$N.S=="S") | (meta$N.S==" S")]*-1
   lon[(meta$E.W=="W") | (meta$E.W==" W")]<-lon[(meta$E.W=="W") | (meta$E.W==" W")]*-1
-  
-#print(levels(meta$V8))
-#print(levels(meta$V11))
 
   xy<-COn0E65N(lon,lat)
-} else {
-  lat<-NA
-  lon<-NA
-  xy<-list(x=NA,y=NA)
-  location<-"Not found"
-}
-#print(" Test 2: dim(val)")
-#print(length(station))
-#print(length(yy))
-#print(dim(val))
-#print(dim(val[iloc,]))
-#print(length(yy[iloc]))
-#print(" Test 3:")
-#print(c(lon,lat,meta$altitude,ele[1]))
 
-getnordklim<-list(val=val[iloc,],station=meta$number,yy=yy[iloc],
+  getnordklim<-list(val=val[iloc,],station=meta$number,yy=yy[iloc],
               lat=lat,lon=lon,alt=meta$height,
               x.0E65N=xy$x,y.0E65N=xy$y,
               location=location, wmo.no=NA,
@@ -227,5 +160,8 @@ getnordklim<-list(val=val[iloc,],station=meta$number,yy=yy[iloc],
               ref=paste('Rissanen et al., (2000), DNMI KLIMA 10/00,',
                         'Norwegian Meteololog. Inst., met.no'))
 class(getnordklim) <- c("station","monthly.station.record")
+} else {
+  getnordklim<-list(location=location,found=FALSE)
+}
 getnordklim
 }

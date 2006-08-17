@@ -18,7 +18,7 @@ of a rectangle).
 \usage{objDS(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
           mon=NULL,direc="output/",cal.id=NULL,
           ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
-          method="lm",leps=FALSE,param="t2m",
+          method="lm",leps=FALSE,param="t2m",failure.action=NULL,
           plot.res=FALSE,plot.rate=FALSE,xtr.args="",
           swsm="step",predm="predict",lsave=FALSE,rmac=TRUE,
           silent=FALSE,qualitycontrol=TRUE,LINPACK=TRUE,wOBS=0.25)}
@@ -61,7 +61,12 @@ of a rectangle).
     \item{silent}{TRUE -> no output to screen.}
     \item{qualitycontrol}{TRUE: perform a qualitry control consisting of comparing the smoothness of the monthly trend estimates throughout the year and repeat the downscaling with a smaller domain if adjacent trend estimates vary significantly (diff greater than 3*variance of rates).}
     \item{LINPACK}{'TRUE': svd; 'FALSE':La.svd}
-    \item{wOBS}{Used for weighting down GCM results in the common EOF analysis. The GCM results are re-scaled after the analysis.\code{wOBS=NULL} skips this scaling/re-scaling.}
+    \item{wOBS}{Used for weighting down GCM results in the common EOF
+      analysis. The GCM results are re-scaled after the
+      analysis.\code{wOBS=NULL} skips this scaling/re-scaling.}
+    \item{failure.action}{If stepwise screening in
+      \code{\link{DS}} fails to select any variables, then call the
+      function specified by a character string, unless set to NULL.}
 }
 
 \value{An 'objDS' object -  a list of objects:

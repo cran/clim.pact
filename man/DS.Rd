@@ -79,7 +79,7 @@ is: \deqn{y= c_1 + 2 c_2 x + 3 c_3 x^2 +  4 c_4 x^3 + 5 c_5 x^4.}{y= c1
               method="lm",plot=TRUE,leps=FALSE,param="t2m",
               plot.res=FALSE,plot.rate=FALSE,xtr.args="",
               swsm="step",predm="predict",lsave=FALSE,rmac=TRUE,
-               silent=FALSE)}
+               silent=FALSE,exit.on.screening.failure=FALSE)}
 
 \arguments{
     \item{dat}{ A climate.station object (\code{\link{station.obj}} or 
@@ -115,6 +115,8 @@ is: \deqn{y= c_1 + 2 c_2 x + 3 c_3 x^2 +  4 c_4 x^3 + 5 c_5 x^4.}{y= c1
     \item{rmac}{TRUE -> subtracts (removes) the annual cycle in station
       data.}
     \item{silent}{TRUE -> no output to screen.}.
+    \item{exit.on.screening.failure}{If stepwise screening returns no variables, then return()}
+
 }
 
 \value{A 'ds' object -  a list of following elements:

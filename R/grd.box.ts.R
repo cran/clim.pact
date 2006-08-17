@@ -114,7 +114,7 @@ if (!is.null(attributes(x$tim)$unit)) {
 #    print("Monthly")
     results <- station.obj(ts,yy=x$yy,mm=x$mm,obs.name=x$v.name,
                            unit=x$attributes$unit,ele=NA,
-                           station=NA,lat=round(lat,4),lon==round(lon,4),alt=NA,
+                           station=NA,lat=round(lat,4),lon=round(lon,4),alt=NA,
                            location="interpolated",wmo.no=NA,
                            start=min(x$yy),yy0=attr(x$tim,"time_origin"),country=NA,
                            ref="grd.box.ts.R (clim.pact)")

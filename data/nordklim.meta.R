@@ -4,5 +4,6 @@
 #                  "Lat.deg","Lat.min","N.S","Lon.deg","Lon.min","E.W"))
 #  
 #  save(file="nordklim.meta.Rdata",meta)
- 
+
 load("nordklim.meta.Rdata")
+

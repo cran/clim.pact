@@ -255,12 +255,10 @@ if (lower.case(options()$device)=="x11")
 
 
 
-
-
 objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
                   mon=NULL,direc="output/",cal.id=NULL,
                   ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
-                  method="lm",leps=FALSE,param="t2m",
+                  method="lm",leps=FALSE,param="t2m",failure.action=NULL,
                   plot.res=FALSE,plot.rate=FALSE,xtr.args="",
                   swsm="step",predm="predict",lsave=FALSE,rmac=TRUE,
                   silent=FALSE,qualitycontrol=TRUE,LINPACK=TRUE,wOBS=0.25) {
@@ -307,7 +305,16 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     }
 
     # Find optimal longitudes & latitudes:
-    
+    if (!silent) print(paste("No. points with correlation > 0.5=",sum(cormap$map>0.5,na.rm=TRUE)))
+    if ( (sum(cormap$map>0.5,na.rm=TRUE)<1) & !is.null(failure.action) ) {
+      if (!silent) print(">>> objDS: call screen.failure.action <<<")
+      if (!silent) print(paste(":::  Maximum correlation=",max(cormap$map,na.rm=TRUE),
+                                "    N. points r>0.5=",sum(cormap$map>0.5,na.rm=TRUE),
+                                "    valid points=",sum(is.finite(cormap$map))))
+      if (!silent) print(paste(failure.action,"(obs=",station,")",sep=""))
+      ds <- eval(parse(text=paste(failure.action,"(obs=",station,", mon=",imon,")",sep="")))
+    } else {
+      
     latx <- 0.5*(field.obs$lat[2:ny]+field.obs$lat[1:(ny-1)])
     lonx <- 0.5*(field.obs$lon[2:nx]+field.obs$lon[1:(nx-1)])
     iy <- min( (1:ny)[station$lat <= field.obs$lat], na.rm=TRUE)
@@ -394,6 +401,12 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
                   plot.res=plot.res,plot.rate=plot.rate,xtr.args=xtr.args,
                   swsm=swsm,predm=predm,lsave=lsave,rmac=rmac,
                   silent=silent)
+    if ( (ds$screening.failure) & !is.null(failure.action) ) {
+      if (!silent) print(">>> objDS: call failure.action <<<")
+      if (!silent) print(paste(failure.action,"(obs=station, mon=",imon,")",sep=""))
+      ds <- eval(parse(text=paste(failure.action,"(obs=",station,", mon=",imon,")",sep="")))
+    } else if (ds$screening.failure) print("screening failure - but continue as usual...")
+  }
     ds$x.rng <- x.rng; ds$y.rng <- y.rng
 
     print("Grading for spatial pattern")

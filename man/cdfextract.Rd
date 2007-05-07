@@ -26,7 +26,7 @@ handling the data in the netCDF file and constructing a 'field' object.}
 \value{a field object. Also see \code{\link{retrieve.nc}}. Saves the
   extracted data in a netCDF file called "cdfextract.nc" under current
   working directory (see \code{\link{r2cdf}}).}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 slp <- cdfextract("data/nmc_slp.nc","slp",x.rng=c(-80,40),y.rng=c(20,75),

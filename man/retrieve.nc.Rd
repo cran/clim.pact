@@ -80,7 +80,7 @@ This routine reequres the \code{\link[ncdf]{ncdf}}-package is currently only ava
       id.lat \tab ID labels along the latitudes (for mixed fields, see
       \code{\link{mixFields}}). \cr
       }.}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 X.1 <- retrieve.nc("data/mpi-gsdio_t2m.nc",

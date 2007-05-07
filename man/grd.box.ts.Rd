@@ -38,7 +38,7 @@ grd.box.ts(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
   \code{\link{station.obj.dm}}) that can be plotted using eg \code{\link{plotStation}}.    
 
   }
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 slp <- retrieve.nc("ncep_slp.nc")

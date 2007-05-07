@@ -10,7 +10,7 @@
     \item{j}{second index.}
  }
 \value{0 or 1}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 }
 \keyword{manip}

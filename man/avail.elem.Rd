@@ -40,7 +40,7 @@ avail.locs(ele) }
       avail.locs \tab a list with name, lons, lats,
       country, ident \cr
       avail.elem \tab a list with data.set, ele, name \cr}}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 library(clim.pact)
 avail.elem()$name
@@ -68,8 +68,8 @@ avail.locs()$name[avail.locs()$country=="FIN"]
 #[17] "Heinola"       "Virolahti"     "Lappeenranta"  "Lavia"        
 #[21] "Virrat"        "Orivesi"       "Jyvaeskylae"   "Vaasa"        
 #[25] "Ylistaro"      "Aehtaeri"      "Kuopio"        "Maaninka"     
-#[29] "Joensuu"       "Kestilä"       "Kajaani"       "Oulu"         
-#[33] "Yli-Ii"        "Pudasjärvi"    "Kuusamo"       "Sodankylae"
+#[29] "Joensuu"       "Kestilae"      "Kajaani"       "Oulu"         
+#[33] "Yli-Ii"        "Pudasjaervi"   "Kuusamo"       "Sodankylae"
 
 avail.preds()
 # [1] "eof.dc.Rdata"                                                 

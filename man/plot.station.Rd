@@ -56,7 +56,7 @@
     found \tab Flag: T - the data requested was found. \cr
     ref \tab Reference for the data set. \cr
   }}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 data(tromsoe.t2m)

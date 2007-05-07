@@ -8,7 +8,7 @@
  
   }
 \value{an 'eof' object}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 data(eof.c)
 eof <- adjust.eof(eof.c)

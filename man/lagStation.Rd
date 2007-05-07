@@ -8,7 +8,7 @@
     \item{lag}{lag}
   }
 \value{Astation object}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 data(oslo.t2m)
 oslo.t2m.1 <- lagStation(oslo.t2m,1)

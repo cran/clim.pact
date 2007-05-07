@@ -28,7 +28,7 @@ MVR(x,y,plot=TRUE,main="Multivariate regression",sub="",test=FALSE,i.eofs=1:8,LI
     \item{SVD}{Flag: determine which approach to use: SVD or eigenfunction-based alogithm.}
  }
 \value{A MVR object that is similar to a field or EOF object (inherits the object type, with an additional "MVR" label) with the projection (dat), but with additional fields such as the weights (psi, which is a map object) [dat represents p and psi represents x.hat in Strang (1988)].}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 data(DNMI.t2m)

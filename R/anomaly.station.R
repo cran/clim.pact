@@ -116,3 +116,38 @@ preClim.station <- function(x,dd=NULL,mm=NULL,yy=NULL,param=1) {
   invisible(ac.reconstr)
 
 }
+
+
+daily2monthly.station <- function(obs,param="t2m",min.days.month=20,method="mean",na.rm=TRUE) {
+  if (lower.case(class(obs)[2])!="daily.station.record") stop("daily2monthly.station: needs daily.sation.record")
+  x <- eval(parse(text=paste("obs$",param,sep="")))
+
+  cont <- names(obs)
+  cont <-  cont[!is.element(cont,c("dd","mm","yy","obs.name","unit","station",
+                                   "lat","lon","alt","ele","x.0E65N","y.0E65N",
+                                   "found","location","wmo.no","start","yy0",
+                                   "country","ref"))]
+  if ( (length(cont)!=length(obs$unit)) | (length(cont)!=length(obs$ele))) stop("daily2monthly.station: number of elements doesn't match number of units/codes")
+  unit <- obs$unit[is.element(cont,param)]
+  ele <- obs$ele[is.element(cont,param)]
+  years <- as.numeric(rownames(table(obs$yy))); ny <-  length(years)
+  months <- 1:12
+  val <- rep(NA,ny*12); dim(val) <- c(ny,12)
+  for (iy in 1:ny) {
+    for (im in 1:12) {
+      this.month.year <-  is.element(obs$mm,im) & is.element(obs$yy,years[iy])
+      if (sum(this.month.year,na.rm=TRUE) > min.days.month) {
+        if (!na.rm) val[iy,im] <- eval(parse(text=paste(method,"(x[this.month.year])",sep=""))) else 
+            val[iy,im] <- eval(parse(text=paste(method,"(x[this.month.year],na.rm=TRUE)",sep="")))         
+      }
+    }
+  }
+  Obs <-  station.obj(x=val,yy=years,obs.name=param,unit=unit,ele=ele, mm=NULL,
+                        station=obs$station,lat=obs$lat,lon=obs$lon,alt=obs$alt,
+                        location=obs$location,wmo.no=obs$wmo.no,
+                        start=obs$start,yy0=obs$yy0,country=obs$station,
+                        ref=paste(obs$ref,"+daily2monthly.station. method=",method,
+                          "na.rm=",na.rm))
+  invisible(Obs)
+}
+

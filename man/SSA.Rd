@@ -21,7 +21,7 @@ plotSSA(ssa,main="SSA analysis",sub="")
  }
 \value{A SSA object: An \code{link{svd}} object with additional parameters: m (window length), nt (original length of series), Nm (effective length of series= nt - m), anom (FLAG for use of anomaly), param (name of parameter, typically 'precip' or 't2m'), station (the station object to which SSA is applied).
 }
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 data(DNMI.t2m)

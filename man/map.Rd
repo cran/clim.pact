@@ -26,7 +26,7 @@
     \item{newFig}{True, call \code{\link{newFig}} for new figure.}
  }
 \value{A map object}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 }
 \keyword{hplot}

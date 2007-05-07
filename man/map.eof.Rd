@@ -20,7 +20,7 @@
     \item{lty}{Line type.}
   }
 \value{A map object (currently, only the last field in a mixed.field object).}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 library(clim.pact)
 data(eof.slp)

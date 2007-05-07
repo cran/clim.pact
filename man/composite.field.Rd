@@ -30,7 +30,7 @@ compositeField(x,y,lsig.mask=TRUE,sig.lev=0.05,s=0.42,mon=NULL,
     \item{sub}{subtitle.}
  }
 \value{A map object.}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 slp <- retrieve.nc("ncep_slp.nc")

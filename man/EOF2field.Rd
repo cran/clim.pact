@@ -12,7 +12,7 @@
 
 \value{A 'field' object (see \code{\link{retrieve.nc}}).}
 }
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 load("data/ceof.Rdata")   # loads the object 'eof'

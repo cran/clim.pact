@@ -40,7 +40,7 @@ getnacd(location="prompt",ele.c='101',ascii=FALSE,silent=FALSE,direc="data")
     found \tab Flag: T - the data requested was found. \cr
     ref \tab Reference for the data set. \cr
   }}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 helsinki.rr <- getnacd("helsinki",ele=601)

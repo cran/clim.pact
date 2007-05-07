@@ -11,7 +11,7 @@
     \item{mon}{Month (1-12) or season (1-12) to extract if !is.null.}
  }
 \value{A map object}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 slp <- retrieve.nc("ncep_slp.nc",x.rng=c(5,12),y.rng=c(58,63))

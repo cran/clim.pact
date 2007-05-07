@@ -11,7 +11,7 @@
     \item{y.centre}{reference latitude.}
  }
 \value{real}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 library(clim.pact)
 data(oslo.t2m)

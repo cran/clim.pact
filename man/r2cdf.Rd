@@ -14,7 +14,7 @@
   \item{scal}{scaling factor: 'NULL' -> automatic setting}
  }
 \value{}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 # Save EOFs as netCDF (use ncview or Ferret to view)

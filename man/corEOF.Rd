@@ -29,7 +29,7 @@
     \item{lwd}{Contour line width.}
  }
 \value{A map object.}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 data(oslo.t2m)
 data(eof.slp)

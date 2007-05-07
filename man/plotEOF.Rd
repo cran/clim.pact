@@ -19,7 +19,7 @@
     \item{sub}{subtitle}
     }
 \value{}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 data(eof.mc)

@@ -86,7 +86,7 @@ of a rectangle).
    Dec    \tab a 'ds' object \cr 
   }
 }
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 library(clim.pact)

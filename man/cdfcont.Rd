@@ -23,7 +23,7 @@
   'time.origin' returns the time\_origin, 'add.offset' gives the 'add\_offset'
   attribute, and 'scale.factor' gives the scale\_factor.}
 
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 }
 \keyword{file}

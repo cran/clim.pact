@@ -29,7 +29,7 @@
     \item{test}{}
  }
 \value{list containing \code{phi} and \code{theta}, the new spherical coordinates.}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 }
 \keyword{manip}

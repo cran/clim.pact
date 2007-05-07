@@ -15,7 +15,7 @@
   \item{rescale}{'TRUE' uses lm to determine amplitude of second sequence otherwise the amplitude of second sequence is not changed.}
   }
 \value{A climate station series object.}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 oslo.1 <- getnacd("OSLO-BLINDERN")

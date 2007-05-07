@@ -81,10 +81,14 @@ print(dim(a.m)); print(dim(X1))
       M.2 <- solve(C.22) %*% C.12 %*% solve(C.11) %*% C.12
       x.m <- eigen(M.1)
       y.m <- eigen(M.2)
-      a.m <- t( t(x1$EOF) %*% diag(x1$W) %*% Re(t(x.m$vectors)) )
-      b.m <- t( t(x2$EOF) %*% diag(x2$W) %*% Re(t(y.m$vectors)) )
-      u.k <- x1$PC %*% Re(x.m$vectors)
-      v.k <- x2$PC %*% Re(x.m$vectors)
+
+      #print(dim( t(x1$EOF[i.eofs,]) )); print(dim( x1$PC[,i.eofs]) )
+      #print(dim( diag(x1$W[i.eofs]) )); print(dim( Re(t(x.m$vectors)) ))
+
+      a.m <- t( t(x1$EOF[i.eofs,]) %*% diag(x1$W[i.eofs]) %*% Re(t(x.m$vectors)) )
+      b.m <- t( t(x2$EOF[i.eofs,]) %*% diag(x2$W[i.eofs]) %*% Re(t(y.m$vectors)) )
+      u.k <- x1$PC[,i.eofs] %*% Re(x.m$vectors)
+      v.k <- x2$PC[,i.eofs] %*% Re(x.m$vectors)
       R <- sqrt(Re(x.m$values))
    }
 
@@ -93,12 +97,21 @@ print(dim(a.m)); print(dim(X1))
       # X2 = b.t%*% t(v.t)
       # print(dim(a.m)); print(dim(u.k))
       X1.cca <- u.k %*% a.m
+      X2.cca <- v.k %*% b.m
       dim(X1.cca) <- c(length(x1$tim),length(x1$lat),length(x1$lon))
+      dim(X2.cca) <- c(length(x2$tim),length(x2$lat),length(x2$lon))
       iy <- floor(length(x1$lat)/2); ix <- floor(length(x1$lon)/2)
+      jy <- floor(length(x2$lat)/2); jx <- floor(length(x2$lon)/2)
       y.1 <- EOF2field(x1,anomalies=TRUE)$dat[,iy,ix]
+      y.2 <- EOF2field(x2,anomalies=TRUE)$dat[,jy,jx]
       print(summary(y.1))
+
+      par(mfcol=c(2,1))
       plot(y.1,main="Test: CCA reconstruction",type="l",lwd=3,col="grey60")
       lines(X1.cca[,iy,ix],col="red",lty=2)
+
+      plot(y.2,main="Test: CCA reconstruction",type="l",lwd=3,col="grey60")
+      lines(X2.cca[,jy,jx],col="blue",lty=2)
       newFig()
      }
     dim(a.m) <- d.1; dim(b.m) <- d.2
@@ -170,7 +183,7 @@ MVR <- function(x,y,plot=TRUE,main="Multivariate regression",sub="",test=FALSE,i
     mvr  <- y
     dim(Yhat) <- c(d.y[1],d.y[2],d.y[3])
     mvr$dat <- Yhat
-    pvr$psi <- psi
+    mvr$psi <- psi
   } else if ( (class(x)[1]=="eof") & (class(y)[1]=="eof") ) {
     d.x <- dim(x$EOF); if (length(d.x)>2) dim(x$EOF) <- c(d.x[1],d.x[2]*d.x[3])
     X <- x$PC[ix,]; Y <- y$PC[iy,]
@@ -327,6 +340,17 @@ SSA <- function(x,m,plot=TRUE,main="SSA analysis",sub="",
   invisible(ssa)
 }
 
+lagStation <- function(obs,lag=1) {
+  dims <- dim(t(obs$val))
+  ts <- c(t(obs$val)); n <- length(ts)
+  if (lag<0) for (i in 1:abs(lag)) ts <- c(ts[-1],NA) else
+             for (i in 1:abs(lag)) ts <- c(NA,ts[-n])
+  dim(ts) <- dims
+  obs$val <- t(ts)
+  class(obs) <- c(class(obs),paste("lagged",lag))
+  invisible(obs)
+}
+
 plotSSA <- function(ssa,main="SSA analysis",sub="")  {
     if ( (class(ssa)[1]!="SSA") ) stop("Need an 'SSA' object")
     nt <- ssa$nt
@@ -438,5 +462,33 @@ testCCA <- function(method="CCA",reconstr=FALSE,mode=1,test=TRUE,LINPACK=TRUE,SV
   invisible(cca.test)
 }
 
-
+Psi <- function(cca) {
+  G <- cca$a.m; d <- dim(G); dim(G) <- c(d[1],d[2]*d[3])
+  H <- cca$b.m; d <- dim(H); dim(H) <- c(d[1],d[2]*d[3])
+  M <- diag(cca$r)
+  V <- cca$u.k
+  U <- cca$v.k
+  G <- t(G); H <- t(H)
+ 
+  # print(dim(G)); print(dim(M)); print(dim(H))
+  if (class(cca)[1] =="CCA") Psi <- G %*% M %*% solve(t(H) %*% H) %*% t(H)
+  #if (class(cca)[1] =="SVD") Psi <- G %*% M %*% solve(Cxx) %*% t(H)
+  class(Psi) <- paste(class(cca)[1],"model",sep=".")
+  Psi
+}
+  
+predictCCA <- function(Psi,X) {
+  if ( (class(X)[1]!="eof") & (class(X)[1]!="field")) stop('Need a field or EOF object!')
+  type <- class(X)
+  if (type[1]=="eof") field <- EOF2field(X)
+  X <- field$dat
+  d <- dim(X); dim(X) <- c(d[1],d[2]*d[3])
+  X <- t(X)
+  print(dim(Psi)); print(dim(X))
+  Y.hat <-  Psi %*% X
+  field$dat <- t(Y.hat)
+  dim(field$dat) <- d
+  if (type[1]=="eof") result <- EOF(field) else result <- field
+  result
+}
 

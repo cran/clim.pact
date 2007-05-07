@@ -8,7 +8,7 @@
     \item{vec}{TRUE returns a vector \code{c(year,month,day)}; FALSE returns \code{year + month/12 + day/31}.}
  }
 \value{A number or a vector}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 datestr2num("01-Jan-1980")
 datestr2num("1-1-1980")

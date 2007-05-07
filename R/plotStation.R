@@ -175,7 +175,7 @@ if (!is.null(mon)) {
       newFig()
       par(cex.sub=0.8)
       if (!is.finite(clim)) clim <- 0
-      histo <- hist(value[!is.na(value)],breaks=15,lwd=3,freq=FALSE,
+      histo <- hist(value[!is.na(value)],breaks=15,lwd=3,
          main=main,
          sub=paste(min(round(yy,2)),"--",max(round(yy,2)),
            ":",sub.tit,xlab=obs$unit),xlab=paste(obs$obs.name,obs$unit))
@@ -204,7 +204,7 @@ if (!is.null(mon)) {
       }
       grid()
     } else  {
-      histo <- hist(value[!is.na(value)],breaks=15,lwd=3,freq=FALSE,plot=FALSE)
+      histo <- hist(value[!is.na(value)],breaks=15,lwd=3,plot=FALSE)
       x.dist <- seq(min(histo$mids),max(histo$mids),length=101)
       y.dist <- dnorm(x.dist,
                       mean=mean(value,na.rm=TRUE),
@@ -234,7 +234,7 @@ if (!is.null(mon)) {
 
     postscript(file = figname2,onefile=TRUE,horizontal=FALSE,paper="a4")
     par(ps=14,cex.sub=0.8)
-    histo <- hist(value,breaks=15,lwd=3,freq=FALSE,
+    histo <- hist(value,breaks=15,lwd=3,
          main=main,
          sub=paste(min(round(yy,2)),"--",max(round(yy,2)),
            ":",sub.tit,xlab=obs$unit))

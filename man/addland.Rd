@@ -7,7 +7,7 @@
  \item{col}{colour}
  \item{lwd}{line width}
 }
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 plot(c(-90,90),c(0,80),type="n")
 addland()

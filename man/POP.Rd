@@ -22,7 +22,7 @@ plotPOP(pop,mode = 1, main = "POP analysis", sub = "")
     \item{pop}{a POP object.}
  }
 \value{A POP object: an  \code{link{eigen}} object with additional variables. maps (map of the absolute of POP patterns), pop.Im (the imaginary POP pattern), pop.Re(the real POP pattern), lon (longitude coordinates), and lat (latitude coordinates).}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 data(DNMI.t2m)

@@ -1,12 +1,18 @@
 \name{getnordklim}
 \alias{getnordklim}
 \alias{meta}
-\title{Retrieve station record from the Nordklima set.}
-\description{Reads the data from Nordklim available at URL:
+\alias{getHadObs}
+\title{Retrieve station record from the Nordklima set or HadObs.}
+\description{getnordklim reads the data from Nordklim available at URL:
   \url{http://www.smhi.se/hfa_coord/nordklim/}.  Also see
   \code{\link{getdnmi}} and \code{\link{getnacd}}.
+
+  
 }
-\usage{getnordklim(location="prompt",ele.c='101',ascii=FALSE,silent=FALSE,direc="data")}
+\usage{
+getnordklim(location="prompt",ele.c='101',ascii=FALSE,silent=FALSE,direc="data")
+getHadObs(what="CET")
+}
 
 \arguments{
   \item{location}{ name of climate station location.}
@@ -15,6 +21,7 @@
     R-formatted verion (faster).}
   \item{silent}{ Flag. F -> print error messages.}
   \item{direc}{ name of directory in which the data are stored.}
+  \item{what}{"CET": reads the central England Temperature; "EWP": reads Monthly England and Wales precipitation}
 }
   \value{a <- list of "monthly.station.record" class:
     \tabular{ll}{
@@ -37,7 +44,7 @@
     found \tab Flag: T - the data requested was found. \cr
     ref \tab Reference for the data set. \cr
   }}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 helsinki.rr <- getnordklim("helsinki",ele=601)

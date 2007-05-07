@@ -363,7 +363,7 @@ for (i.eof in 1:n.eofs) {
   exprn <- paste(exprn," + X",i.eofs[i.eof],sep="")
 }
 if (method!="anm") exprn <- paste(exprn,xtr.args,",data=calibrate)",sep="") else 
-                   exprn <- paste(exprn,",","data=calibrate",xtr.args,")",sep="") 
+if (method!="glm") exprn <- paste(exprn,",","data=calibrate",xtr.args,")",sep="")
 
 if (!silent) {print(paste("Model: ",exprn))
               print(paste(sum(valid.cal),"/",sum(valid.cal2),"valid calibr. points"))}
@@ -408,10 +408,21 @@ if (length(step.wise$coefficients)>1) {
     r2 <- as.numeric(round(100*r2.stat$estimate^2,2))
     p.val <- round(100*r2.stat$p.value,2)
   } else {
-    r2.stat <- eval(parse(text=paste("r2.stat <- cor.test(y,",
-                            predm,"(lm.mod))",sep="")))
-    r2 <- round(100*r2.stat$estimate^2,2)
-    p.val <- round(100*r2.stat$p.value,2)
+    y2 <-  eval(parse(text=paste(predm,"(lm.mod)",sep="")))
+    if (length(y)==length(y2)) {
+      r2.stat <- cor.test(y,y2)
+      r2 <- round(100*r2.stat$estimate^2,2)
+      p.val <- round(100*r2.stat$p.value,2)
+    } else {
+      warning(paste("Warning: ",
+              "The observations and predictions had different lengths: ",length(y),"&",length(y2),
+              " -  Use the ratios of variances as a measure for R2"))
+      if (sum(is.finite(y2))> 1 & sum(is.finite(y))> 1) {
+        print("r2 <- 100*var(y2[is.finite(y2)])/var(y[is.finite(y)])")
+        r2 <- 100*var(y2[is.finite(y2)])/var(y[is.finite(y)])
+        p.val <- NA
+     } else stop("Error in DS: Not enough finite numbers in predictions/observations")
+    }
   }
   fit.p<-as.character(p.val)
 } else {
@@ -569,15 +580,15 @@ for (i in 1:n.fld) {
 # Linear trend:
 
 #print(paste(">---8: length y.o=",length(y.o),"length(yy.o)=",length(yy.o)))
-if (!silent) print("Linear trend for GCM (deg C/decade)")
-x.ind <- seq(0,1,length=length(yy.gcm))
-tr.dat<-data.frame(y=pre.gcm, x=x.ind)
 nt <- length(yy.gcm)
+if (!silent) print(paste("Linear trend for GCM (deg C/decade), length(yy.gcm)=",nt))
+x.ind <- seq(0,1,length=nt)
+tr.dat<-data.frame(y=pre.gcm, x=x.ind)
 lm.tr <- lm(y ~ x, data=tr.dat)
 stat.tr.fit <- summary(lm.tr)
 coef.fit<-stat.tr.fit$coefficients
-rate.ds <- round(as.real(round(coef.fit[2]*10,2))*(x.ind[2]-x.ind[1]),2)
-rate.err  <- round(as.real(round(coef.fit[4]*10,2))*(x.ind[2]-x.ind[1]),2)
+rate.ds  <- round(as.real(round(coef.fit[2]*10,2))*(x.ind[2]-x.ind[1]),2)
+rate.err <- round(as.real(round(coef.fit[4]*10,2))*(x.ind[2]-x.ind[1]),2)
 
 #print(coef.fit)
 if (!silent) print("Slope and its uncertainty")

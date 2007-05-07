@@ -56,7 +56,7 @@ if (!add) {
     postscript(file = figname,onefile=TRUE,horizontal=FALSE,paper="a4")
   } else newFig()
   if (plot.map) {
-    par(ps=16,cex.sub=0.7,cex.main=0.9)
+    par(ps=16,cex.sub=0.6,cex.main=0.7)
     plot(c(floor(min(lons,na.rm=TRUE)),ceiling(max(lons,na.rm=TRUE))),
          c(floor(min(lats,na.rm=TRUE)),ceiling(max(lats,na.rm=TRUE))),type="n",
          main=main,sub=sub,xlab=xlab,ylab=ylab)
@@ -125,7 +125,7 @@ if ((!add) & (plot.ts)) {
                     month,ex.tag,".eps",sep="")
     postscript(file = figname,onefile=TRUE,horizontal=FALSE,paper="a4")
   } else newFig()
-  par(ps=16,cex.sub=0.7,cex.main=0.9)
+  par(ps=16,cex.sub=0.6,cex.main=0.7)
 
   plot(c(min(yymm.o[1],yymm.gcm[1]),yymm.gcm[length(yymm.gcm)]),
        y.lim.tr,type="n",
@@ -172,7 +172,7 @@ if (leps) {
                 month,ex.tag,".eps",sep="")
   postscript(file = figname,onefile=TRUE,horizontal=FALSE,paper="a4")
 } else newFig()
-par(ps=16,cex.sub=0.7,cex.main=0.9)
+par(ps=16,cex.sub=0.6,cex.main=0.7)
 
 plot(c(min(yymm.gcm),max(yymm.gcm)),y.lim.tr,type="n",
      main=main,sub=sub,xlab=xlab,ylab=paste("rate of change in",ylab))

@@ -16,11 +16,11 @@
     \item{lwd}{Contour line width.}
     \item{main}{Title of plot, same as 'main' in plot().}
     \item{z.levs}{contour levels.}
-    \item{my.col}{colour template (see \code{link{rgb}}).}
+    \item{my.col}{colour template (see \code{\link{rgb}}).}
     \item{plot}{TRUE for graphics output).}
  }
 \value{A map object.}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 slp <- retrieve.nc("ncep_slp.nc")

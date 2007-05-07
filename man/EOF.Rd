@@ -3,6 +3,8 @@
 \alias{EOF}
 \alias{Empirical orthogonal Functions}
 \alias{PCA}
+\alias{ExtEOF}
+\alias{lagField}
 \alias{principal component analysis}
 \title{Empirical Orthogonal Functions (EOFs).}
 \description{Computes EOFs (a type of principal component
@@ -30,12 +32,19 @@
   See the course notes from Environmental statistics for climate
   researchers \url{http://www.gfi.uib.no/~nilsg/kurs/notes/course.html}
   for a discussion on EOF analysis.
+
+  ExtEOF() computes extended EOFs.
+  lagField()
 }
 
-  \usage{EOF(fields,l.wght=TRUE,lc180e=FALSE,direc="data/",
+\usage{
+EOF(fields,l.wght=TRUE,lc180e=FALSE,direc="data/",
               lon=NULL,lat=NULL,l.stndrd=TRUE,las=1,
               mon=NULL,plot=TRUE,neofs=20,l.rm.ac=TRUE,lsave=TRUE,
-              LINPACK=TRUE,silent=FALSE)}
+              LINPACK=TRUE,silent=FALSE)
+ExtEOF(fields,lag=1,mon=NULL,lon=NULL,lat=NULL)
+lagField(fields,lag=1)
+}
 \arguments{
     \item{fields}{A field object (eg from \link{retrieve.nc}).}
     \item{l.wght}{'TRUE' applies a geographical weighting.}
@@ -52,6 +61,7 @@
     \item{lsave}{'TRUE' dumps the results to file.}
     \item{LINPACK}{'TRUE': svd; 'FALSE':La.svd}
     \item{silent}{'TRUE': quiet mode}
+    \item{lag}{}
 }
 \value{File containing an 'eof.c' object:
   \tabular{ll}{
@@ -112,8 +122,6 @@ print("EOF")
 eof.c <- eof(xX.1,mon=1)
 eof.mc <- eof(xX,mon=1)
 }
-}
-
 }
 \keyword{spatial}
 \keyword{ts}

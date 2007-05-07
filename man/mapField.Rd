@@ -29,7 +29,7 @@
     \item{newFig}{TRUE call \code{\link{newFig}} for new figure.}
   }
 \value{}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 library(clim.pact)
 \dontrun{

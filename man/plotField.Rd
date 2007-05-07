@@ -36,7 +36,7 @@
   \item{ylim}{see \code{\link{plot}}}
 }
 \value{}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 skt <- retrieve.nc("skt.mon.mean.nc",x.rng=c(-90,50),y.rng=c(0,75))

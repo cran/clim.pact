@@ -40,8 +40,8 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
     field.1$yy <- field.1$yy[i1]
     field.1$mm <- field.1$mm[i1]
     field.1$dd <- field.1$dd[i1]
-    
-  }
+  } else i1 <- is.finite(field.1$yy)
+  
   if (!is.null(interval.2)) {
     print(interval.2)
     i2 <- ( (field.2$yy>=interval.2[1]) & (field.2$yy<=interval.2[2]))
@@ -51,7 +51,8 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
     field.2$yy <- field.2$yy[i2]
     field.2$mm <- field.2$mm[i2]
     field.2$dd <- field.2$dd[i2]
-  }
+  } else i2 <- is.finite(field.2$yy)
+  
   if (!is.null(mon)) {
     cmon<-c('Jan','Feb','Mar','Apr','May','Jun',
             'Jul','Aug','Sep','Oct','Nov','Dec')

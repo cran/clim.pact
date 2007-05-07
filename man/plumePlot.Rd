@@ -21,7 +21,7 @@
   \item{lty}{Line style of scenario time series.}
  }
 \value{}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 ds.list<-avail.ds()

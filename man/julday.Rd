@@ -18,7 +18,7 @@ Bug correction: 04.02.2005: got rid of 'Warning messages:
     \item{iyyy}{year.}
  }
 \value{real}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 julday(1,1,1)                       # 1721424
 julday(1,1,1970)                    # 2440588

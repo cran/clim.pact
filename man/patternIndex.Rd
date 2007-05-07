@@ -18,7 +18,7 @@
      dd    \tab days \cr
    }
    }
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 sst <- retrieve.nc("DNMI_sst.nc")

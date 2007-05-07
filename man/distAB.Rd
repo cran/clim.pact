@@ -14,7 +14,7 @@ the formula: d = a * theta, and |x1|*|x2| * cos(theta) = inner-product(x1,x2).}
     \item{a}{Radius of the Earth.}
  }
 \value{A real value: units=meters.}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 distAB(10,60,5,58)    # [1] 362802.3
 distAB(0,0,180,0)     # [1] 20037078

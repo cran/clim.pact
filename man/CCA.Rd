@@ -2,6 +2,8 @@
 \alias{Canonical correlation analysis}
 \alias{CCA}
 \alias{testCCA}
+\alias{Psi}
+\alias{predictCCA}
 \title{Canonical correlation analysis}
 \description{Applies a canonical correlation analysis (CCA) to two data sets. The CCA here
 can be carried out in two different ways: i) an \code{\link{svd}} based approach (after 
@@ -14,11 +16,18 @@ Sciences", Academic Press, p. 401).
 The analysis can also be applied to either EOFs or fields.
 
 Note: the analysis has sometimes been somewhat unstable, returning inconsistent results. The recommendation is to use EOFs and SVD option.
-%\deqn{}{}
+
+The CCA analysis can be used to develope statistical models according to:
+
+\deqn{Y = \Psi X}{Y = Psi X}
+
+Where Y is the predictand and X the predictor. 
 }
 \usage{
 CCA(x1,x2,SVD=TRUE,plot=TRUE,main="CCA",sub="",test=FALSE,i.eofs=1:8,LINPACK=TRUE)
 testCCA(method="CCA",reconstr=FALSE,mode=1,test=TRUE,LINPACK=TRUE,SVD=TRUE,n.pc=4,synthetic=TRUE)
+Psi(cca)
+predictCCA(Psi,X)
 }
 \arguments{
     \item{x1}{A field or an eof object.}
@@ -34,10 +43,14 @@ testCCA(method="CCA",reconstr=FALSE,mode=1,test=TRUE,LINPACK=TRUE,SVD=TRUE,n.pc=
     \item{reconstr}{For the test-reconstruction of fields.}
     \item{mode}{Test for a particular EOF pattern/mode - the other modes are randomized.}
     \item{n.pc}{Number of principal components to include.}
-    \item{synthetic}{Construct artificial test data from a random number generator and cosine series.}
+    \item{synthetic}{Construct artificial test data from a random number
+      generator and cosine series.}
+    \item{cca}{CCA-object. Results from CCA().}
+    \item{Psi}{CCA-based prediction model (a matrix): Y = Psi X}
+    \item{X}{A field object used as predictor: : Y = Psi X}
  }
-\value{A CCA object: a list containing a.m, b.m, u.k, v.k, and r, describing the Canonical Correlation variates, patterns and correlations. a.m and b.m are the patterns and u.k and v.k the vectors (time evolution).)}
-\author{R.E. Benestad}}
+\value{A CCA object: a list containing a.m, b.m, u.k, v.k, and r, describing the Canonical Correlation variates, patterns and correlations. a.m and b.m are the patterns and u.k and v.k the vectors (time evolution).}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 data(DNMI.t2m)

@@ -52,7 +52,7 @@
   country \tab name of country.\cr
   ref \tab reference to the data.\cr}
   }
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 blindern.raw <-read.table("~/data/stations/blindern_rr_day.dat",header=TRUE)

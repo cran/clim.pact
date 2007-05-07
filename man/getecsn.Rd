@@ -24,7 +24,7 @@ Data and metadata available at \url{http://eca.knmi.nl}
   \item{update}{For downloading new data.}
 }
 \value{a <- list of "daily.station.record" class.}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 obs <- getecsn("helsinki")

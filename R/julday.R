@@ -19,8 +19,9 @@ julday <- function(mm,id,iyyy) {
   mm <- trunc(mm)
   id <- trunc(id)
   iyyy <- trunc(iyyy)
+
   im <-  (iyyy == 0)
-  if (sum(im)>0) return("There is no year zero!")
+  if (sum(im,na.rm=TRUE)>0) return("There is no year zero!")
   if ((length(mm) != length(id)) | (length(mm) != length(iyyy)) |
       (length(iyyy) != length(id))) return("The vectors must have same length!")
   im <-  (iyyy < 0)

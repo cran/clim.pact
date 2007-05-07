@@ -24,7 +24,7 @@
     \item{landdata}{"addland" gives hiher resolution for coast lines, but is slower.}
  }
 \value{}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 x <- retrieve.nc("T2M_p.nc")

@@ -17,7 +17,7 @@ preClim.station(x,dd=NULL,mm=NULL,yy=NULL,param=1)
     \item{param}{For daily objects: identifies the parameters (addClim.station) or determines which model to use (preClim.station).}
  }
 \value{A station object (addClim.station) or a vector (preClim.station).}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 data(oslo.dm, envir=environment())
 oslo.dma <- anomaly.station(oslo.dm)

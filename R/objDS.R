@@ -14,8 +14,8 @@ for (mon in months) {
    eval(parse(text=paste(var.n,"<-",var.n," - mean(",var.n,",na.rm=TRUE)",sep="")))
    var.n <- paste("result$",mon,"$y.o",sep="")
    eval(parse(text=paste(var.n,"<-",var.n," - mean(",var.n,",na.rm=TRUE)",sep="")))
-
 }
+
 # Plotting and diagnostics:
 
 # Construct a time series for the whole year:
@@ -94,6 +94,21 @@ if (!is.null(result$Jan$f.name)) {
 
 if (sum(is.element(figs,1))>0) {newFig()
 par(cex.main=0.8)
+
+ele <- result$station$ele
+if (ele==101) {
+  val.rng <- c(-10,10)
+  y.cal[y.cal > max(val.rng)] <- NA
+  y.cal[y.cal < min(val.rng)] <- NA
+  y.gcm[y.gcm > max(val.rng)] <- NA
+  y.gcm[y.gcm < min(val.rng)] <- NA
+} else if (ele==601) {
+  val.rng <- c(0,300)
+  y.cal[y.cal > max(val.rng)] <- NA
+  y.cal[y.cal < min(val.rng)] <- NA
+  y.gcm[y.gcm > max(val.rng)] <- NA
+  y.gcm[y.gcm < min(val.rng)] <- NA
+}                                
 plot(range(yymm.obs,yymm.gcm,na.rm=TRUE),
      range(y.obs,y.gcm,y.cal,na.rm=TRUE),type="n",
      main=main,sub=subtitle,xlab="Time",ylab=result$Jan$unit)
@@ -129,6 +144,8 @@ res.rng <- range(result$Jan$step.wise$residual,result$Feb$step.wise$residual,
                  result$Sep$step.wise$residual,result$Oct$step.wise$residual,
                  result$Nov$step.wise$residual,result$Dec$step.wise$residual, na.rm=TRUE)
 if (sum(is.element(figs,2))>0) {newFig()
+
+par(cex.main=0.7)                                
 plot(c(0,length(result$Jan$yy.o)),res.rng,     
      type="n", main=paste("Residuals ",result$Jan$v.name," anomalies at ",result$Jan$location,
                           "     (",round(result$Jan$lat.loc,2),"N/",round(result$Jan$lon.loc,2),"E)",sep=""),
@@ -291,17 +308,17 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
   }
   rates <- rep(NA,12)
   for (imon in mon) {
-    if (plot) {
-      newFig()
-      if (dev.cur() > 1) par(cex.sub=0.6,cex.axis=0.6,cex.lab=0.6,fin=c(2.37,2.37))
-    }
+#    if (plot) {
+#      newFig()
+#      if (dev.cur() > 1) par(cex.sub=0.6,cex.axis=0.6,cex.lab=0.6,fin=c(2.37,2.37))
+#    }
     #print(imon)
-    cormap <- corField(field.obs,station,mon=imon,main="",plot=FALSE)
+    cormap <- corField(field.obs,station,mon=imon,main="",plot=plot)
     if ((lower.case(options()$device)=="x11") & (plot)) {
-       dev.copy2eps(file=paste(direc,"/cormap_",cmon[imon],".eps",sep=""))
+       #print("HERE1"); print(dev.cur()); print(direc); print(options()$device)
+       dev.copy2eps(file=paste(direc,"cormap_",cmon[imon],".eps",sep=""))
        #dev2bitmap(file=paste("cormap_",cmon[imon],".jpg",sep=""),type="jpeg",width=2.37,height=2.37,res=300)
-       dev2bitmap(file=paste("cormap_",cmon[imon],".jpg",sep=""),res=300)
-       dev.off()
+       dev2bitmap(file=paste(direc,"cormap_",cmon[imon],".jpg",sep=""),res=300)
     }
 
     # Find optimal longitudes & latitudes:
@@ -341,13 +358,11 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     if (y.rng[2] < station$lat+10) y.rng[2] <- station$lat+10
     #print(x.rng); print(y.rng)
     if (plot) {
+      #print("HERE1"); print(dev.cur()); print(direc); print(options()$device)
       par(cex.sub=0.6,cex.axis=0.6,cex.lab=0.6,fin=c(2.37,2.37),fig=c(0,1,0,1))
       plot(range(c(field.obs$lat,field.obs$lon)),range(cormap$map,na.rm=TRUE),type="n",
            main="",xlab="deg N & deg E",ylab="",
            sub=paste(round(field.obs$lon[ix],2),"E/",round(field.obs$lat[iy],2),"N",sep=""))
-#      plot(range(c(field.obs$lat,field.obs$lon)),range(cormap$map,na.rm=TRUE),type="n",
-#           main=paste("Finding optimal domain for",cmon[imon]),xlab="deg N & deg E",
-#           sub=paste(round(field.obs$lon[ix],2),"E/",round(field.obs$lat[iy],2),"N",sep=""))
       grid()
       lines(range(c(field.obs$lat,field.obs$lon)),rep(0,2),lty=3)
       points(field.obs$lat,yprof)
@@ -360,8 +375,9 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
       lines(rep(x.rng[1],2),range(cormap$map,na.rm=TRUE),lty=2,col="red")
       lines(rep(x.rng[2],2),range(cormap$map,na.rm=TRUE),lty=2,col="red")
       if ((lower.case(options()$device)=="x11") & (plot)) {
-        dev.copy2eps(file=paste(direc,"/objDS_",cmon[imon],"_1.eps",sep=""))
-        dev2bitmap(file=paste("objDS_",cmon[imon],"_1.jpg",sep=""),type="jpeg",width=2.37,height=2.37,res=300)
+        #print("HERE2"); print(dev.cur()); print(direc); print(options()$device)
+        dev.copy2eps(file=paste(direc,"objDS_",cmon[imon],"_1.eps",sep=""))
+        dev2bitmap(file=paste(direc,"objDS_",cmon[imon],"_1.jpg",sep=""),type="jpeg",width=2.37,height=2.37,res=300)
       }
     }
     print("catFields:")
@@ -503,6 +519,7 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
            result$Jul$pre.gcm,result$Aug$pre.gcm,result$Sep$pre.gcm,
            result$Oct$pre.gcm,result$Nov$pre.gcm,result$Dec$pre.gcm)
   #print("ds.yy:")
+  
   ds.yy <- result$Jan$yy.gcm
   station.series <- station.obj(ds.val,ds.yy,obs.name=paste("downscaled",station$obs.name),
                                 station$unit,ele=station$ele,mm=NULL,
@@ -512,11 +529,11 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
                                 start=station$start,yy0=min(ds.yy),country=station$country,
    ref=paste("clim.pact >= v2.1-4 > objDS (Benestad, 2004, Eos, vol 85, #42, Oct 19, p.417):",
                                 field.2$filename))
-  result$station <- station.series
+   result$station <- station.series
 
 #print("objDS - HERE... plot?")
   if (plot) {
-    plotDSobj(result)
+    plotDSobj(result,outdir=direc)
   }
 #print("exit objDS")
   invisible(result)

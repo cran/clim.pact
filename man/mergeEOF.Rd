@@ -21,7 +21,7 @@ for reconstructing fields.}
     \item{adjust}{TRUE: apply \code{\link{adjust.eof}} to results.}
   }
 \value{An 'eof' object.}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 data(DNMI.slp)

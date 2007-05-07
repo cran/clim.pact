@@ -11,7 +11,7 @@ dependency to the \code{chron} and \code{date} packages. See also \code{\link{ju
     \item{julian}{The Julian day from 1-1-1.}
  }
 \value{a list with: month, day, and year}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 caldat(1)        # month=1, day=2, year=-4713
 caldat(1721424)  #       1,     1,          1

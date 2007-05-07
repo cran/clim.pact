@@ -1,6 +1,6 @@
 Package: clim.pact
-Version: 2.2-4
-Date: August 17 2006
+Version: 2.2-5
+Date: May 7 2007
 Title: Climate analysis and downscaling package for monthly and daily data.
 Author: Rasmus E. Benestad <rasmus.benestad@met.no>
 Maintainer: Rasmus E. Benestad <rasmus.benestad@met.no>
@@ -9,4 +9,4 @@ Description: The package contains R functions for retrieving data, making climat
 License: GPL version 2 or newer. The use should be acknowledged in publication acknowledgement: .. "results were obtained using clim.pact by Benestad (The Norwegian Meteorological Institute and the Norwegian Research Council's RegClim programme)."
 URL: http://www.r-project.org http://cran.r-project.org
 ZipData: no 
-Packaged: Thu Aug 17 16:11:38 2006; rasmusb
+Packaged: Mon May  7 11:31:03 2007; rasmusb

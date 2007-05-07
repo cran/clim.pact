@@ -21,7 +21,7 @@ distribution.}
     \item{force.zero}{Force the e.d.f. to start from 0.}
  }
 \value{a list object of class 'dist2norm' containing a vector and the empirical transform functions.}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 }
 \keyword{manip}

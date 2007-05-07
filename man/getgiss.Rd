@@ -57,7 +57,7 @@ getnarp(stnr=NULL,location=NULL,lon=NULL,lat=NULL,stations=NULL,silent=FALSE,ele
   }
 or a list of station details if the requested station was not found.
 }
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 \dontrun{
 #GISS:

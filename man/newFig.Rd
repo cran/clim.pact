@@ -7,7 +7,7 @@
 \arguments{
 }
 \value{}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 }
 \keyword{device}

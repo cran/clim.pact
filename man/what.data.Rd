@@ -6,7 +6,7 @@
 \usage{what.data()}
 \arguments{
 }
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 what.data()
 }

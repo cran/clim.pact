@@ -51,3 +51,35 @@ anomaly.field <- function(x,period=NULL) {
   attr(x$dat,'description') <- 'anomaly'
   invisible(x)  
 }
+
+
+daily2monthly.field <- function(field,min.days.month=20,method="colMeans",na.rm=TRUE) {
+  if (lower.case(class(field)[2])!="daily.field.object") stop("daily2monthly.field: needsdaily.field.object ")
+  x <- field$dat
+
+  unit <- field$unit
+  ele <- field$ele
+  ny <- length(field$lat); nx <- length(field$lon); nt <- length(field$tim)
+  years <- as.numeric(rownames(table(field$yy))); nyrs <-  length(years)
+  months <- 1:12
+  val <- rep(NA,nyrs*12*ny*nx)
+  dim(val) <- c(nyrs*12,ny*nx)
+  dim(x) <- c(nt, ny*nx)
+  for (iy in 1:ny) {
+    for (im in 1:12) {
+      this.month.year <-  is.element(field$mm,im) & is.element(field$yy,years[iy])
+      if (sum(this.month.year,na.rm=TRUE) > min.days.month) {
+        if (!na.rm) val[iy,im] <- eval(parse(text=paste(method,"(x[this.month.year,])",sep=""))) else 
+            val[(iy-1)*12+im,,] <- eval(parse(text=paste(method,"(x[this.month.year,],na.rm=TRUE)",sep="")))         
+      } else print(paste(im,years[iy],"number of days=",sum(this.month.year,na.rm=TRUE)))
+    }
+  }
+  dim(val) <- c(nyrs*12,ny,nx)
+  res <-  list(dat=val,lon=field$lon,lat=field$lat,tim=1:(nyrs*12),lev=field$lev,
+               v.name=field$v.name,id.x=field$id.x,id.t=rep(field$id.t[1],nyrs*12),
+               yy=sort(rep(years,12)),mm=rep(12,nyrs),dd=rep(15,nyrs*12),n.fld=1,
+               id.lon=rep(field$v.name,nx),id.lat=rep(field$v.name,ny),
+               attributes=c(field$attributes,'daily2monthly.field'),filename=field$filename)
+  class(res) <- c("field","monthly.field.object")
+  invisible(res)
+}

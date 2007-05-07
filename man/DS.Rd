@@ -107,7 +107,9 @@ is: \deqn{y= c_1 + 2 c_2 x + 3 c_3 x^2 +  4 c_4 x^3 + 5 c_5 x^4.}{y= c1
     \item{param}{Name of parameter (for plot labels).}
     \item{plot.res}{'TRUE' shows statistics for residuals.}
     \item{plot.rate}{'TRUE' shows analysis of rate-of-change.}
-    \item{xtr.args}{Extra/additional arguments in the formula.}
+    \item{xtr.args}{Extra/additional arguments in the formula. E.g. for
+      method=='glm', one can pass on 'xtr.args="family='gaussian'"'. Can
+      be used to pass on the \code{\link{family}} argument to \code{\link{glm}}.}
     \item{swsm}{Step-wise screening method, default=='step'; 'none'
       skips stepwise sceeening.}
     \item{predm}{Prediction method, default is "predict"}.
@@ -162,7 +164,7 @@ is: \deqn{y= c_1 + 2 c_2 x + 3 c_3 x^2 +  4 c_4 x^3 + 5 c_5 x^4.}{y= c1
     id.1, id.2 \tab IDs labelling which data was used for calibration (id.1).
   }
 }
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 library(clim.pact)
 data("oslo.t2m")

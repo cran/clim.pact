@@ -36,7 +36,7 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
   time.ts=FALSE
 
   if (!is.null(lon) & is.null(lat) & is.null(tim)) {
-    print("Time-lat")
+    #print("Time-lat")
     dx <- mean(diff(x$lon),na.rm=TRUE)
     ii <- (x$lon >= min(lon)) & (x$lon < max(lon) + dx)
     if (sum(ii)==1) Z <- x$dat[,,ii] else if (sum(ii)>1) {
@@ -61,7 +61,7 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
   }
 
   if (is.null(lon) & !is.null(lat) & is.null(tim)) {
-    print("Time-lon")
+    #print("Time-lon")
     dy <- mean(diff(x$lat),na.rm=TRUE)
     ii <- (x$lat >= min(lat)) & (x$lat < max(lat) + dy)
     if (sum(ii)==1) Z <- t(x$dat[,ii,]) else if (sum(ii)>1) {
@@ -108,7 +108,7 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
   } 
   # Time series - call lower level plot function:
   if (!is.null(lon) & !is.null(lat)) {
-    print("plotField: Time-series")
+    #print("plotField: Time-series")
     results <- grd.box.ts(x,lon,lat,what=what,col=col,
                           lty=lty,lwd=lwd,pch=pch,type=type,add=add,
                           main=main,sub=sub,xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim)
@@ -130,7 +130,7 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
         }
       }
     } else if (lon.lat) {
-      print("Longitude-latitude map")
+      #print("Longitude-latitude map")
         ac.mod<-matrix(rep(NA,nt*6),nt,6)
         ac.mod[,1]<-cos(2*pi*x$tim/365.25); ac.mod[,2]<-sin(2*pi*x$tim/365.25)
         ac.mod[,3]<-cos(4*pi*x$tim/365.25); ac.mod[,4]<-sin(4*pi*x$tim/365.25)
@@ -155,7 +155,7 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
   }
 
   if (!time.ts) {
-    print(paste("2D-plots",what))
+    #print(paste("2D-plots",what))
     Z <- switch(lower.case(substr(what,1,3)),
                               "ano"=Z - clim,
                               "cli"=clim,

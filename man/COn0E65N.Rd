@@ -11,7 +11,7 @@
  \item{lat}{latitude}
 }
 \value{list(y=latitudes distance,x= longitudes distance)}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 library(clim.pact)
 data(oslo.t2m)

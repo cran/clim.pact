@@ -9,7 +9,7 @@ downscaled scenarios can be handled like station series.}
     \item{what}{either 'scenario' or 'calibration'}
   }
 \value{a station object}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 data(eof.c)
 data(oslo.t2m)

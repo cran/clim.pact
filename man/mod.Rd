@@ -9,7 +9,7 @@ the expression x/y.}
   \item{y}{denominator (integer).}
 }
 \value{integer value from 0 .. (y-1)}
-\author{R.E. Benestad}}
+\author{R.E. Benestad}
 \examples{
 mod(101,10)   # 1
 mod(4,12)     # 4

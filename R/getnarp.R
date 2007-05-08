@@ -45,7 +45,7 @@ unit<-switch(as.character(ele[1]),
   if (is.numeric(location) & is.null(stnr)) {stnr <- location; location <- NULL} else
       if (is.numeric(location)) location <- NULL
 
-  if (!silent) print("Retrieving the data from URL http://projects.met.no/~narp/narp")
+  if (!silent) print("Retrieving the data from URL http://projects.met.no/~narp/")
   if (!silent) print("Please be patient")
   if (!is.null(stnr)) {
      locmatch <- is.element(narp.stnr,stnr)
@@ -97,6 +97,7 @@ unit<-switch(as.character(ele[1]),
   #print(stnr)
   if (!is.null(stnr)) {
     fname <- paste("http://projects.met.no/~narp/narp",ele,".txt",sep="")
+    print(fname)
     narp <- read.fwf(fname,widths=c(5,3,4,rep(5,12)))
     iii <- is.element(narp$V1,stnr)
     narp[narp <= -9990] <- 0

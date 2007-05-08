@@ -404,7 +404,7 @@ if (length(step.wise$coefficients)>1) {
                            stat$fstatistic[3])))
   } else if (method=="anm") {
     cor.test(y,eval(parse(text=paste(predm,"(lm.mod)",sep=""))))
-    r2.stat <- cor.test(y,predict.anm(lm.mod))
+    r2.stat <- cor.test(y,eval(parse(text=paste(predm,"(lm.mod)",sep=""))))
     r2 <- as.numeric(round(100*r2.stat$estimate^2,2))
     p.val <- round(100*r2.stat$p.value,2)
   } else {

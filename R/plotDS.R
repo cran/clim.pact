@@ -226,5 +226,6 @@ if (leps) {
 }
 }
 
+detach(ds.obj)
 invisible(ds.map)
 }

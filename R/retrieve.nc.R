@@ -368,15 +368,17 @@ print(calendar)
       dd <- caldat(juldays)$day
       daysayear<- 365.25
       force365.25 <- TRUE
-    }  
-    if ( (r2.gcm > r2.real) & (length(rownames(table(diff(tim)))) <= 2) &
-        ( (substr(lower.case(t.unit),1,3)=="day") | (substr(lower.case(t.unit),1,4)=="hour") ) & 
-        !force365.25) {
-      print("> > > > Detecting a '360-day' model year! < < < <")
-      yy <- yy0 + floor((tim +(mm0-1)*30+dd0-2)/360)
-      mm <- mod(mm0 + floor((dd0+tim-2)/30)-1,12)+1
-      dd <- mod(dd0+tim-2,30)+1
-      daysayear<- 360
+    }
+    if (is.finite(r2.gcm) & is.finite(r2.real)) {
+      if ( (r2.gcm > r2.real) & (length(rownames(table(diff(tim)))) <= 2) &
+          ( (substr(lower.case(t.unit),1,3)=="day") | (substr(lower.case(t.unit),1,4)=="hour") ) & 
+          !force365.25) {
+        print("> > > > Detecting a '360-day' model year! < < < <")
+        yy <- yy0 + floor((tim +(mm0-1)*30+dd0-2)/360)
+        mm <- mod(mm0 + floor((dd0+tim-2)/30)-1,12)+1
+        dd <- mod(dd0+tim-2,30)+1
+        daysayear<- 360
+      }
     }
   }
 

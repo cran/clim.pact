@@ -4,8 +4,12 @@
 \alias{testCCA}
 \alias{Psi}
 \alias{predictCCA}
+\alias{plotCCA}
+\alias{stations2field}
+\alias{check.repeat}
 \title{Canonical correlation analysis}
-\description{Applies a canonical correlation analysis (CCA) to two data sets. The CCA here
+\description{
+Applies a canonical correlation analysis (CCA) to two data sets. The CCA here
 can be carried out in two different ways: i) an \code{\link{svd}} based approach (after 
 Bretherton et al. (1992), J. Clim. Vol 5, p. 541, also documented in Benestad (1998): 
 "Evaluation of Seasonal Forecast Potential for Norwegian  Land Temperatures and Precipitation using CCA", 
@@ -21,15 +25,28 @@ The CCA analysis can be used to develope statistical models according to:
 
 \deqn{Y = \Psi X}{Y = Psi X}
 
-Where Y is the predictand and X the predictor. 
+Where Y is the predictand and X the predictor.
+\code{plotCCA} plots the CCA results, \code{testCCA} is for code
+verification, and \code{Psi} returns the matrix \deqn{\Psi}{Psi}.
+
+\code{stations2field} turns a group of station objects into a field by
+the means of a simple and crude interpolation/gridding. \code{check.repeat} is a quality-control
+function that eliminates repeated years in the station objects.
 }
 \usage{
 CCA(x1,x2,SVD=TRUE,plot=TRUE,main="CCA",sub="",test=FALSE,i.eofs=1:8,LINPACK=TRUE)
+plotCCA(cca)
 testCCA(method="CCA",reconstr=FALSE,mode=1,test=TRUE,LINPACK=TRUE,SVD=TRUE,n.pc=4,synthetic=TRUE)
 Psi(cca)
 predictCCA(Psi,X)
+stations2field(data.set=c("narp"),ele=101,obj.type="monthly.field.object",
+               plot=TRUE,silent=FALSE,intrp.method="interpp",
+               interpolation.option="simple")
+check.repeat(x)
+
 }
 \arguments{
+    \item{cca}{A CCA object.}
     \item{x1}{A field or an eof object.}
     \item{x2}{A field or an eof object.}
     \item{SVD}{Flag: determine which approach to use: SVD or eigenfunction-based alogithm.}
@@ -45,9 +62,17 @@ predictCCA(Psi,X)
     \item{n.pc}{Number of principal components to include.}
     \item{synthetic}{Construct artificial test data from a random number
       generator and cosine series.}
-    \item{cca}{CCA-object. Results from CCA().}
     \item{Psi}{CCA-based prediction model (a matrix): Y = Psi X}
     \item{X}{A field object used as predictor: : Y = Psi X}
+    \item{data.set}{Strings (eg, "narp","nordklim",or "nacd") if data
+      has been installed, or list of station objects (and nothing else)}.
+    \item{ele}{element code - see \code{\link{getnordklim}}.}
+    \item{obj.type}{}
+    \item{silent}{}
+    \item{intrp.method}{Method fro gridding the data.}
+    \item{interpolation.option}{Either "simple","distance", or
+      "test". In current version, it's only "simple" which seems to work.}
+    \item{x}{station object.}
  }
 \value{A CCA object: a list containing a.m, b.m, u.k, v.k, and r, describing the Canonical Correlation variates, patterns and correlations. a.m and b.m are the patterns and u.k and v.k the vectors (time evolution).}
 \author{R.E. Benestad}
@@ -60,6 +85,8 @@ eof.2 <- EOF(DNMI.slp,mon=1)
 cca <- CCA(eof.1,eof.2)
 # Testing routine:
 testCCA()
+
+
 }
 }
 \keyword{manip}

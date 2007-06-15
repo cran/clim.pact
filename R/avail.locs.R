@@ -8,6 +8,12 @@ avail.locs <- function(ele=101) {
 #  source("strip.R")
 
   nacd.meta<-read.table('data/appendix.2')
+  if (!file.exists('data/nordklim_station_catalogue_v1_0.prn')) {
+    print('Your need to obtain the data first - URL http://www.smhi.se/hfa_coord/nordklim/nkds.htm')
+    print('Then save the data in ASCI-format with column widths')
+    print('Catalogue: c(2,30,12,11,11,4,3,2,4,3,2,9,rep(6,23))')
+    error()
+  }
   nordklim.meta<-read.fwf( 'data/nordklim_station_catalogue_v1_0.prn',
                  skip=1,as.is=TRUE,fill=TRUE,
                  width=c(2,30,12,11,11,4,3,2,4,3,2,

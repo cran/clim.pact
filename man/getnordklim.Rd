@@ -10,12 +10,13 @@
   
 }
 \usage{
-getnordklim(location="prompt",ele.c='101',ascii=FALSE,silent=FALSE,direc="data")
+getnordklim(location=NULL,ele.c='101',ascii=FALSE,silent=FALSE,direc="data")
 getHadObs(what="CET")
 }
 
 \arguments{
-  \item{location}{ name of climate station location.}
+  \item{location}{ name of climate station location. NULL returns the
+    list of all names.}
   \item{ele.c}{ name of element [e.g. avail.elem(), or 't2m', 'rr', 'slp'].}
   \item{ascii}{ Flag. T -> force ascii read, otherwise look for
     R-formatted verion (faster).}

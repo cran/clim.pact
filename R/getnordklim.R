@@ -10,7 +10,7 @@
 #
 # R.E. Benestad
 
-getnordklim <- function(location="prompt",ele.c='101',
+getnordklim <- function(location=NULL,ele.c='101',
                         ascii=FALSE,silent=FALSE,direc="data") {
 
 
@@ -18,15 +18,13 @@ getnordklim <- function(location="prompt",ele.c='101',
 #source("COn0E65N.R")
 #source("avail.locs.R")
 
-#if (location=="prompt") {
-#  locs <- avail.locs(as.integer(ele.c))
-#  print(length(locs))
-#  locs.name <- locs$name[locs$ident=="NORDKLIM"]
-#  print(locs.name)
-#  i.loc <- readline(prompt="Please enter the number of desired location: ")
-#  i.loc <- as.integer(i.loc)
-#  location <- locs.name[i.loc]
-#}
+if (is.null(location)) {
+  locs <- avail.locs(as.integer(ele.c))
+  print(length(locs))
+  locs.name <- locs$name[locs$ident=="NORDKLIM"]
+  locs.name[is.element(upper.case(locs.name),"JAN")] <- "Jan_Mayen"
+  return(locs.name)
+}
 ele <- c(101,111,112,113,121,122,123,401,601,602,701,801,911)
 
 #print(ele.c)  

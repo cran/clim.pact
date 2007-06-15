@@ -116,9 +116,10 @@ print(dim(a.m)); print(dim(X1))
      }
     dim(a.m) <- d.1; dim(b.m) <- d.2
  } #endif (eof)
-  
+
   sub <- paste("r=",round(R[1],2),sub)
-  cca <- list(a.m = a.m, b.m =b.m, u.k= u.k, v.k = v.k, r=R)
+  cca <- list(a.m = a.m, b.m =b.m, u.k= u.k, v.k = v.k, r=R,
+              x1=x1,x2=x2, main=main, sub=sub, i1=i1, i2=i2)
   if (test) {
     cca$C.11 <- C.11 
     cca$C.22 <- C.22 
@@ -129,13 +130,28 @@ print(dim(a.m)); print(dim(X1))
   }
   class(cca) <- c("CCA", class(x1)[2])
 
-  if (plot) {
+  if (round(R[1],2) != round(cor(u.k[i1,1],v.k[i2,1]),2)) {
+    print("WARNING: The correlations are not internally consistent!")
+    print(paste("CCA: leading canonical correlation=", round(R[1],2),
+                " actual correlation=",round(cor(u.k[i1,1],v.k[i2,1]),2)))
+  }
+
+  rm(a.m, b.m, main, R, u.k, v.k, x1, x2, sub)  
+  if (plot) plotCCA(cca)
+  invisible(cca)
+}
+
+plotCCA <- function(cca) {
+    attach(cca)
     #print(dim(t(a.m[1,,]))); print(c(length(x1$lon),length(x1$lat)))
-    contour(x1$lon,x1$lat,t(a.m[1,,]),lwd=2,col="darkblue",
-        main=main, sub=sub) 
+    image(x1$lon,x1$lat,t(a.m[1,,]),col = cm.colors(21),
+        main=main, sub=sub,xlim=range(c(x1$lon,x2$lon)),
+        ylim=range(c(x1$lat,x2$lat)))    
     addland()
+    contour(x1$lon,x1$lat,t(a.m[1,,]),lwd=2,col="darkblue",add=TRUE)
     contour(x2$lon,x2$lat,t(b.m[1,,]),lwd=1,add=TRUE,col="darkred")
-    legend(min(x1$lon),max(x1$lat),c(x1$v.name,x2$v.name),col=c("darkblue","darkred"),
+    legend(min(c(x1$lon,x2$lon)),max(c(x1$lat,x2$lat)),c(x1$v.name,x2$v.name),
+           col=c("darkblue","darkred"),
            lwd=c(1,2),bg="grey95")
 
     newFig()
@@ -147,17 +163,11 @@ print(dim(a.m)); print(dim(X1))
            lwd=1,lty=c(1,2),bg="grey95")
 
     newFig()
-    plot(R,pch=20,cex=1.7,main="Canonical correlations",sub=sub,ylim=c(0,1.2))
+    plot(r,pch=20,cex=1.7,main="Canonical correlations",sub=sub,ylim=c(0,1.2))
     grid()
-  }
-  if (round(R[1],2) != round(cor(u.k[i1,1],v.k[i2,1]),2)) {
-    print("WARNING: The correlations are not internally consistent!")
-    print(paste("CCA: leading canonical correlation=", round(R[1],2),
-                " actual correlation=",round(cor(u.k[i1,1],v.k[i2,1]),2)))
-  }
-
-  invisible(cca)
+    detach(cca)
 }
+
 
 MVR <- function(x,y,plot=TRUE,main="Multivariate regression",sub="",test=FALSE,i.eofs=1:8,LINPACK=TRUE,SVD=TRUE) {
 # y = x %psi + %xi
@@ -463,8 +473,8 @@ testCCA <- function(method="CCA",reconstr=FALSE,mode=1,test=TRUE,LINPACK=TRUE,SV
 }
 
 Psi <- function(cca) {
-  G <- cca$a.m; d <- dim(G); dim(G) <- c(d[1],d[2]*d[3])
-  H <- cca$b.m; d <- dim(H); dim(H) <- c(d[1],d[2]*d[3])
+  G <- cca$a.m; d1 <- dim(G); dim(G) <- c(d1[1],d1[2]*d1[3])
+  H <- cca$b.m; d2 <- dim(H); dim(H) <- c(d2[1],d2[2]*d2[3])
   M <- diag(cca$r)
   V <- cca$u.k
   U <- cca$v.k
@@ -474,6 +484,9 @@ Psi <- function(cca) {
   if (class(cca)[1] =="CCA") Psi <- G %*% M %*% solve(t(H) %*% H) %*% t(H)
   #if (class(cca)[1] =="SVD") Psi <- G %*% M %*% solve(Cxx) %*% t(H)
   class(Psi) <- paste(class(cca)[1],"model",sep=".")
+  attr(Psi,"dims") <- d1
+  attr(Psi,"lon") <- cca$x1$lon
+  attr(Psi,"lat") <- cca$x1$lat
   Psi
 }
   
@@ -484,11 +497,213 @@ predictCCA <- function(Psi,X) {
   X <- field$dat
   d <- dim(X); dim(X) <- c(d[1],d[2]*d[3])
   X <- t(X)
-  print(dim(Psi)); print(dim(X))
+  #print(dim(Psi)); print(dim(X)); print(d)
   Y.hat <-  Psi %*% X
   field$dat <- t(Y.hat)
-  dim(field$dat) <- d
+  #print(dim(field$dat))
+  d1 <- attr(Psi,"dims")
+  dim(field$dat) <- c(d[1],d1[2],d1[3])
+  field$lon <- attr(Psi,"lon"); nx <- length(field$lon)
+  field$lat <- attr(Psi,"lat"); ny <- length(field$lat)
+  field$id.x <- rep("CCA",nx*ny)
+  field$id.lon <- rep("CCA",nx)
+  field$id.lat <- rep("CCA",ny)
+  field$id.t <- rep("CCA",d[1])
+  #print("HERE")
   if (type[1]=="eof") result <- EOF(field) else result <- field
   result
 }
 
+
+check.repeat <- function(x) {
+
+  if (max(as.numeric(table(x$yy)))==1) return(x)
+  
+  yy <- seq(min(x$yy),max(x$yy),by=1); ny <- length(yy)
+  val <- matrix(rep(NA,ny*12),ny,12)
+  for (it in 1:ny) {
+    ii <- (1:ny)[is.element(yy[it],x$yy)]
+    #print(yy[it]); print(ii); print(ii[1]); print(dim(val)); print(dim(x$val))
+    val[it,] <- x$val[ii[1],]
+  }
+  x$val <- val
+  x$yy <- yy
+  invisible(x)
+}
+
+stations2field <- function(data.set=c("narp"),ele=101,obj.type="monthly.field.object",
+                           plot=TRUE,silent=FALSE,intrp.method="interpp",
+                           interpolation.option="simple") {
+  first.obs <- TRUE
+  if (!silent) print("stations2field")
+
+  if (is.character(data.set)) {
+    for (i.data in 1:length(data.set)) {
+      method <- paste("get",data.set[i.data],sep="")
+      if (!silent) print(paste(method,"()",sep=""))
+      stations<- eval(parse(text=paste(method,"()",sep="")))
+      if (is.list(stations)) {
+        if(!is.null(stations$number)) stations <-  as.numeric(stations$number) else 
+        if(!is.null(stations$stnr)) stations <-  as.numeric(stations$stnr) else
+        if(!is.null(stations$station)) stations <-  as.numeric(stations$station) else
+        if(!is.null(stations$name)) stations <-  stations$name else
+        if(!is.null(stations$location)) stations <-  stations$location
+      }
+      if (!silent) print(stations)
+      ns <- length(stations)
+      is <- 1
+      while (is <= ns) {
+        if (!silent) print(stations[is])
+        if (is.character(stations[is])) obs <-
+               eval(parse(text=paste(method,"('",stations[is],"',ele=",ele,")",sep=""))) else
+        if (is.numeric(stations[is])) obs <-
+               eval(parse(text=paste(method,"(",stations[is],",ele=",ele,")",sep="")))
+        if (length(obs$yy) > 0)  {
+          obs <- check.repeat(obs)
+          if (first.obs) {
+            yy.int <- range(obs$yy)
+            yy <- sort(rep(yy.int[1]:yy.int[2],12))
+            mm <- rep(1:12,length(yy.int[1]:yy.int[2]))
+            nt <- length(yy)
+            dat <- matrix(rep(NA,ns*nt),ns,nt)
+            lon <- rep(NA,ns); lat <- lon
+            first.obs <- FALSE
+          }
+          yy.obs <- sort(rep(obs$yy,12))
+          mm.obs <- rep(1:12,length(obs$yy))
+          y <- c(t(obs$val))
+          i1 <- is.element(yy*100+mm,yy.obs*100+mm.obs)
+          i2 <- is.element(yy.obs*100+mm.obs,yy*100+mm)
+          dat[is,i1] <- y[i2]
+          lon[is] <- obs$lon
+          lat[is] <- obs$lat
+         } else {
+          ns <- ns-1
+       }
+       is <- is+1
+      }
+      if ( (length(data.set)>1) & (i.data==1) ) {
+        Dat <- dat
+        Lon <- lon
+        Lat <- lat
+      } else if ( (length(data.set)>1) & (i.data>1) ) {
+        Dat <- cbind(Dat,dat)
+        Lon <- c(Lon,lon)
+        Lat <- c(Lat,lat)
+      } else if (length(data.set)==1) {
+        Dat <- dat
+        Lon <- lon
+        Lat <- lat
+     }
+    }
+  } else {
+    print("Presumes that 'data.set' is a list of station objects")
+    stations<- names(data.set)
+    ns <- length(stations)
+    for (is in 1:ns) {
+        if (!silent) print(stations[is])
+        obs <- eval(parse(text=paste("data.set$",stations[is],sep="")))
+        obs <- check.repeat(obs)
+        if (first.obs) {
+          yy.int <- range(obs$yy)
+          yy <- sort(rep(yy.int[1]:yy.int[2],12))
+          mm <- rep(1:12,length(yy.int[1]:yy.int[2]))
+          nt <- length(yy)
+          dat <- matrix(rep(NA,ns*nt),ns,nt)
+          lon <- rep(NA,ns); lat <- lon
+          first.obs <- FALSE
+        }
+        yy.obs <- sort(rep(obs$yy,12))
+        mm.obs <- rep(1:12,length(obs$yy))
+        y <- c(t(obs$val))
+        i1 <- is.element(yy*100+mm,yy.obs*100+mm.obs)
+        i2 <- is.element(yy.obs*100+mm.obs,yy*100+mm)
+        dat[is,i1] <- y[i2]
+        lon[is] <- obs$lon
+        lat[is] <- obs$lat
+      }
+      if ( (length(data.set)>1) & (i.data==1) ) {
+        Dat <- dat
+        Lon <- lon
+        Lat <- lat
+      } else if ( (length(data.set)>1) & (i.data>1) ) {
+        Dat <- cbind(Dat,dat)
+        Lon <- c(Lon,lon)
+        Lat <- c(Lat,lat)
+      } else if (length(data.set)==1) {
+        Dat <- dat
+        Lon <- lon
+        Lat <- lat
+     }
+  }
+
+  i.val <- is.finite(Lon)
+  Dat <- Dat[i.val,]
+  Lon <- Lon[i.val]
+  Lat <- Lat[i.val]
+
+  i.val <- is.finite(colMeans(Dat))
+  Dat <- Dat[,i.val]
+  yy <- yy[i.val]; nt <- length(yy)
+  mm <- mm[i.val]
+
+  x.centre <- mean(Lon)
+  y.centre <- mean(Lat)
+  xy <- COn0E65N(Lon, Lat,lon.0=x.centre,lat.0=y.centre)
+
+  lat <- seq(min(Lat),max(Lat),by=0.25); ny <-length(lat)
+  lon <- seq(min(Lon),max(Lon),by=0.50); nx <-length(lon)
+#  lon.xy <- sort(rep(lon,length(lat)))
+#  lat.xy <- rep(lat,length(lon))
+  lon.xy <- rep(lon,length(lat))
+  lat.xy <- sort(rep(lat,length(lon)))
+  XY <- COn0E65N(lon.xy, lat.xy,lon.0=x.centre,lat.0=y.centre)
+  
+  dat <- matrix(rep(NA,nt*nx*ny),nt,ny*nx); dim(dat) <- c(nt,ny,nx)
+  if (!silent) print(c(dim(dat),NA,length(XY$x),NA,length(lon),length(lat),NA,
+                         nx,ny,nx*ny,length(lon.xy)))
+
+  interpolation.approach <- switch(interpolation.option,
+     "simple"=paste("interp(Lon[ok],Lat[ok],Dat[ok,i],lon,lat,duplicate='mean')",sep=""),
+     "distance"=paste(intrp.method,"(xy$x[ok],xy$y[ok],Dat[ok,i],XY$x,XY$y,duplicate='mean')",sep=""),
+     "test"=paste(intrp.method,"(Lon[ok],Lat[ok],Dat[ok,i],lon.xy,lat.xy,duplicate='mean')",sep=""))
+
+  for (i in 1:nt) {
+    ok <- is.finite(Dat[,i])
+    map <- eval(parse(text= interpolation.approach))
+    if (is.list(map)) map <- map$z
+    dim(map) <- c(nx,ny)
+    if(plot) {
+      plot(range(lon),range(lat),type="n",main=paste(i,nt),
+           sub=intrp.method)
+      addland()
+      image(lon,lat,map,add=TRUE,col = cm.colors(21))
+      contour(lon,lat,map,add=TRUE)
+      points(Lon,Lat)
+      text(Lon,Lat,round(Dat[,i],1))
+    }
+    dat[i,,] <- t(map)
+  }
+
+  v.nam <- switch(as.character(ele),"101"="T2m","601"="Precip")
+  data.sets <- ""
+  for (i.data in 1:length(data.set)) data.sets <- paste(data.sets,data.set[i],sep="+")
+  id.x <- rep(v.nam,nx*ny); dim(id.x) <- c(ny,nx)
+  id.t <- rep(v.nam,nt)
+  tim <- 1:nt
+  attr(tim,"unit") <- "month"
+  attr(tim,"time_origin") <- paste(15,mm[1],yy[1],sep="-")
+  dat.att <- list(time.unit="month", time.origin=paste(15,mm[1],yy[1],sep="-"),
+                  unit=obs$unit,
+                  long.name=paste("Field object created from",data.set,obs$obs.name),
+                  filename=NULL,scale.factor=1,add.offset=0,miss=NA,
+                  daysayear=365.25)
+  field  <- list(dat=dat,lon=lon,lat=lat,tim=tim,lev=NULL,
+                 v.name=v.nam,id.x=id.x,id.t=id.t,
+                 yy=yy,mm=mm,dd=rep(15,length(yy)),n.fld=1,
+                 id.lon=rep(v.nam,nx),id.lat=rep(v.nam,ny),
+                 attributes=dat.att,
+                 filename=NULL,Lon.src=Lon,Lat.src=Lat)
+  class(field) <- c("field",obj.type)
+  invisible(field)
+}

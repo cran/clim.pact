@@ -5,12 +5,12 @@
 r2cdf <- function(filename,x,missing=-999.99,cleanup=TRUE,
                   ofs=NULL,scal=NULL) {
 
-  if (class(x)=="field") {
+  if (class(x)[1]=="field") {
     nt <- length(x$tim)
     ny <- length(x$lat)
     nx <- length(x$lon)
     neof <- NULL
-  } else if (class(x)=="map") {
+  } else if (class(x)[1]=="map") {
     nt <- 1
     ny <- length(x$lat)
     nx <- length(x$lon)
@@ -25,7 +25,7 @@ r2cdf <- function(filename,x,missing=-999.99,cleanup=TRUE,
     neof <- NULL
     x$map[!is.finite(x$map)] <- missing
     if (is.null(x$tim)) x$tim <- 0
-  } else if (class(x)=="eof") {
+  } else if (class(x)[1]=="eof") {
     nt <- length(x$tim)
     ny <- length(x$lat)
     nx <- length(x$lon)
@@ -37,10 +37,10 @@ r2cdf <- function(filename,x,missing=-999.99,cleanup=TRUE,
     return()
   }
   
-  if ((is.null(ofs)) & (min(x$dat,na.rm=TRUE) > 0) & (class(x)=="field")) {
+  if ((is.null(ofs)) & (min(x$dat,na.rm=TRUE) > 0) & (class(x)[1]=="field")) {
     ofs <- 10^(round(log(min(x$dat,na.rm=TRUE))/log(10)))
   } else ofs <- 0
-  if ((is.null(scal)) & (class(x)=="field")) {
+  if ((is.null(scal)) & (class(x)[1]=="field")) {
     max.dev <- range(x$dat[is.finite(x$dat)])
     scal <- 10^(-round(log(32000/(max.dev[2]-max.dev[1]))/log(10)))
   } else scal <- 1
@@ -48,7 +48,7 @@ r2cdf <- function(filename,x,missing=-999.99,cleanup=TRUE,
   x$dat[!is.finite(x$dat)] <- missing
   cdf <- file(paste(filename,".cdf",sep=""),"w")
   cat("netcdf DNMI_slp {","dimensions:",file=cdf,sep = "\n")
-  if (class(x)!="eof") {
+  if (class(x)[1]!="eof") {
     cat(paste("        Lon =",nx,";"),file=cdf,sep = "\n")
     cat(paste("        Lat =",ny,";"),file=cdf,sep = "\n")
   } else {
@@ -69,7 +69,7 @@ r2cdf <- function(filename,x,missing=-999.99,cleanup=TRUE,
   }
 
   cat("variables:",file=cdf,sep = "\n")
-  if (class(x)!="eof") {
+  if (class(x)[1]!="eof") {
     cat("        float Lon(Lon) ;",file=cdf,sep = "\n")
     cat('                Lon:units = "degrees_east" ;',file=cdf,sep = "\n")
     cat('                Lon:modulo = " " ;',file=cdf,sep = "\n")
@@ -157,7 +157,7 @@ r2cdf <- function(filename,x,missing=-999.99,cleanup=TRUE,
   cat("data:",file=cdf,sep = "\n")
   cat(" ",file=cdf,sep = "\n")
 
-  if (class(x)!="eof") {
+  if (class(x)[1]!="eof") {
     cat(" Lon = ",file=cdf,sep = " ")
     cat(as.character(round(x$lon,6)),file=cdf,sep = ", ")
     cat(";",file=cdf,sep = "\n")
@@ -187,8 +187,9 @@ r2cdf <- function(filename,x,missing=-999.99,cleanup=TRUE,
     }
 }
   cat(" Time = ",file=cdf,sep = " ")
-  if (class(x)!="map"){
-    cat("0",file=cdf,sep = ", ")
+  if (class(x)[1]!="map"){
+#    cat("0",file=cdf,sep = ", ")
+    cat(as.character(round(x$tim,1)),file=cdf,sep = ", ")
     cat(";",file=cdf,sep = "\n") 
     cat(" ",file=cdf,sep = "\n")
   } else {
@@ -202,7 +203,7 @@ r2cdf <- function(filename,x,missing=-999.99,cleanup=TRUE,
     cat(" ",file=cdf,sep = "\n")
   }
 
-  if (class(x)=="map"){
+  if (class(x)[1]=="map"){
     cat(paste(" ",x$v.name,sep=""),file=cdf,sep = " ")
     cat("= ",file=cdf,sep = "\n")
     for (j in 1:ny) {
@@ -210,7 +211,7 @@ r2cdf <- function(filename,x,missing=-999.99,cleanup=TRUE,
       if (j < ny) cat(", ",file=cdf,sep = "\n") else
                   cat("; ",file=cdf,sep = "\n")
     }
-  } else   if (class(x)=="field"){
+  } else   if (class(x)[1]=="field"){
     cat(paste(" ",x$v.name,sep=""),file=cdf,sep = " ")
     cat("= ",file=cdf,sep = "\n")
     for (it in 1:nt) {

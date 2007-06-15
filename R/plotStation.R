@@ -91,7 +91,7 @@ if (!is.null(mon)) {
     clim <- mean(obs$val[1,] - obsa$val[1,],na.rm=TRUE)
 
   } else {
-
+    if (l.anom) obs <- obsa
     yy <- obs$yy
     ny <- length(obs$yy)
     mm <- rep(as.vector(mon[1]),ny)

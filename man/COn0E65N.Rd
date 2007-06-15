@@ -5,10 +5,12 @@
 \title{Convert long-lat to km-km}
 \description{The function returns the distance in km from 0E 65N given
   the longitude and latitude. See also \code{\link{km2lon}} and \code{\link{km2lat}}.}
-\usage{COn0E65N(lon, lat)}
+\usage{COn0E65N(lon, lat, lat.0=65,lon.0=0)}
 \arguments{
  \item{lon}{longitude}
  \item{lat}{latitude}
+ \item{lon.0}{latitude for reference point}
+ \item{lat.0}{latitude for reference point}
 }
 \value{list(y=latitudes distance,x= longitudes distance)}
 \author{R.E. Benestad}

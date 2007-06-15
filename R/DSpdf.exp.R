@@ -1,9 +1,13 @@
 
 ExtEOF <- function(fields,lag=1,mon=NULL,lon=NULL,lat=NULL) {
   X.e <- fields
+  id.name <- paste(X.e$id.t[1],0,sep="")
+  X.e$id.x[,]<-id.name; X.e$id.x[]<-id.name; X.e$id.lon[]<-id.name; X.e$id.lat[]<-id.name
   if (lag==0) eeof <- EOF(fields,mon=mon,lon=lon,lat=lat) else {
     for (i in 1:length(lag)) {
       X.l <- lagField(fields,lag[i])
+      id.name <- paste(X.e$id.t[1],i,sep="")
+      X.l$id.x[,]<-id.name; X.l$id.x[]<-id.name; X.l$id.lon[]<-id.name; X.l$id.lat[]<-id.name
       X.e <-  mixFields(X.e,X.l)
     }
     eeof <- EOF(X.e,mon=mon,lon=lon,lat=lat)
@@ -24,6 +28,7 @@ lagField <- function(fields,lag=1) {
     fields$mm[thirteens] <- 1
     fields$yy[thirteens] <- fields$yy[zeros] + 1
   }
+  invisible(fields)
 }
 
 DSpdf.exp <- function(obs=NULL,dT=0,dP=0,plot=TRUE,year=NULL,month=NULL) {

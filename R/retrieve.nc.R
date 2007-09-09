@@ -125,7 +125,7 @@ print(calendar)
   varsize <- count
   lon.we <- lon
   if (!is.null(x.rng)) {
-    if (!silent) print(paste("Longitudes: ",min(lon),"-",max(lon),attr(lon,"unit")))
+    if (!silent) print(paste("Longitudes: ",min(lon[is.finite(lon)]),"-",max(lon[is.finite(lon)]),attr(lon,"unit")))
     if (!silent) print(paste("extract: ",min(x.rng),"-",max(x.rng)))
     if (min(x.rng) < 0 & max(lon > 180)) start[1] <- max(c(sum(lon < min(x.rng))),1) else  # REB fix 21.10.2005
                                          start[1] <- max(sum(lon < min(x.rng)))            # REB fix 21.10.2005
@@ -136,7 +136,7 @@ print(calendar)
     count[1] <- length(lon)
   }
   if (!is.null(y.rng)) {
-    if (!silent) print(paste("Latitudes: ",min(lat),"-",max(lat),attr(lat,"unit")))
+    if (!silent) print(paste("Latitudes: ",min(lat[is.finite(lat)]),"-",max(lat[is.finite(lat)]),attr(lat,"unit")))
     if (!silent) print(paste("extract: ",min(y.rng),"-",max(y.rng)))
     start[2] <- max(sum(lat < min(y.rng)),1)
     iy <- (lat >= min(y.rng) & lat <= max(y.rng))
@@ -183,7 +183,7 @@ print(calendar)
   }
 
   if (is.null(torg)) {
-    print(paste("Time units:",t.unit," l=",min(tim),"-",max(tim)))
+    print(paste("Time units:",t.unit," l=",min(tim[is.finite(tim)]),"-",max(tim[is.finite(tim)])))
     print("Cannot determine the time origin!")
     print("Example format: '15-Dec-1949'")
     print("NCEP reanalysis typically: 01-01-01")
@@ -332,8 +332,8 @@ print(calendar)
   
  # Re-order the data: (old convention)
 
-    if (!silent)print(c(nt,ny,nx,NA,dim(data)))
-    dat <- data*NA; dim(dat) <- c(nt,ny,nx)
+    if (!silent) print(c(nt,ny,nx,NA,dim(data)))
+    dat <- data*NA; dim(dat) <- c(nt,ny,nx); dim(data) <- c(nx,ny,nt);  
     for (i in 1:nt) dat[i,,] <- t(as.matrix(data[,,i]))
     rm(data)
   }
@@ -343,7 +343,8 @@ print(calendar)
 
 # Check for 'model dates', i.e. 360-day year
   #print("---- --- -- - Check for 'model dates', i.e. 360-day year . .. ... ...."); print(nd)
-  if (nd==3) y.test <- as.vector(dat[,1,1]) else y.test <- as.vector(dat[,1,1,1])
+#  if (nd==3) y.test <- as.vector(dat[,1,1]) else y.test <- as.vector(dat[,1,1,1])
+  y.test <- as.vector(dat[,1,1]) 
   #print(c(sum(is.finite(y.test)),length(y.test)))
   if ( (sum(is.finite(y.test)) > 100) & (daysayear != 360) ){
     ac.gcm  <- data.frame(y=y.test, x1=as.vector(cos(2*pi*tim/360)), 
@@ -408,8 +409,9 @@ print(calendar)
   y.srt <- order(lat)
   lon <- lon[x.srt]
   lat <- lat[y.srt]
-  if (nd==3) dat <- dat[,y.srt,x.srt] else
-             dat <- dat[,,y.srt,x.srt]
+#  if (nd==3) dat <- dat[,y.srt,x.srt] else
+#             dat <- dat[,,y.srt,x.srt]
+  dat <- dat[,y.srt,x.srt] 
   
   nx <- length(lon)
   ny <- length(lat)
@@ -482,7 +484,7 @@ print(calendar)
   attr(tim,"time_origin") <- torg
 
 #print(obj.type)
-#print(min(diff(tim)))
+#print(paste("min(diff):",min(diff(tim))))
 #print(sum(is.element(diff(mm),0)))
 
   if ((obj.type=="daily.field.object") & (min(diff(tim))>=28) & (regular) &

@@ -242,6 +242,7 @@ for (i in 1:fields$n.fld) {
   nt <- length(yy)
   stdv[i] <- sd(dat.x,na.rm=TRUE)
 
+  print(summary(c(dat.x)))
   if (!silent) print(paste("Remove mean values at each grid point",nx*ny))
   for (j.y in 1:ny) {
     for (i.x in 1:nx) {
@@ -250,6 +251,7 @@ for (i in 1:fields$n.fld) {
       dat.x[,j.y,i.x] <- dat.x[,j.y,i.x] -  clim[ixy]
     }
   }
+  print(summary(c(dat.x)))
 
   #print("Add geographical weighting")
   if (l.wght) {

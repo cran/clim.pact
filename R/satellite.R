@@ -1,3 +1,85 @@
+
+stereogr<- function(map.obj,NH=TRUE,lat.0=0,inv.col=FALSE,levels=NULL,sym=TRUE,dr=0.01,main=NULL) {
+  old.par <- par()
+  nc1 <- 20; nc2 <- 21
+  if (sym) {
+    z.levs <- seq(-max(abs(as.vector(map.obj$map)),na.rm=TRUE),
+                   max(abs(as.vector(map.obj$map)),na.rm=TRUE),length=41)
+  } else {
+    z.levs <- seq(min(as.vector(map.obj$map),na.rm=TRUE),
+                  max(as.vector(map.obj$map),na.rm=TRUE),length=41)
+  }
+  nc1 <- 20; nc2 <- 21
+  if (!is.null(levels)) {
+    z.levs <- levels
+    nc1 <- floor(length(levels)/2)
+    nc2 <- ceiling(length(levels)/2)
+  }
+  
+  my.col <- rgb(c(seq(0,1,length=nc1),rep(1,nc2)),
+                c(abs(sin((0:(length(z.levs)-1))*pi/(length(z.levs)-1)))),
+                c(c(rep(1,nc2),seq(1,0,length=nc1))))
+    if (inv.col) my.col <- reverse(my.col)
+  par(xaxt="n",yaxt="n")
+  nx <- length(map.obj$lon); ny <- length(map.obj$lat)
+  lonx <- rep(map.obj$lon,ny); latx <- sort(rep(map.obj$lat,nx))
+  if (!NH) latx <- -latx
+  r <- sin( pi*(90-latx)/180 )
+  x <- r*sin(pi*lonx/180)
+  y <- -r*cos(pi*lonx/180)
+  x.grd <- seq(-sin( pi*(90-lat.0)/180 ),sin( pi*(90-lat.0)/180 ),by=0.01); y.grd <- x.grd; Z <- c(map.obj$map)
+  nxy <- length(x.grd)
+  good <- is.finite(Z) & (latx>lat.0)
+  polar <- interp(x[good],y[good],Z[good],x.grd,y.grd,duplicate="mean")$z
+
+  if (sum(!is.finite(map.obj$map))>0) {
+    map <- polar+NA
+    x.good <- x[good]; y.good <- y[good]
+    X.grd <- rep(x.grd,nxy); Y.grd <- sort(rep(y.grd,nxy))
+# test:     print(sum(good))
+    for (i in 1:sum(good)) {
+      r <- sqrt( (X.grd - x.good[i])^2 + (Y.grd - y.good[i])^2 )
+      valid <- (r  < dr)
+      map[valid] <- polar[valid]
+    }
+  } else map <- polar
+# test:     print(summary(r)); print(length(r)); print(length(X.grd))
+  if (is.null(main)) main=map.obj$description
+  if (nchar(main)>40) par(cex.main=0.75)
+  if (nchar(main)>60) par(cex.main=0.60)
+  
+  image(x.grd,y.grd,map,xlab="",ylab="",main=main,col = my.col,sub=map.obj$date)
+  contour(x.grd,y.grd,map,add=TRUE)
+# test:   points(x[good],y[good],pch="+",col="red")
+
+  data(addland)
+  if (!NH) lat.cont <- -lat.cont
+  ok <- is.finite(lon.cont) & is.finite(lat.cont)  & (lat.cont>lat.0)
+  lat.cont <- abs(lat.cont)
+  lon.cont[!ok] <-  -9999
+  lat.cont[!ok] <-  -9999
+  lon.cont[lon.cont > 180] <- lon.cont[lon.cont > 180] - 360
+  lon.cont[!ok] <- NA; lat.cont[!ok] <- NA
+
+  r <- sin( pi*(90-lat.cont)/180 )
+  x.cont <- r*sin(pi*(lon.cont)/180)
+  y.cont <- -r*cos(pi*(lon.cont)/180)
+  lines(x.cont,y.cont,col="grey30")
+
+  s <- seq(-2*pi,2*pi,length=360)
+  lines(cos(s),sin(s))
+  for (i in 1:8) {
+    if (i*10 > lat.0) lines(sin( pi*(90-i*10)/180 )*cos(s),sin( pi*(90-i*10)/180 )*sin(s),col="grey")
+    text(0,sin( pi*(90-i*10)/180 ),as.character(i*10),col="grey",cex=0.7)
+  }
+  stereog <- list(lon=x.grd,lat=y.grd,map=map,date=m$data,tim=m$tim,description=m$description)
+  class(stereog) <- c("map","polar-stereographic")
+  invisible(stereog)
+#  par(old.par)
+}
+
+
+
 satellite <- function(map.obj,col="black",lwd=2,lty=1,add=FALSE,
                       las = 1,lon.0=NULL,lat.0=NULL,method="normal",
                       ni=100,nj=100, n.nearest=4,max.dist=3,landdata="addland2") {
@@ -224,6 +306,6 @@ satellite <- function(map.obj,col="black",lwd=2,lty=1,add=FALSE,
   }
   lines(x.cont,y.cont,col="grey30")
   for (i.map in 1:n.maps){
-    contour(x.grd,y.grd,as.matrix(map.xy[,,i.map]),add=T,lwd=lwd,lty=lty,col=col)
+    contour(x.grd,y.grd,as.matrix(map.xy[,,i.map]),add=TRUE,lwd=lwd,lty=lty,col=col)
   }
 } 

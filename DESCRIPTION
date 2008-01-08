@@ -1,6 +1,6 @@
 Package: clim.pact
-Version: 2.2-9
-Date: September 09 2007
+Version: 2.2-12
+Date: January 8 2008
 Title: Climate analysis and empirical-statistical downscaling (ESD) package for monthly and daily data.
 Author: Rasmus E. Benestad <rasmus.benestad@met.no>
 Maintainer: Rasmus E. Benestad <rasmus.benestad@met.no>
@@ -9,4 +9,4 @@ Description: The package contains R functions for retrieving data, making climat
 License: GPL (>= 2)
 URL: http://www.gvc2.gu.se/ngeo/rcg/edu/esd.pdf
 ZipData: no 
-Packaged: Fri Sep  7 13:56:50 2007; rasmusb
+Packaged: Tue Jan  8 14:02:23 2008; rasmusb

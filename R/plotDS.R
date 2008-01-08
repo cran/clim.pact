@@ -56,7 +56,7 @@ if (!add) {
     postscript(file = figname,onefile=TRUE,horizontal=FALSE,paper="a4")
   } else newFig()
   if (plot.map) {
-    par(ps=16,cex.sub=0.6,cex.main=0.7)
+    par(ps=16,cex.sub=0.6,cex.main=0.7,cex.main=0.6)
     plot(c(floor(min(lons,na.rm=TRUE)),ceiling(max(lons,na.rm=TRUE))),
          c(floor(min(lats,na.rm=TRUE)),ceiling(max(lats,na.rm=TRUE))),type="n",
          main=main,sub=sub,xlab=xlab,ylab=ylab)
@@ -125,7 +125,7 @@ if ((!add) & (plot.ts)) {
                     month,ex.tag,".eps",sep="")
     postscript(file = figname,onefile=TRUE,horizontal=FALSE,paper="a4")
   } else newFig()
-  par(ps=16,cex.sub=0.6,cex.main=0.7)
+  par(ps=16,cex.sub=0.6,cex.main=0.7,cex.main=0.6)
 
   plot(c(min(yymm.o[1],yymm.gcm[1]),yymm.gcm[length(yymm.gcm)]),
        y.lim.tr,type="n",
@@ -180,8 +180,8 @@ grid()
 lines(yymm.gcm,tr.est.p.fit, col = "blue",lwd=3)
 lines(c(min(yymm.gcm),max(yymm.gcm)),c(rate.ds,rate.ds),col = "red",lwd=2)
 
-legend(min(yymm.gcm),-1.5,c("Polinomial fit","Linear fit"),
-       lwd=c(3,2),col=c("blue","red"),bg="grey95")
+legend(min(yymm.gcm),max(y.lim.tr),c("Polinomial fit","Linear fit"),
+       lwd=c(3,2),col=c("blue","red"),cex=0.7,bg="grey95")
 if (leps) { 
     if (dev.cur()>1) dev.off()
   file.copy(figname,direc)

@@ -8,10 +8,13 @@
   path to include the location of \code{ncdump} and \code{ncgen} (two
   netCDF executables, usually under a netcdf direcory). Alternatively,
   set the \code{path}.}
-\usage{cdfcont(filename,path="")}
+\usage{cdfcont(filename,path="",method=NULL)}
 \arguments{
     \item{filename}{name of netCDF file.}
     \item{path}{Path to the location where \code{ncdump} and \code{ncgen} are located.}
+    \item{method}{The name of the function making calls to the
+      system. In Linux, it is 'system', in Windows 'shell'. If set to
+      NULL, the code tries to decide between these two by probing using \code{\link{Sys.info}}}
  }
 \value{a list object containing two character vectors: \code{vars} and
   \code{dims} holding the names of the variables and

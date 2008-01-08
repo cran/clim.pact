@@ -147,6 +147,7 @@ if (v.name=="mT(2") v.name <- "T"
 ny<-length(dat$yy)
 
 if ( (ny < 20) | (sum(is.na(dat$yy))>0) ) {
+  warning("ds: short time series")
   if (!silent) print("ds: WARNING: ... SENSING POSSIBLE PROBLEMS!...")
   if (!silent) print(paste("For predictor, you selected",preds$f.name))
   if (!silent) print(paste("for predictand, you selected",loc))
@@ -379,14 +380,14 @@ if ((swsm!="none") & !is.null(swsm)) {
 }  else step.wise<-lm.mod
 step.wise$coefficients[!is.finite(step.wise$coefficients)] <- 0
 
-if (!silent) print(paste("                    - - - - - length(step.wise$coefficients)=",length(step.wise$coefficients)))
+if (!silent) print(paste("          - - - - - length(step.wise$coefficients)=",length(step.wise$coefficients)))
 
 #print(paste(">---5: length y.o=",length(y.o),"length(yy.o)=",length(yy.o)))
 if (!silent) print("ANOVA from step-wise regression:")
 
 stat <- summary(step.wise)
 
-if ( length(step.wise$coefficients)==1 ) {
+if ( length(step.wise$coefficients)<=1 ) {
   print("--------------------------------------------------------------")
   print("---------- No correlation what so ever -----------------------")
   print("---------- Stepwise sceeening removed all variables ----------")
@@ -394,6 +395,7 @@ if ( length(step.wise$coefficients)==1 ) {
   screening.failure <- TRUE
   x <-  list(screening.failure=screening.failure);
   x
+  warning("ds: screening failure - no correlation")
   if (exit.on.screening.failure) return()
 }
 if (length(step.wise$coefficients)>1) {

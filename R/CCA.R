@@ -565,8 +565,8 @@ stations2field <- function(data.set=c("narp"),ele=101,obj.type="monthly.field.ob
             yy <- sort(rep(yy.int[1]:yy.int[2],12))
             mm <- rep(1:12,length(yy.int[1]:yy.int[2]))
             nt <- length(yy)
-            dat <- matrix(rep(NA,ns*nt),ns,nt)
-            lon <- rep(NA,ns); lat <- lon
+            Dat <- matrix(rep(NA,ns*nt),ns,nt)
+            Lon <- rep(NA,ns); Lat <- Lon
             first.obs <- FALSE
           }
           yy.obs <- sort(rep(obs$yy,12))
@@ -574,27 +574,14 @@ stations2field <- function(data.set=c("narp"),ele=101,obj.type="monthly.field.ob
           y <- c(t(obs$val))
           i1 <- is.element(yy*100+mm,yy.obs*100+mm.obs)
           i2 <- is.element(yy.obs*100+mm.obs,yy*100+mm)
-          dat[is,i1] <- y[i2]
-          lon[is] <- obs$lon
-          lat[is] <- obs$lat
+          Dat[is,i1] <- y[i2]
+          Lon[is] <- obs$lon
+          Lat[is] <- obs$lat
          } else {
           ns <- ns-1
        }
        is <- is+1
       }
-      if ( (length(data.set)>1) & (i.data==1) ) {
-        Dat <- dat
-        Lon <- lon
-        Lat <- lat
-      } else if ( (length(data.set)>1) & (i.data>1) ) {
-        Dat <- cbind(Dat,dat)
-        Lon <- c(Lon,lon)
-        Lat <- c(Lat,lat)
-      } else if (length(data.set)==1) {
-        Dat <- dat
-        Lon <- lon
-        Lat <- lat
-     }
     }
   } else {
     print("Presumes that 'data.set' is a list of station objects")
@@ -609,8 +596,8 @@ stations2field <- function(data.set=c("narp"),ele=101,obj.type="monthly.field.ob
           yy <- sort(rep(yy.int[1]:yy.int[2],12))
           mm <- rep(1:12,length(yy.int[1]:yy.int[2]))
           nt <- length(yy)
-          dat <- matrix(rep(NA,ns*nt),ns,nt)
-          lon <- rep(NA,ns); lat <- lon
+          Dat <- matrix(rep(NA,ns*nt),ns,nt)
+          Lon <- rep(NA,ns); Lat <- Lon
           first.obs <- FALSE
         }
         yy.obs <- sort(rep(obs$yy,12))
@@ -618,43 +605,26 @@ stations2field <- function(data.set=c("narp"),ele=101,obj.type="monthly.field.ob
         y <- c(t(obs$val))
         i1 <- is.element(yy*100+mm,yy.obs*100+mm.obs)
         i2 <- is.element(yy.obs*100+mm.obs,yy*100+mm)
-        dat[is,i1] <- y[i2]
-        lon[is] <- obs$lon
-        lat[is] <- obs$lat
-      }
-      if ( (length(data.set)>1) & (i.data==1) ) {
-        Dat <- dat
-        Lon <- lon
-        Lat <- lat
-      } else if ( (length(data.set)>1) & (i.data>1) ) {
-        Dat <- cbind(Dat,dat)
-        Lon <- c(Lon,lon)
-        Lat <- c(Lat,lat)
-      } else if (length(data.set)==1) {
-        Dat <- dat
-        Lon <- lon
-        Lat <- lat
-     }
+        Dat[is,i1] <- y[i2]
+        Lon[is] <- obs$lon
+        Lat[is] <- obs$lat
+    }
   }
 
   i.val <- is.finite(Lon)
   Dat <- Dat[i.val,]
   Lon <- Lon[i.val]
   Lat <- Lat[i.val]
-
   i.val <- is.finite(colMeans(Dat))
   Dat <- Dat[,i.val]
   yy <- yy[i.val]; nt <- length(yy)
   mm <- mm[i.val]
-
   x.centre <- mean(Lon)
   y.centre <- mean(Lat)
   xy <- COn0E65N(Lon, Lat,lon.0=x.centre,lat.0=y.centre)
 
   lat <- seq(min(Lat),max(Lat),by=0.25); ny <-length(lat)
   lon <- seq(min(Lon),max(Lon),by=0.50); nx <-length(lon)
-#  lon.xy <- sort(rep(lon,length(lat)))
-#  lat.xy <- rep(lat,length(lon))
   lon.xy <- rep(lon,length(lat))
   lat.xy <- sort(rep(lat,length(lon)))
   XY <- COn0E65N(lon.xy, lat.xy,lon.0=x.centre,lat.0=y.centre)

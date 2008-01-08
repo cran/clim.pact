@@ -2,11 +2,15 @@
 #
 # R.E. Benestad, 23.09.2003
 
-cdfcont <- function(filename,path="") {
+cdfcont <- function(filename,path="",method=NULL) {
 
   cmon<-c('Jan','Feb','Mar','Apr','May','Jun',
           'Jul','Aug','Sep','Oct','Nov','Dec')
 
+  a <- Sys.info()
+  if ( (lower.case(a[1])=="linux") & is.null(method)) method <- "system" else
+  if ( (lower.case(a[1])=="windows") & is.null(method)) method <- "shell" else
+   if ( is.null(method)) {print(a); stop("cdfcont: 'method' unspecified!")}
   sls <- instring("/",filename)
   if (sls[1] > 0) {
     path <- paste(path,substr(filename,1,sls[length(sls)]),sep="")
@@ -16,8 +20,8 @@ cdfcont <- function(filename,path="") {
   if (!file.exists(paste(path,filename,sep=""))) {
     stop(paste("Sorry,",paste(path,filename,sep="")," does not exist!"))
   }
-  system("rm -f cdfcont.txt")
-  system(paste("ncdump -h  ",paste(path,filename,sep="")," > cdfcont.txt",sep=""),intern=T)
+  eval(parse(text=paste(method,'("rm -f cdfcont.txt")',sep="")))
+  eval(parse(text=paste(method,'("ncdump -h ',path,filename,' > cdfcont.txt",intern=T)',sep="")))
   cdfhead <- readLines("cdfcont.txt")
   #print(cdfhead)
   cdfvars <- cdfhead[c(grep("float",lower.case(cdfhead)),

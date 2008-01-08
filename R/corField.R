@@ -119,6 +119,8 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
                    x$yy*10000+x$mm*100+x$dd)
     i2<-is.element(x$yy*10000+x$mm*100+x$dd,
                    yy*10000+mm*100+dd)
+
+  if ( (sum(i1)==0) | (sum(i2)==0) ) stop('CorField: no matching dates.')
   #print(rbind(yy[i1]*100+mm[i1],x$yy[i2]*100+x$mm[i2]))
   ni <- length(x$lon)
   nj <- length(x$lat)
@@ -177,10 +179,11 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
   if (is.null(attributes(y$dat)$"long_name")) attr(y$dat,"long_name") <- y$v.name
   
   if (is.null(main)) {
-    if (class(y)[1]=="station") main <- paste(descr,attributes(x$dat)$"long_name","&",
-                                              param,"at",y$location) else
-                                main <- paste(descr,attributes(x$dat)$"long_name","&",
-                                              attributes(y$dat)$"long_name")
+    if (class(y)[1]=="station") {
+      main <- paste(descr,x$v.name,"&",param,"at",y$location)
+      if (!is.null(attributes(y)$lagStation)) date <- paste(date," (lag=",attributes(y)$lagStation,")",sep="")
+    } else main <- paste(descr,x$v.name,"&",y$v.name,"(Pointwise)")
+    descr <- main
   }
 
   if (lsig.mask) {

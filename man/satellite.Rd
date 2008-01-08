@@ -1,11 +1,16 @@
 \name{satellite}
 \alias{polar stereographic}
+\alias{stereogr}
 \alias{satellite}
 \title{Satellite view / polar stereographic}
-\description{Produces polar stereographic maps / satellite views.}
-\usage{satellite(map.obj,col="black",lwd=2,lty=1,add=FALSE,
+\description{Produces polar stereographic maps / satellite
+  views. \code{stereogr} is simpler, newer, and faster then \code{satellite}.}
+\usage{
+stereogr(map.obj,NH=TRUE,lat.0=0,inv.col=FALSE,levels=NULL,sym=TRUE,dr=0.01,main=NULL)
+satellite(map.obj,col="black",lwd=2,lty=1,add=FALSE,
                       las = 1,lon.0=NULL,lat.0=NULL,method="normal",
-                      ni=100,nj=100, n.nearest=4,max.dist=3,landdata=addland2)}
+                      ni=100,nj=100,n.nearest=4,max.dist=3,landdata=addland2)
+}
 \arguments{
     \item{map.obj}{a map object (\code{\link{mapField}}).}
     \item{col}{contour colours.}
@@ -22,6 +27,13 @@
     \item{n.nearest}{Number of points to use in re-gridding.}
     \item{max.dist}{The maximum inter-point distance used for re-gridding.}
     \item{landdata}{"addland" gives hiher resolution for coast lines, but is slower.}
+    \item{inv.col}{Inverse color scheme.}
+    \item{NH}{Northern Hemisphere?.}
+    \item{levels}{contour/shading levels.}
+    \item{main}{Main title - see \code{\link{plot}}.}
+    \item{sym}{symmetric colour scale?.}
+    \item{dr}{used for masking interpolated values in data voids. Look
+      of result may be sensitive to spatial grid resolution.}
  }
 \value{}
 \author{R.E. Benestad}

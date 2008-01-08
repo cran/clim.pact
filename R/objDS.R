@@ -427,10 +427,20 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
 
     print("Grading for spatial pattern")
     field.x <- catFields(field.obs,lon=field.2$lon,lat=field.2$lat,mon=imon)
-    cormap <- corField(field.x,station,mon=imon,main="",plot=FALSE)
-    patt.1 <- c(t(cormap$map))
-    patt.2 <- c(ds$X.1) 
-    valid <- is.finite(patt.1) & is.finite(patt.2)
+    dims <- dim(field.x$dat)
+    if ( (length(dims)==3) & (dims[2]>1) & (dims[3]>1) ) {
+      cormap <- corField(field.x,station,mon=imon,main="",plot=FALSE)
+      patt.1 <- c(t(cormap$map))
+      patt.2 <- c(ds$X.1) 
+      valid <- is.finite(patt.1) & is.finite(patt.2)
+    } else {
+      print("objDS: Unexpected dimensions of field.x")
+      print(dims)
+      warning("objDS: Unexpected dimensions of field.x")
+      patt.1 <- rep(0,length(ds$X.1))
+      patt.2 <- c(ds$X.1) 
+      valid <- is.finite(patt.2)      
+    }
     if (sum(valid) > 30) grade.pattern <- round(10*cor(patt.1[valid],patt.2[valid]))/10 else
                          grade.pattern <- NA
     print(paste("Spatial correlation: ",sum(valid),"valid points. r=",grade.pattern))

@@ -13,7 +13,7 @@ if (lower.case(class(obs)[2])=="monthly.station.record") {
   ny <- length(obs$yy)
   value <- t(obs$val)
   clim <- rep(NA,12)
-  if (!is.null(period)) ii <- ((obs$yy>=period[1]) & (obs$yy<=period[2])) else
+  if (!is.null(period)) ii <- ((obs$yy>=min(period)) & (obs$yy<=max(period))) else
                         ii <- is.finite(obs$yy)
   for (im in 1:12) {
         clim[im] <- mean(value[im,ii],na.rm=TRUE)
@@ -127,7 +127,8 @@ daily2monthly.station <- function(obs,param="t2m",min.days.month=20,method="mean
                                    "lat","lon","alt","ele","x.0E65N","y.0E65N",
                                    "found","location","wmo.no","start","yy0",
                                    "country","ref"))]
-  if ( (length(cont)!=length(obs$unit)) | (length(cont)!=length(obs$ele))) stop("daily2monthly.station: number of elements doesn't match number of units/codes")
+  if ( (length(cont)!=length(obs$unit)) | (length(cont)!=length(obs$ele)))
+    stop("daily2monthly.station: number of elements doesn't match number of units/codes")
   unit <- obs$unit[is.element(cont,param)]
   ele <- obs$ele[is.element(cont,param)]
   years <- as.numeric(rownames(table(obs$yy))); ny <-  length(years)

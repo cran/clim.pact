@@ -60,7 +60,11 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
     my.col <- rgb(c(seq(0,1,length=nc1),rep(1,nc2)),
                   c(abs(sin((0:(length(z.levs)-1))*pi/(length(z.levs)-1)))),
                   c(c(rep(1,nc2),seq(1,0,length=nc1))))
-    if (inv.col) my.col <- reverse(my.col)
+    if (inv.col) {
+    my.col <- rgb(c(seq(1,0,length=nc1),rep(0,nc2)),
+                  c(abs(sin((0:(length(z.levs)-1))*pi/(length(z.levs)-1)))),
+                  c(c(rep(0,nc2),seq(0,1,length=nc1))))
+    }
     if (!add) { filled.contour(x$lon,x$lat,map,xlim=xlim,ylim=ylim,
                                col = my.col,levels=z.levs,
                                main=main,sub=sub,xlab="Longitude",ylab="Latitude")

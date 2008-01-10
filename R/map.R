@@ -3,6 +3,8 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
                 levels=NULL,main=NULL,sub=NULL,xlim=NULL,ylim=NULL,newFig=TRUE) {
   library(akima)
 
+  if (add) newFig <- FALSE
+  
   if (options()$device=="none") plot=FALSE
   if (!is.null(y)) {
     nx.1 <- dim(x$map)[1]; ny.1 <- dim(x$map)[2]
@@ -34,6 +36,8 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
     nc1 <- floor(length(levels)/2)
     nc2 <- ceiling(length(levels)/2)
   }
+
+  main <- x$description
   if (is.null(main)) main <- paste(attributes(x$dat)$"long_name")
 
   if (is.null(x$tim)) if (length(x$tim) > 1) {
@@ -42,7 +46,7 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
     x$tim <- date
   }
 
-  if (is.null(sub)) {
+  if ((is.null(sub)) & (is.null(date))) {
   if (length(x$date)==1) {
     if (is.null(x$tim)) sub <- x$date else
                         sub <- paste(x$date,": ",x$tim,sep="")
@@ -50,10 +54,11 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
     if (is.null(x$tim)) sub <- paste(x$date[1],"-", x$date[length(x$date)]) else
                         sub <- paste(x$date[1]," - ", x$date[length(x$date)],": ",x$tim,sep="")
   }
-  }
+  } else if (!is.null(date)) sub <- x$date
 
   if (is.null(xlim)) xlim <- range(x$lon[is.finite(x$lon)]) 
-  if (is.null(ylim)) ylim <- range(x$lat[is.finite(x$lat)]) 
+  if (is.null(ylim)) ylim <- range(x$lat[is.finite(x$lat)])
+
   if (plot) {
     if (newFig) newFig()
     
@@ -67,8 +72,8 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
     }
     if (!add) { filled.contour(x$lon,x$lat,map,xlim=xlim,ylim=ylim,
                                col = my.col,levels=z.levs,
-                               main=main,sub=sub,xlab="Longitude",ylab="Latitude")
-              }
+                               main=main,xlab="longitude",ylab="latitude",sub=sub)
+              } else  mtext(side=1,paste(x$description,x$date),col=col,cex=0.7)
     # From filled.contour in base
     mar.orig <- (par.orig <- par(c("mar","las","mfrow")))$mar
     on.exit(par(par.orig))
@@ -83,7 +88,7 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
     ci <- 10^ceiling(log(max(abs(z.levs)))/log(10))
     cis <- seq(floor(min(z.levs)),ceiling(max(z.levs)),by=0.05*ci)
     contour(x$lon,x$lat,map,add=TRUE,col=col,lwd=lwd,lty=lty,levels=cis)
-    addland()
+    if (!add) addland()
   }
   results <- list(lon=x$lon,lat=x$lat,map=map,v.name=x$v.name,
                   tim=x$tim,date=x$date,attributes=x$attributes)

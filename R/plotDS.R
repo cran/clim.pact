@@ -56,7 +56,7 @@ if (!add) {
     postscript(file = figname,onefile=TRUE,horizontal=FALSE,paper="a4")
   } else newFig()
   if (plot.map) {
-    par(ps=16,cex.sub=0.6,cex.main=0.7,cex.main=0.6)
+    par(ps=16,cex.sub=0.6,cex.main=0.7)
     plot(c(floor(min(lons,na.rm=TRUE)),ceiling(max(lons,na.rm=TRUE))),
          c(floor(min(lats,na.rm=TRUE)),ceiling(max(lats,na.rm=TRUE))),type="n",
          main=main,sub=sub,xlab=xlab,ylab=ylab)
@@ -146,7 +146,7 @@ if (plot.ts) {
 
   if (!add) legend(quantile(c(yymm.o,yymm.gcm),0.01),
                  max(c(ds.obj$y.o,ds.obj$pre.ds.obj$y,pre.gcm)),
-                 c("Obs.","Fit","GCM","Trends"),cex=0.75,
+                 c("Obs.","Fit","GCM","Trends"),cex=0.65,
                  col=c("darkblue","grey40","darkred","red"),
                  lwd=c(3,2,2,1),lty=c(1,2,1,2),pch=c(20,21,21,26,26),
                  merge=TRUE,bg="grey95")

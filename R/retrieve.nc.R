@@ -127,11 +127,9 @@ print(calendar)
   if (!is.null(x.rng)) {
     if (!silent) print(paste("Longitudes: ",min(lon[is.finite(lon)]),"-",max(lon[is.finite(lon)]),attr(lon,"unit")))
     if (!silent) print(paste("extract: ",min(x.rng),"-",max(x.rng)))
-#    if (min(x.rng) < 0 & max(lon > 180)) start[1] <- max(c(sum(lon < min(x.rng))),1) else  # REB fix 21.10.2005
-#                                         start[1] <- max(sum(lon < min(x.rng)))            # REB fix 21.10.2005
-# Problem indicated by Lijun Fan Jan 08 2008 - selecged area shifted one grid-box to the southwest.    
-    if (min(x.rng) < 0 & max(lon > 180)) start[1] <- max(c(sum(lon <= min(x.rng))),1) else  # REB fix 08.01.2008
-                                         start[1] <- max(sum(lon <= min(x.rng)))            # REB fix 08.01.2008
+    if (min(x.rng) < 0 & max(lon > 180)) start[1] <- max(c(sum(lon < min(x.rng))),1) else  # REB fix 21.10.2005
+                                         start[1] <- max(sum(lon < min(x.rng))+1)          # REB fix 21.10.2005/ REB fix 10.01.2008
+### Problem indicated by Lijun Fan Jan 08 2008 - selecged area shifted one grid-box to the southwest.    
     ix <- (lon >= min(x.rng) & lon <= max(x.rng))
     if (!silent) print(paste("sum(ix)=",sum(ix)))
     lon <- lon[ix]
@@ -142,16 +140,16 @@ print(calendar)
     if (!silent) print(paste("Latitudes: ",min(lat[is.finite(lat)]),"-",max(lat[is.finite(lat)]),attr(lat,"unit")))
     if (!silent) print(paste("extract: ",min(y.rng),"-",max(y.rng)))
 
-#     start[2] <- max(sum(lat < min(y.rng)),1)
-    start[2] <- max(sum(lat <= min(y.rng)),1)                                               # REB fix 08.01.2008
+    if (lat[1] > lat[2]) start[2] <- max(sum(lat < min(y.rng)),1) else          # REB fix 21.10.2005/ REB fix 10.01.2008
+                         start[2] <- max(sum(lat < min(y.rng))+1,1)             # REB fix 21.10.2005/ REB fix 10.01.2008
     iy <- (lat >= min(y.rng) & lat <= max(y.rng))
     lat <- lat[iy]    
     attr(lat,"unit") <- eval(parse(text=paste("ncid$dim$",cdfdims[ilat],"$units",sep="")))
     count[2] <- length(lat)
   }
   if ((!is.null(z.rng)) & nd ==4) {
-#    start[3] <- min(sum(lev < min(z.rng)),1)
-    start[3] <- min(sum(lev <= min(z.rng)),1)                                               # REB fix 08.01.2008
+    if (lev[1] > lev[2]) start[3] <- min(sum(lev < min(z.rng)),1) else          # REB fix 21.10.2005/ REB fix 10.01.2008
+                         start[3] <- min(sum(lev < min(z.rng))+1,1)             # REB fix 21.10.2005/ REB fix 10.01.2008 
     iz <- (lev >= min(z.rng) & lev <= max(z.rng))
     lev <- lev[iz]    
     count[3] <- length(lev)

@@ -81,6 +81,15 @@ mixFields <- function(field.1,field.2,mon=NULL,
   ny.1 <- length(field.1$lat)
   ny.2 <- length(field.2$lat)
 
+  if (length(dim(field.1$dat))==2) {
+    nx.1 <- length(field.1$id.x)
+    ny.1 <- 1
+  }
+  if (length(dim(field.2$dat))==2) {
+    nx.2 <- length(field.2$id.x)
+    ny.2 <- 1
+  }
+  
 # This should never occur!  
   if (nt.1!=nt.2) {
     print("SOMETHING WENT VERY WRONG!")
@@ -114,8 +123,8 @@ mixFields <- function(field.1,field.2,mon=NULL,
   dim(field.1$id.x) <- c(ny.1*nx.1)
   dim(field.2$id.x) <- c(ny.2*nx.2)
   id.x <- as.vector(c(field.1$id.x,field.2$id.x))
-  id.lon <- c(rep(field.1$id.x[1],nx.1),rep(field.2$id.x[1],nx.2))
-  id.lat <- c(rep(field.1$id.x[1],ny.1),rep(field.2$id.x[1],ny.2))
+  id.lon <- c(field.1$id.lon,field.2$id.lon)
+  id.lat <- c(field.1$id.lat,field.2$id.lat)
   id.t <- paste(field.1$id.t,"+",field.2$id.t,sep="")
   var.name <- c(field.1$v.name,field.2$v.name)
   result  <- list(dat=field.mxf,lon=lon,lat=lat,tim=tim,v.name=var.name,

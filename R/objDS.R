@@ -103,7 +103,7 @@ if (ele==101) {
   y.gcm[y.gcm > max(val.rng)] <- NA
   y.gcm[y.gcm < min(val.rng)] <- NA
 } else if (ele==601) {
-  val.rng <- c(0,300)
+  val.rng <- c(-500,500)
   y.cal[y.cal > max(val.rng)] <- NA
   y.cal[y.cal < min(val.rng)] <- NA
   y.gcm[y.gcm > max(val.rng)] <- NA

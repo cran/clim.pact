@@ -40,10 +40,10 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   cdfdims <- rep("-",nd)
   for (i in 1:nd) cdfdims[i] <- ncid$var[[ipick]]$dim[[i]]$name
 #print(cdfdims)
-  ilon <- grep("lon",lower.case(cdfdims))
-  ilat <- grep("lat",lower.case(cdfdims))
-  itim <- grep("tim",lower.case(cdfdims))
-  ilev <- grep("lev",lower.case(cdfdims))
+  ilon <- grep(x.nam,lower.case(cdfdims))
+  ilat <- grep(y.nam,lower.case(cdfdims))
+  itim <- grep(t.nam,lower.case(cdfdims))
+  ilev <- grep(z.nam,lower.case(cdfdims))
 #print(c(ilon,ilat,itim,ilev)) 
   scal <- NULL; offs <- NULL
 
@@ -113,8 +113,11 @@ print(calendar)
   print(paste("Time, units: ",t.unit))
 
   if (length(ilev)>0) {
+    print(paste("Get the levels: ",min(z.rng),max(z.rng)))
     lev <- get.var.ncdf(ncid,cdfdims[ilev])
     attr(lev,"unit") <- eval(parse(text=paste("ncid$dim$",cdfdims[ilev],"$units",sep="")))
+# HERE 05.02.2008   
+#    if (length(lev)==1) nd <- nd - 1
   } else {
     lev <- NULL
   }
@@ -147,12 +150,13 @@ print(calendar)
     attr(lat,"unit") <- eval(parse(text=paste("ncid$dim$",cdfdims[ilat],"$units",sep="")))
     count[2] <- length(lat)
   }
-  if ((!is.null(z.rng)) & nd ==4) {
+  if ((!is.null(z.rng)) & nd ==4  ) {
     if (lev[1] > lev[2]) start[3] <- min(sum(lev < min(z.rng)),1) else          # REB fix 21.10.2005/ REB fix 10.01.2008
                          start[3] <- min(sum(lev < min(z.rng))+1,1)             # REB fix 21.10.2005/ REB fix 10.01.2008 
     iz <- (lev >= min(z.rng) & lev <= max(z.rng))
     lev <- lev[iz]    
     count[3] <- length(lev)
+    nz <- length(lev)
   }
 
 
@@ -312,15 +316,30 @@ print(calendar)
       start[!is.finite(start)] <- 1; start[is.element(start,0)] <- 1; start[!is.numeric(start)] <- 1
       count[!is.finite(count)] <- 1; count[is.element(count,0)] <- 1; count[!is.numeric(count)] <- 1
       data.w <- get.var.ncdf(ncid,v1,start=start,count=count)
-      dim(data.w) <- count
+# HERE 05.02.2008
+      print(c(dim(data.w),NA,count))
+      dim(data.w) <- count 
+
+      print(dim( data ))
+        print(dim( data.w ))
+        print(start)
+        print(count)
+
       lon <- c(lon.we,lon)
 #x11(); image(lon.we,lat,data.w[,,1],main="western H."); addland()
       dat <- matrix(nrow=nt,ncol=ny*(nx+count[1]))
       dim(dat) <- c(nt,ny,nx+count[1])
-      for (i in 1:nt) {
-        if (!is.null(data)) dat[i,,] <- t(rbind(matrix(data.w[,,i],sum(ix),ny),matrix(data[,,i],nx,ny))) else
-                            dat[i,,] <- t(matrix(data.w[,,i],sum(ix),ny))
-      }
+      if (nd==3) {
+        for (i in 1:nt) {
+          if (!is.null(data)) dat[i,,] <- t(rbind(matrix(data.w[,,i],sum(ix),ny),matrix(data[,,i],nx,ny))) else
+                              dat[i,,] <- t(matrix(data.w[,,i],sum(ix),ny))
+        }
+    } else if (nd==4) {
+        for (i in 1:nt) {
+          if (!is.null(data)) dat[i,,,] <- t(rbind(matrix(data.w[,,,i],sum(ix),ny),matrix(data[,,,i],nx,ny,nz))) else
+                              dat[i,,,] <- t(matrix(data.w[,,,i],sum(ix),ny,nz))
+        }
+    }     
       attr(lon,"unit") <- eval(parse(text=paste("ncid$dim$",cdfdims[ilon],"$units",sep="")))
 #print(lon); print(dim(t(dat[1,,]))); print(dim(dat)); print(length(lon)); print(length(lat))
 #print(dim(data));   print(dim(data.w)); print(sum(ix))       

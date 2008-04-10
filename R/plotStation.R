@@ -6,7 +6,8 @@
 plotStation <- function(obs,l.anom=TRUE,mon=NULL,
                         leps=FALSE,out.dir="output",what="b",trend=TRUE,std.lev=TRUE, 
                         type="l",pch=26,col="black",lwd=3,lty=3,add=FALSE,
-                        main=NULL,sub=NULL,xlab=NULL,ylab=NULL,normal.period=NULL) {
+                        main=NULL,sub=NULL,xlab=NULL,ylab=NULL,normal.period=NULL,method="rowMeans") {
+print(method)
 
 if (sum(is.element(c("b","t","d","n"),what))==0) stop("Argumet 'what' must be 'b','t', 'n', or 'd'!")
 if ( (class(obs)[2]!="monthly.station.record") &
@@ -107,10 +108,11 @@ if (!is.null(mon)) {
       obs$val[1,11:12] <- NA
     } 
 
-    if (length(mon)>1) value <- rowMeans(obs$val[,mon]) else
+    # REB 10.04.2008
+    if (length(mon)>1) value <- eval(parse(text=paste(method,"(obs$val[,mon])",sep=""))) else
                        value <- obs$val[,mon]
-    if (is.element(obs$ele,c(101,111,121,401,601,701,801,911)))
-          for (i in 1:ny) value[i] <- mean(obs$val[i,mon],na.rm=TRUE)
+#    if (is.element(obs$ele,c(101,111,121,401,601,701,801,911)))
+#          for (i in 1:ny) value[i] <- mean(obs$val[i,mon],na.rm=TRUE)
     if (is.element(obs$ele,c(112,602)))
           for (i in 1:ny) value[i] <- max(obs$val[i,mon],na.rm=TRUE)
     if (is.element(obs$ele,c(122)))

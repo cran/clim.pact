@@ -10,7 +10,7 @@
 \usage{plotStation(obs,l.anom=TRUE,mon=NULL,
                         leps=FALSE,out.dir="output",what="b",trend=TRUE,std.lev=TRUE,
                         type="l",pch=26,col="black",lwd=3,lty=3,add=FALSE,
-                        main=NULL,sub=NULL,xlab=NULL,ylab=NULL,normal.period=NULL)}
+                        main=NULL,sub=NULL,xlab=NULL,ylab=NULL,normal.period=NULL,method="rowMeans")}
 
 \arguments{
   \item{obs}{A climate station series. }
@@ -34,6 +34,7 @@
   \item{xlab}{x label}
   \item{ylab}{y label}
   \item{normal.period}{Normal period. NULL uses the entire data. Set to \code{c(1961,1990) for the last normal period.}}
+  \item{method}{what to plot (e.g. rowMeans or rowSums)}
 }
 \value{a <- list of "monthly.station.record" class:
   \tabular{ll}{

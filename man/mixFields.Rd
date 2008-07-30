@@ -1,5 +1,7 @@
 \name{mixFields}
 \alias{mixFields}
+\alias{combineFields}
+\alias{combineEOFs}
 \title{mixFields}
 \description{Mix fields by combining two different gridded sets of
   observation. Observations/data for representing values at n different
@@ -26,13 +28,27 @@
   predictors in \code{\link{DS}} in order to downscale climate scenarios
   (Benestad et al. (2002), "Empirically downscaled temperature scenarios
   for Svalbard", \emph{Atm. Sci. Lett.}, doi.10.1006/asle.2002.0051).
+
+  The functions \code{combineFields} and \code{combineEOFs} bundle
+  together fields of different parameters, and allows downscaling of
+  multiple variables, but without performing a mixed-EOF analysis. Thus,
+  allows ESD with a multiple regression analysis involving both e.g. SLP
+  and T(2m) as input variables as in traditional multiple regression:
+
+  \deqn{\hat{y}(t) = alpha_0 + alpha_1 x(t) + alptha_2 + z(t) +
+    ....}{y(t)=a0 + a1 x(t) + a2 + z(t) + ...}  
+ 
 }  
 \usage{
-mixFields(field.1,field.2,mon=NULL,interval=NULL) 
+mixFields(field.1,field.2,mon=NULL,interval=NULL)
+combineFields(field.1,field.2)
+combineEOFs(eof.1,eof.2)
 }
 \arguments{
     \item{field.1}{A 'field.object'.}
     \item{field.2}{A 'field.object'.}
+    \item{eof.1}{An 'EOF.object'.}
+    \item{eof.2}{An 'EOF.object'.}
     \item{mon}{Calendar month to extract.}
     \item{interval}{Time interval to extract.}
   }
@@ -61,6 +77,8 @@ xX <- mixFields(xX.1,xX.2,mon=1,
 print("EOF")
 eof.c <- eof(xX.1,mon=1)
 eof.mc <- eof(xX,mon=1)
+
+
 }
 }
 \keyword{models}

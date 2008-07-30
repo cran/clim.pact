@@ -14,7 +14,7 @@ r2cdf <- function(filename,x,missing=-999.99,cleanup=TRUE,
     nt <- 1
     ny <- length(x$lat)
     nx <- length(x$lon)
-    x$dat <- x$map
+    x$dat <- t(x$map); dim(x$dat) <- c(nt,ny,nx)
     if (is.null(x$v.name)) x$v.name <- "map"
     if (is.null(x$attributes)) {
       x$attributes <- list(time.unit="unknown",
@@ -103,7 +103,7 @@ r2cdf <- function(filename,x,missing=-999.99,cleanup=TRUE,
   }
   
   cat("        float Time(Time) ;",file=cdf,sep = "\n")
-  cat(paste('                Time:units = "',x$attributes$time.unit,'" ;',
+  cat(paste('                Time:units = "',x$attributes$time.unit,'s since ',x$attributes$time.origin,'" ;',
           sep=""),file=cdf,sep = "\n")
   cat(paste('                Time:time_origin = "',x$attributes$time.origin,
           '" ;',sep=""),file=cdf,sep = "\n")
@@ -207,7 +207,7 @@ r2cdf <- function(filename,x,missing=-999.99,cleanup=TRUE,
     cat(paste(" ",x$v.name,sep=""),file=cdf,sep = " ")
     cat("= ",file=cdf,sep = "\n")
     for (j in 1:ny) {
-      cat(as.character(round((x$map[j,]-ofs)/scal)),file=cdf,sep = ", ")
+      cat(as.character(round((x$map[,j]-ofs)/scal)),file=cdf,sep = ", ")
       if (j < ny) cat(", ",file=cdf,sep = "\n") else
                   cat("; ",file=cdf,sep = "\n")
     }

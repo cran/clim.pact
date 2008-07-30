@@ -9,7 +9,7 @@
 }
 \usage{plotStation(obs,l.anom=TRUE,mon=NULL,
                         leps=FALSE,out.dir="output",what="b",trend=TRUE,std.lev=TRUE,
-                        type="l",pch=26,col="black",lwd=3,lty=3,add=FALSE,
+                        type="b",pch=21,col="grey30",lwd=1,lty=1,add=FALSE,
                         main=NULL,sub=NULL,xlab=NULL,ylab=NULL,normal.period=NULL,method="rowMeans")}
 
 \arguments{

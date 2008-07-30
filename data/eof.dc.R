@@ -1,1 +1,0 @@
-load("eof.dc.Rdata")

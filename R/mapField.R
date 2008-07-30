@@ -8,23 +8,23 @@ mapField <- function(x,l=NULL,greenwich=TRUE,plot=TRUE,
       (class(x)[2]!="daily.field.object") & (class(x)[1]!="field")) {
       stop("Need a field.object") }
   if (is.null(l)) l <- length(x$tim)
-#  print("here")
+  print("mapField here 1")
   nx <- length(x$lon); ny <- length(x$lat); nt <- length(x$tim)
   if (is.character(l)) {
     ldate <- datestr2num(l)
     datematch <- is.element(x$yy*10000+x$mm*100+x$dd,ldate[1]*10000+ldate[2]*100+ldate[3])
     l <- (1:length(x$tim))[datematch]
-    #print(c(ldate,NA,sum(datematch),range(x$yy),NA,l,NA,dim(x$dat)))
+    print(c(ldate,NA,sum(datematch),range(x$yy),NA,l,NA,dim(x$dat)))
     #print(rbind(x$yy[30:40],x$mm[30:40],x$dd[30:40]))
   }
   clim <- x$dat[l,,]
-  dd.rng <- range(x$dd)
+  dd.rng <- range(x$dd,na.rm=TRUE)
   if (is.null(attr(x$tim,"units"))) attr(x$tim,"units") <- x$attributes$time.unit
   if ( (lower.case(substr(attr(x$tim,"units"),1,5))=="month") |
        ((dd.rng[2]-dd.rng[1]<4) & (x$mm[2]-x$mm[1]>0)) ) {
     it <- mod(1:nt,12)==mod(l,12)
     dim(clim) <- c(ny*nx)
-    #print(c(nt,ny,nx,NA,dim(x$dat)))
+    print(c(nt,ny,nx,NA,dim(x$dat)))
     dim(x$dat) <- c(nt,ny*nx)
     clim <- colMeans(x$dat)
     dim(clim) <- c(ny,nx)
@@ -60,7 +60,7 @@ mapField <- function(x,l=NULL,greenwich=TRUE,plot=TRUE,
       dim(clim) <- c(ny,nx)
     }
 
-#  print("here")
+  print("mapField here 2")
   cmon<-c('Jan','Feb','Mar','Apr','May','Jun',
           'Jul','Aug','Sep','Oct','Nov','Dec')
   
@@ -95,7 +95,7 @@ mapField <- function(x,l=NULL,greenwich=TRUE,plot=TRUE,
   if (plot) {
 
     if (is.null(val.rng)) {
-      #print("set range")
+      print("Mapfield: set range")
       nn <- floor(-max(abs(as.vector(map[is.finite(map)]))))
       xx <- ceiling(max(abs(as.vector(map[is.finite(map)]))))
       nl <- xx-nn
@@ -112,11 +112,11 @@ mapField <- function(x,l=NULL,greenwich=TRUE,plot=TRUE,
                   "-",max(as.vector(map[is.finite(map)])), "[PS. won't plot magnitudes less than 0.001]"))
       if (is.null(levels)) z.levs <- round(seq(nn,xx,length=nl)/scl,2)*scl else {
                            z.levs <- levels; nl <- length(z.levs) }
-#    print(z.levs)
+    print(z.levs)
       my.col <- rgb(c(seq(0,1,length=floor(nl/2)),rep(1,ceiling(nl/2))),
                     c(abs(sin((0:(nl-1))*pi/(nl-1)))),
                     c(c(rep(1,ceiling(nl/2)),seq(1,0,length=floor(nl/2)))))
-#    print(nl)
+    print(nl)
     } else {
       z.levs <- seq(val.rng[1],val.rng[2],length=41)
       my.col <- rgb(c(seq(0,1,length=20),rep(1,21)),

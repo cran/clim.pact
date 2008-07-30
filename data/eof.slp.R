@@ -1,1 +1,0 @@
-load("eof.slp.Rdata")

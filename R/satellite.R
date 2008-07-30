@@ -27,7 +27,10 @@ stereogr<- function(map.obj,NH=TRUE,lat.0=0,inv.col=FALSE,levels=NULL,sym=TRUE,d
   r <- sin( pi*(90-latx)/180 )
   x <- r*sin(pi*lonx/180)
   y <- -r*cos(pi*lonx/180)
-  x.grd <- seq(-sin( pi*(90-lat.0)/180 ),sin( pi*(90-lat.0)/180 ),by=0.01); y.grd <- x.grd; Z <- c(map.obj$map)
+  x.grd <- seq(-sin( pi*(90-lat.0)/180 ),sin( pi*(90-lat.0)/180 ),by=0.01);
+  y.grd <- x.grd; Z <- c(map.obj$map)
+
+  xylims <- max(r)*c(-1,1)
   nxy <- length(x.grd)
   good <- is.finite(Z) & (latx>lat.0)
   polar <- interp(x[good],y[good],Z[good],x.grd,y.grd,duplicate="mean")$z
@@ -48,7 +51,8 @@ stereogr<- function(map.obj,NH=TRUE,lat.0=0,inv.col=FALSE,levels=NULL,sym=TRUE,d
   if (nchar(main)>40) par(cex.main=0.75)
   if (nchar(main)>60) par(cex.main=0.60)
   
-  image(x.grd,y.grd,map,xlab="",ylab="",main=main,col = my.col,sub=map.obj$date)
+  image(x.grd,y.grd,map,xlab="",ylab="",main=main,col = my.col,sub=map.obj$date,
+        xlim=xylims,ylim=xylims)
   contour(x.grd,y.grd,map,add=TRUE)
 # test:   points(x[good],y[good],pch="+",col="red")
 
@@ -72,7 +76,8 @@ stereogr<- function(map.obj,NH=TRUE,lat.0=0,inv.col=FALSE,levels=NULL,sym=TRUE,d
     if (i*10 > lat.0) lines(sin( pi*(90-i*10)/180 )*cos(s),sin( pi*(90-i*10)/180 )*sin(s),col="grey")
     text(0,sin( pi*(90-i*10)/180 ),as.character(i*10),col="grey",cex=0.7)
   }
-  stereog <- list(lon=x.grd,lat=y.grd,map=map,date=m$data,tim=m$tim,description=m$description)
+  stereog <- list(lon=x.grd,lat=y.grd,map=map,date=map.obj$date,tim=map.obj$tim,
+                  description=map.obj$description)
   class(stereog) <- c("map","polar-stereographic")
   invisible(stereog)
 #  par(old.par)

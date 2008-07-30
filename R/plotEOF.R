@@ -80,6 +80,12 @@ for (i in 1:n.fld) {
   #print(c(size[,i],NA,length(lon.x),length(lat.x),NA,dim(eof.patt),id[i])); print("---")
   contour(lon.x,lat.x,eof.patt,
           nlevels=nlevs,add=TRUE,lwd=2,col=col.tab[i])
+  if (length(grep("combined",class(x)))>0) {
+    #print("combined")
+    eof.patt<-t(EOF.1[i.eof+1,,])
+    contour(lon.x,lat.x,eof.patt,
+            nlevels=nlevs,add=TRUE,lwd=1,col=col.tab[i+1])
+  }
 }
 
 if (n.fld>1) legend(min(x$lon),max(x$lat),id,
@@ -89,7 +95,13 @@ if (n.fld>1) legend(min(x$lon),max(x$lat),id,
 if (ok.eps) dev.copy2eps(file=paste("plotEOF_1.eps",sep=""))
 
 newFig()
-plot(100*(W+dW)^2/tot.var,main=title.2,type="n",
+if (length(tot.var)==1) variance <- 100*(W+dW)^2/tot.var else {
+    variance <- NA
+    for (ii in 1:length(tot.var)) variance <- c(variance,(W[seq(ii,length(W),by=length(tot.var))]+
+                                                          dW[seq(ii,length(W),by=length(tot.var))])^2/tot.var[ii])
+    variance <- 100*variance[-1]
+}
+plot(variance,main=title.2,type="n",
      ylab="Variance (%)",xlab="EOF order",sub=sub)
 lines(var.eof,lty=3)
 for (i in 1:length(var.eof)) {
@@ -113,12 +125,21 @@ plot(yymm,PC[,i.eof],pch=20,cex=0.7,
 #print(c(sum(x$id.t==x$id.t[1]),length(yymm[x$id.t==x$id.t[1]]),length(PC[x$id.t==x$id.t[1],i.eof])))
 #print(x$id.t[1])
 #print(table(x$id.t))
-lines(yymm[x$id.t==x$id.t[1]],PC[x$id.t==x$id.t[1],i.eof],col="red",lty=2,lwd=2)
+lines(yymm[x$id.t==x$id.t[1]],PC[x$id.t==x$id.t[1],i.eof],col="red",lty=2,lwd=1)
+if (length(grep("combined",class(x)))>0)
+     lines(yymm[x$id.t==x$id.t[1]],PC[x$id.t==x$id.t[1],i.eof+1],col="blue",lty=2,lwd=1)
 if (sum(x$id.t!=x$id.t[1])>0) lines(yymm[x$id.t!=x$id.t[1]],
           PC[x$id.t!=x$id.t[1],i.eof],col="blue",lty=2,lwd=2)
 grid()
 if (ok.eps) dev.copy2eps(file=paste("plotEOF_3.eps",sep=""))
 
 detach(x)
+
+date <- paste(min(x$yy),"-",max(x$yy))
+results <- list(lon=lon.x,lat=lat.x,map=eof.patt,v.name=x$v.name,
+                  tim=x$tim,date=date,attributes=x$attributes,
+                  description=paste(x$filename,"EOF pattern"))
+class(results) <- "map"
+invisible(results)
 }
 

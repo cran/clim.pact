@@ -335,11 +335,13 @@ if (neofs > dim(dat.d2)[2]) neofs <- dim(dat.d2)[2]
 
 dim.v <- dim(pca$v); dim.u <- dim(pca$v); ; dim.x <- dim(dat.d2)
 if ((dim.v[1] == dim.x[2]) & (dim.v[2] == dim.x[1])) {
-  print("TRANSPOCE V & U:")
+  print("TRANSPOSE V & U:")
   pca$v <- t(pca$v)
-  pca$u <- t(pca$u)  
-}
-#print(dim(dat.d2));print(dim(pca$v));print(dim(pca$u))
+  pca$u <- t(pca$u)
+  transposed <- TRUE
+  print(dim(dat.d2));print(dim(pca$v));print(dim(pca$u))
+} else transposed <- FALSE
+
 PC<-pca$v[,1:neofs]
 EOF<-t(pca$u[,1:neofs])
 W<-pca$d[1:neofs]

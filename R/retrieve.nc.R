@@ -539,13 +539,18 @@ print(calendar)
 
 fixField <- function(x,torg=NULL,t.unit=NULL,scal=NULL,offs=NULL, 
                      x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,greenwich=TRUE) {
-
+  tim <- x$tim; lon <- x$lon; lat <- x$lat
+  mm <- x$mm; yy <- x$yy; dd <- x$dd
+  
   if (!is.null(torg)) {
-    yy0 <- as.numeric(substr(torg,8,11))
-    dd0 <- as.numeric(substr(torg,1,2))
-    mm0 <- switch(lower.case(substr(torg,4,6)),
+    dsh <- instring("-",torg)
+    print(dsh)
+    yy0 <- as.numeric(substr(torg,dsh[2]+1,dsh[2]+4))
+    dd0 <- as.numeric(substr(torg,1,dsh[1]-1))
+    mm0 <- switch(lower.case(substr(torg,dsh[1]+1,dsh[2]-1)),
                   "jan"=1,"feb"=2,"mar"=3,"apr"=4,"may"=5,"jun"=6,
                   "jul"=7,"aug"=8,"sep"=9,"oct"=10,"nov"=11,"dec"=12)
+#    print(c(torg,dd0,mm0,yy0))
 
     print(paste("Time origin: (year-month-day)",yy0,"-",mm0,"-",dd0))
     if (yy0[1]==0) {
@@ -584,7 +589,7 @@ fixField <- function(x,torg=NULL,t.unit=NULL,scal=NULL,offs=NULL,
     } 
   } else torg <- x$dat.att$torg
   
-  if (scal) x$dat <- x$dat + scal
+  if (!is.null(scal)) x$dat <- x$dat + scal
 
   if (!is.null(offs)) x$dat <- x$dat + offs
 
@@ -635,6 +640,8 @@ fixField <- function(x,torg=NULL,t.unit=NULL,scal=NULL,offs=NULL,
     yy <- yy[t.keep]; mm <- mm[t.keep]; dd <- dd[t.keep]
   }
 
+  x$tim <- tim; x$lon <- lon; x$lat <- lat
+  x$yy <- yy; x$mm <- mm; x$dd <- dd
   x$dat.att$t.unit <- t.unit
   x$dat.att$torg <- torg
   x$dat.att$scale.factor <- scal

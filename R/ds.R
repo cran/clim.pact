@@ -560,10 +560,9 @@ for (i in 1:n.fld) {
   i.last <- max(i.fld)
 #  print(paste("Dimension of field ",i))
 #  print(dim(preds2D))
-#  print(c(sum(incl),sum(i.fld)))
   EOF.1 <- t(preds2D[,i.fld])
   EOF.1 <-  EOF.1[,incl]
-#  print(dim(EOF.1))
+  print(dim(EOF.1)); print(c(sum(incl),length(incl),sum(i.fld)))  ############################# 
   expr <- paste("X.",i," <- cbind(0,EOF.1) %*% lm.coe[1:(sum(incl)+1)]",sep="")
   eval(parse(text=expr))
 #  print(paste("2D -> 3D: nx=",nx," ny=",ny))

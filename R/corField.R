@@ -14,6 +14,8 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
              "object - Use  station.obj()"))
 }
 
+if (is.null(mon)) mon <- 1:12
+  
  cmon<-c('Jan','Feb','Mar','Apr','May','Jun',
          'Jul','Aug','Sep','Oct','Nov','Dec') 
   descr <- 'Correlation:'
@@ -69,7 +71,7 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
 # REB before 12.01.2006:  if (class(y)[1]=="station") y.ts <- as.vector(t(y$val)) else
   if (class(y)[1]=="station") {
     if (class(y)[2]=="monthly.station.record") {
-    if (length(mon) > 1) y.ts <- rowMeans(y$val[,mon]) else                           # REB 12.01.2006
+#    if (length(mon) > 1) y.ts <- rowMeans(y$val[,mon]) else                           # REB 12.01.2006
                          y.ts <- y$val[,mon]                                          # REB 12.01.2006
     param <- y$obs.name                                                               # REB 05.07.2007
   } else if (class(y)[2]=="daily.station.record") {                                   # REB 05.07.2007
@@ -106,8 +108,10 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
 # REB before 12.01.2006:       dd <- rep(15,length(yy))
     yy <- y$yy
     if (class(y)[2]=="monthly.station.record") {                                     # REB 05.07.2007
-      mm <- rep(mon[1],length(yy))
+      mm <- rep(mon,length(yy))
+      if (length(mon)>1) yy <- sort(rep(yy,length(mon)))
       dd <- rep(15,length(yy))
+#      print(summary(mm)); print(class(mm)); print(length(yy))
     } else {mm <- y$mm; dd <- y$dd}                                                # REB 05.07.2007
     #print(sum(good))
     y.ts <- y.ts[good]; yy <- yy[good]; mm <- mm[good]; dd <- dd[good]
@@ -120,7 +124,19 @@ if ((class(y)[1]!="station") & (class(y)[1]!="field") &
     i2<-is.element(x$yy*10000+x$mm*100+x$dd,
                    yy*10000+mm*100+dd)
 
-  if ( (sum(i1)==0) | (sum(i2)==0) ) stop('CorField: no matching dates.')
+  if ( (sum(i1)==0) | (sum(i2)==0) ) {
+    print("Years:")
+    print(table(yy))
+    print(table(x$yy))
+    print("Months:")
+    print(table(mm))
+    print(table(x$mm))
+    print("(days):")
+    print(table(dd))
+    print(table(x$dd))
+    print(c(sum(i1),sum(i2)))
+    stop('CorField: no matching dates.')
+  }
   #print(rbind(yy[i1]*100+mm[i1],x$yy[i2]*100+x$mm[i2]))
   ni <- length(x$lon)
   nj <- length(x$lat)

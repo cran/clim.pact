@@ -18,7 +18,7 @@ for reconstructing fields.}
     3rd ed.(p.147))}
     \item{match}{"time" or "space"}
     \item{cut.off}{How many EOFs to include}
-    \item{adjust}{TRUE: apply \code{\link{adjust.eof}} to results.}
+    \item{adjust}{TRUE: apply \code{\link{adjustEOF}} to results.}
   }
 \value{An 'eof' object.}
 \author{R.E. Benestad}

@@ -208,7 +208,7 @@ if (is.null(mon)) mon <- 1:12
   }
   
 
-  if ((options()$device != "none") & (plot)) {
+  if (plot) {
   newFig()
   filled.contour(x$lon,x$lat,t(map),
                  col = my.col,levels=z.levs,

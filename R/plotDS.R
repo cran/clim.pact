@@ -11,9 +11,9 @@ plotDS <- function(ds.obj,leps=FALSE,plot.ts=TRUE,plot.map=TRUE, plot.res=FALSE,
 if (class(ds.obj)!="ds") stop("Need a 'ds' object!")
 attach(ds.obj)
 
-if (options()$device=="none") {
-  plot.ts=FALSE; plot.map<- FALSE; plot.res<- FALSE; plot.rate <- FALSE
-} 
+#if (options()$device=="none") {
+#  plot.ts=FALSE; plot.map<- FALSE; plot.res<- FALSE; plot.rate <- FALSE
+#} 
 
 # Plotting: -----------------------------------------------
   

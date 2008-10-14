@@ -1,8 +1,8 @@
-\name{adjust.eof}
-\alias{adjust.eof}
+\name{adjustEOF}
+\alias{adjustEOF}
 \title{Adjust common EOFs}
 \description{Forces same std and mean in the subsegments of common PCs.} 
-\usage{adjust.eof(x)}
+\usage{adjustEOF(x)}
 \arguments{
     \item{x}{a 'eof' object (see \code{\link{EOF}}).}
  
@@ -11,7 +11,7 @@
 \author{R.E. Benestad}
 \examples{
 data(eof.c)
-eof <- adjust.eof(eof.c)
+eof <- adjustEOF(eof.c)
 plotEOF(eof)
 }
 \keyword{manip}

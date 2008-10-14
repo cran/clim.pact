@@ -144,7 +144,10 @@ CDFtransfer <-  function(Y,CDF.2,CDF.1=NULL,method="empiricalRanking",
     i2 <- (F2$y >= prob[i])
     x2mx <- min(F2$x[i2],na.rm=TRUE)
 
-    x2[i] <- mean(c(x2.mn,x2mx))
+    if ( (sum(i1)>0) & (sum(i2)>0) ) x2[i] <- mean(c(x2.mn,x2mx)) else {
+                                     x2[i] <- minmax[2]
+      print(paste("CDFtransfer",i,x1[i],x2.mn,x2mx,x2[i],sum(i1),sum(i2)))
+    }
   }
 
   s <- 2*sd(x1,na.rm=TRUE); m <- mean(x1,na.rm=TRUE)
@@ -164,7 +167,7 @@ CDFtransfer <-  function(Y,CDF.2,CDF.1=NULL,method="empiricalRanking",
   Y.new <- rep(NA,length(Y))
   for (i in 1:length(Y)) Y.new[i] <- min(x2[(x1 >= Y[i])],na.rm=TRUE)
   
-  if (exists("obs")) {
+  if (exists("obs",envir=environment(CDFtransfer))) {
     obs$precip <- Y.new
     Y.new <- obs
   }

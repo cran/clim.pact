@@ -354,7 +354,8 @@ for (i.eof in 1:n.eofs) {
   } else {
     eval(parse(text=
                paste("X",i.eofs[i.eof]," <- calibrate$X",i.eofs[i.eof],sep="")))
-    valid.cal2 <- valid.cal2 & is.finite(eval(parse(text=paste("calibrate$X",i.eofs[i.eof],sep=""))))
+    valid.cal2 <- valid.cal2 & is.finite(eval(parse(text=paste("calibrate$X",i.eofs[i.eof],sep="")))) &
+                  is.finite(y)
   }
 }
 
@@ -405,10 +406,24 @@ if (length(step.wise$coefficients)>1) {
                            stat$fstatistic[2],
                            stat$fstatistic[3])))
   } else if (method=="anm") {
-    cor.test(y,eval(parse(text=paste(predm,"(lm.mod)",sep=""))))
-    r2.stat <- cor.test(y,eval(parse(text=paste(predm,"(lm.mod)",sep=""))))
-    r2 <- as.numeric(round(100*r2.stat$estimate^2,2))
-    p.val <- round(100*r2.stat$p.value,2)
+    y.anm <- eval(parse(text=paste(predm,"(lm.mod)",sep="")))
+    if (length(y)==length(y.anm)) {
+      cor.test(y,y.anm)
+      r2.stat <- cor.test(y,eval(parse(text=paste(predm,"(lm.mod)",sep=""))))
+      r2 <- as.numeric(round(100*r2.stat$estimate^2,2))
+      p.val <- round(100*r2.stat$p.value,2)
+    } else {
+           print(paste("Warning - ds + anm: length(y)=",length(y),"length(y.anm)=",length(y.anm),
+                       "sum(is.finite(y))=",sum(is.finite(y))))
+           if (sum(is.finite(y))==length(y.anm)) {
+             print("Using only the non NA's")
+             y <- y[is.finite(y)]
+             cor.test(y,y.anm)
+             r2.stat <- cor.test(y,eval(parse(text=paste(predm,"(lm.mod)",sep=""))))
+             r2 <- as.numeric(round(100*r2.stat$estimate^2,2))
+             p.val <- round(100*r2.stat$p.value,2)
+           } else {r2.stat <-  NA; r2 <-  NA; p.val <- NA}
+    } 
   } else {
     y2 <-  eval(parse(text=paste(predm,"(lm.mod)",sep="")))
     if (length(y)==length(y2)) {

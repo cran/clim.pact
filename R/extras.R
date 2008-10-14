@@ -212,7 +212,7 @@ mergeEOF <- function(eof1,eof2,plot=TRUE,silent=FALSE,method="lm",
   eof$tim <- c(eof1$tim[!i1],eof2$tim) 
   eof$id.t <- c(eof1$id.t[!i1],paste(eof2$id.t,".merge",sep=""))
   class(eof) <- class(eof2)
-  if (adjust) eof <- adjust.eof(eof)
+  if (adjust) eof <- adjustEOF(eof)
   
   print(table(eof$id.x))
   print(table(eof$id.lon))
@@ -241,7 +241,7 @@ mergeEOF <- function(eof1,eof2,plot=TRUE,silent=FALSE,method="lm",
 } 
 
 
-adjust.eof <- function(x) {
+adjustEOF <- function(x) {
   options(width=150)
   rn <- row.names(table(x$id.t))
   ordr <- rep(NA,length(rn))

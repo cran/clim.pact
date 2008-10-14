@@ -3,7 +3,7 @@
 # R.E. Benestad
 
 r2cdf <- function(filename,x,missing=-999.99,cleanup=TRUE,
-                  ofs=NULL,scal=NULL) {
+                  ofs=NULL,scal=NULL,precision="short") {
 
   if (class(x)[1]=="field") {
     nt <- length(x$tim)
@@ -43,7 +43,7 @@ r2cdf <- function(filename,x,missing=-999.99,cleanup=TRUE,
   if ((is.null(scal)) & (class(x)[1]=="field")) {
     max.dev <- range(x$dat[is.finite(x$dat)])
     scal <- 10^(-round(log(32000/(max.dev[2]-max.dev[1]))/log(10)))
-  } else scal <- 1
+  } else if (is.null(scal)) scal <- 1
 
   x$dat[!is.finite(x$dat)] <- missing
   cdf <- file(paste(filename,".cdf",sep=""),"w")
@@ -114,7 +114,7 @@ r2cdf <- function(filename,x,missing=-999.99,cleanup=TRUE,
   }
 
   if (is.null(neof)) {
-    cat(paste("        short ",x$v.name,"(Time, Lat, Lon) ;",sep=""),
+    cat(paste("      ",precision,"  ",x$v.name,"(Time, Lat, Lon) ;",sep=""),
         file=cdf,sep = "\n")
     cat(paste('              ',x$v.name,':units = "',x$attributes$unit,'" ;',sep=""),
         file=cdf,sep = "\n")

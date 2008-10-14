@@ -132,7 +132,7 @@ legend(min(yymm.obs,yymm.gcm,na.rm=TRUE),
        c("Observations                  ","Calibr.                ","Scenario                   "),
        col=c("black","grey30","grey50"),
        pch=c(20,26,26),lty=c(3,2,1),lwd=c(1,2,1),bg="grey95",cex=0.7)
-if (lower.case(options()$device)=="x11") 
+#if (lower.case(options()$device[1])=="x11") 
        dev.copy2eps(file=paste(outdir,"/plotDSobj_1.eps",sep=""))
 }
 # Residuals:
@@ -212,7 +212,7 @@ lines(brks,h.sep,col="magenta")
 lines(brks,h.oct,col="cyan")
 lines(brks,h.nov,col="wheat")
 lines(brks,h.dec,col="brown")
-if (lower.case(options()$device)=="x11") 
+#if (lower.case(options()$device[1])=="x11") 
      dev.copy2eps(file=paste(outdir,"/plotDSobj_3.eps",sep="")) 
 }
 
@@ -265,7 +265,7 @@ mtext("R-squared (%) from calibration regression",side=4,col="steelblue",cex=0.8
 points(1,max(rates+err),pch=20); text(3,max(rates+err),"5% sign.level")
 points(7,max(rates+err),pch=21); text(8,max(rates+err),"not sign.")
 
-if (lower.case(options()$device)=="x11") 
+#if (lower.case(options()$device[1])=="x11") 
       dev.copy2eps(file=paste(outdir,"/plotDSobj_4.eps",sep="")) 
 }
 }
@@ -282,7 +282,7 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
 
   cmon<-c("Jan","Feb","Mar","Apr","May","Jun",
           "Jul","Aug","Sep","Oct","Nov","Dec")
-  if (options()$device == "none") {plot <- FALSE; plot.res<- FALSE; plot.rate<- FALSE}
+  #if (options()$device[1] == "none") {plot <- FALSE; plot.res<- FALSE; plot.rate<- FALSE}
 
   dims <- dim(field.obs$dat); ny <- dims[2]; nx <- dims[3]
 #  print(dims)
@@ -314,7 +314,7 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
 #    }
     #print(imon)
     cormap <- corField(field.obs,station,mon=imon,main="",plot=plot)
-    if ((lower.case(options()$device)=="x11") & (plot)) {
+    if (plot) {
        #print("HERE1"); print(dev.cur()); print(direc); print(options()$device)
        dev.copy2eps(file=paste(direc,"cormap_",cmon[imon],".eps",sep=""))
        #dev2bitmap(file=paste("cormap_",cmon[imon],".jpg",sep=""),type="jpeg",width=2.37,height=2.37,res=300)
@@ -374,7 +374,7 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
       lines(field.obs$lon,as.numeric(xhat),col="red",lwd=2)
       lines(rep(x.rng[1],2),range(cormap$map,na.rm=TRUE),lty=2,col="red")
       lines(rep(x.rng[2],2),range(cormap$map,na.rm=TRUE),lty=2,col="red")
-      if ((lower.case(options()$device)=="x11") & (plot)) {
+      if (plot) {
         #print("HERE2"); print(dev.cur()); print(direc); print(options()$device)
         dev.copy2eps(file=paste(direc,"objDS_",cmon[imon],"_1.eps",sep=""))
         dev2bitmap(file=paste(direc,"objDS_",cmon[imon],"_1.jpg",sep=""),type="jpeg",width=2.37,height=2.37,res=300)

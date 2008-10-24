@@ -23,7 +23,7 @@ if ((class(fields)[2]!="monthly.field.object") &
       stop("Need a 'field.object'")
     }
 
-if (options()$device[1] != "none") plot <- FALSE
+#if (options()$device[1] != "none") plot <- FALSE
 
 dir.0<-getwd()
 if (!file.exists(direc)){

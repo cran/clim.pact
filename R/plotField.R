@@ -1,6 +1,6 @@
 plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
                       col="black",col.coast="grey",lty=1,lwd=1,what="ano",
-                      type="l",pch=26,my.col=NULL,add=FALSE,
+                      type="l",pch=".",my.col=NULL,add=FALSE,
                       main=NULL,sub=NULL,xlab=NULL,ylab=NULL,
                       xlim=NULL,ylim=NULL) {
 
@@ -109,6 +109,21 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
   # Time series - call lower level plot function:
   if (!is.null(lon) & !is.null(lat)) {
     #print("plotField: Time-series")
+    if (!is.null(tim)) {
+      if ((length(tim)>2) & is.numeric(tim)) {
+        x$dat <- x$dat[tim,,]; x$tim <- x$tim[tim]; x$id.t <- x$id.t[tim]
+        x$yy <- x$yy[tim]; x$mm <- x$mm[tim]; x$dd <- x$dd[tim]
+      } else if ((length(tim)==2) & is.numeric(tim)) {
+        x$dat <- x$dat[tim[1]:tim[2],,]; x$tim <- x$tim[tim[1]:tim[2]]; x$id.t <- x$id.t[tim[1]:tim[2]]
+        x$yy <- x$yy[tim[1]:tim[2]]; x$mm <- x$mm[tim[1]:tim[2]]; x$dd <- x$dd[tim[1]:tim[2]]
+      } else if ((length(tim)==2) & is.character(tim)) {
+        yyyymmdd1 <- datestr2num(tim[1]); yyyymmdd2 <- datestr2num(tim[2])
+        iv1 <- (1:length(x$tim))[is.element(x$yy*10000+x$mm*100+x$dd,yyyymmdd1[1]*10000+yyyymmdd1[2]*100+yyyymmdd1[3])]
+        iv2 <- (1:length(x$tim))[is.element(x$yy*10000+x$mm*100+x$dd,yyyymmdd2[1]*10000+yyyymmdd2[2]*100+yyyymmdd2[3])]
+        x$dat <- x$dat[iv1:iv2,,]; x$tim <- x$tim[iv1:iv2]; x$id.t <- x$id.t[iv1:iv2]
+        x$yy <- x$yy[iv1:iv2]; x$mm <- x$mm[iv1:iv2]; x$dd <- x$dd[iv1:iv2]
+      }
+    }
     results <- grd.box.ts(x,lon,lat,what=what,col=col,
                           lty=lty,lwd=lwd,pch=pch,type=type,add=add,
                           main=main,sub=sub,xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim)

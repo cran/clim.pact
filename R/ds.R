@@ -386,7 +386,8 @@ if (!silent) print(paste("          - - - - - length(step.wise$coefficients)=",l
 #print(paste(">---5: length y.o=",length(y.o),"length(yy.o)=",length(yy.o)))
 if (!silent) print("ANOVA from step-wise regression:")
 
-stat <- summary(step.wise)
+if (!method=="anm") stat <- summary(step.wise) else
+                    stat <- list(method=method,r.squared=NULL,fstatistic=NULL)
 
 if ( length(step.wise$coefficients)<=1 ) {
   print("--------------------------------------------------------------")

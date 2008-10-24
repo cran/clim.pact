@@ -17,19 +17,31 @@ ExtEOF <- function(fields,lag=1,mon=NULL,lon=NULL,lat=NULL) {
 
 
 lagField <- function(fields,lag=1) {
-  fields$mm <- fields$mm - lag
-  zeros <- fields$mm==0
-  if (sum(zeros)>0) {
-    fields$mm[zeros] <- 12
-    fields$yy[zeros] <- fields$yy[zeros] - 1
-  }
-  thirteens <- fields$mm==13
-  if (sum(thirteens)>0) {
-    fields$mm[thirteens] <- 1
-    fields$yy[thirteens] <- fields$yy[zeros] + 1
+  if (class(fields)[2]=="monthly.field.object") {
+    fields$mm <- fields$mm - lag
+
+    zeros <- fields$mm < 0  
+    # positive lags:
+    if (sum(zeros)>0) {
+      fields$mm[zeros] <- fields$mm[zeros] + 12
+      fields$yy[zeros] <- fields$yy[zeros] - 1
+    }
+    # negative lags:
+    thirteens <- fields$mm > 12
+    if (sum(thirteens)>0) {
+      fields$mm[thirteens] <- fields$mm[zeros] - 12
+      fields$yy[thirteens] <- fields$yy[thirteens] + 1
+    }
+    
+  } else if (class(fields)[2]=="daily.field.object") {
+    jday <- julday(fields$mm,fields$dd,fields$yy) 
+    jday <- jday - lag
+    newdates <- caldat(jday)
+    fields$yy <- newdates$year; fields$mm <- newdates$month; fields$dd <- newdates$day
   }
   invisible(fields)
 }
+
 
 DSpdf.exp <- function(obs=NULL,dT=0,dP=0,plot=TRUE,year=NULL,month=NULL) {
   data(exp.law1)
@@ -103,13 +115,18 @@ DSpdf.exp <- function(obs=NULL,dT=0,dP=0,plot=TRUE,year=NULL,month=NULL) {
 
   cdf.obs <- cumsum(pdf)/sum(pdf)
   cdf.chg <- cumsum(pdf.chg)/sum(pdf.chg)
- 
-  results <- list(fx.obs=pdf,fx.chg=pdf.chg,x=exp.x,Fx.obs=cdf.obs,Fx.chg=cdf.chg,
+  n <- 1000
+  cdf.obs <- spline(x=c(0,exp.x),y=c(0,cdf.obs),n=n)$y
+  cdf.chg <- spline(x=c(0,exp.x),y=c(0,cdf.chg),n=n)$y
+  exp.X <- spline(x=c(0,exp.x),y=c(0,pdf),n=n)$x
+  
+  results <- list(fx.obs=pdf,fx.chg=pdf.chg,exp.x=exp.x,x=exp.X,Fx.obs=cdf.obs,Fx.chg=cdf.chg,
                   model=model,location=obs$location,lon=obs$lon,lat=obs$lat,alt=obs$alt,
                   minAmountPrecip=exp.par$minAmountPrecip,dT=dT,dP=dP,
                   slope.dep=slope.dep, slope.x=slope.chg,slope.coef=summary(smod)$coefficients)
   invisible(results)
 }
+
 
 
 CDFtransfer <-  function(Y,CDF.2,CDF.1=NULL,method="empiricalRanking",
@@ -120,52 +137,73 @@ CDFtransfer <-  function(Y,CDF.2,CDF.1=NULL,method="empiricalRanking",
     print("Extracting precip from station object")
     Y <- obs$precip
   }
+
+  # If CDF.1 is NULL, use the distribution from Y
   
   if (is.null(CDF.1)) {
     if (!silent) print("Using the emprical distribution function")
-    CDF.1 <- eval(parse(text=paste(method,"(Y)",sep="")))
+    cline <- paste(method,"(Y)",sep="")
+    print(cline)
+    CDF.1 <- eval(parse(text=cline))
+    print(summary(CDF.1))
   }
 
-  minmax <- range(c(0,CDF.1$x,CDF.2$x),na.rm=TRUE)
-  F1 <- spline(CDF.1$x,CDF.1$P,n=300,xmin=minmax[1],xmax=minmax[2])
-  F2 <- spline(CDF.2$x,CDF.2$P,n=300,xmin=minmax[1],xmax=minmax[2])
-
-  x1 <- seq(minmax[1],minmax[2],length=100)
-  x2 <- rep(NA,length(x1)); prob <- x2
+  minmax <- range(Y,na.rm=TRUE)
+  print("minmax:"); print(minmax)
+  F1 <- spline(x=CDF.1$x,y=CDF.1$P,n=100)
+  F2 <- spline(x=CDF.2$x,y=CDF.2$P,n=100)
+  print(summary(CDF.1$P)); print(summary(F1$x))
+  
+  x1 <- round(seq(minmax[1],minmax[2],length=1000),4)       #  range of values in Y
+  x2 <- rep(NA,length(x1)); prob.1 <- x2; prob.2 <- prob.1  #  new range of values corresponding to same Pr(X < x)
   
   for (i in 1:length(x1)) {
     i1 <- (F1$x <= x1[i])
-    prob[i] <- max(F1$y[i1],na.rm=TRUE)
-    i2 <- (F2$y <= prob[i])
-    x2.mn <- max(F2$x[i2],na.rm=TRUE)
+    prob.1[i] <- round(max(F1$y[i1],na.rm=TRUE),4)
+    i2 <- (F2$y <= prob.1[i])
+    x2.mn <- round(max(F2$x[i2],na.rm=TRUE),4)
 
     i1 <- (F1$x >= x1[i])
-    prob[i] <- min(F1$y[i1],na.rm=TRUE)
-    i2 <- (F2$y >= prob[i])
-    x2mx <- min(F2$x[i2],na.rm=TRUE)
+    prob.2[i] <- round(min(F1$y[i1],na.rm=TRUE),4)
+    i2 <- (F2$y >= prob.2[i])
+    x2mx <- round(min(F2$x[i2],na.rm=TRUE),4)
 
-    if ( (sum(i1)>0) & (sum(i2)>0) ) x2[i] <- mean(c(x2.mn,x2mx)) else {
+    x2.mn.mx <- c(x2.mn,x2mx)
+    if ( (sum(i1)>0) & (sum(i2)>0) ) x2[i] <- mean(x2.mn.mx[is.finite(x2.mn.mx)]) else {
                                      x2[i] <- minmax[2]
-      print(paste("CDFtransfer",i,x1[i],x2.mn,x2mx,x2[i],sum(i1),sum(i2)))
+      print(paste("CDFtransfer",i,"x1=",x1[i],"x2.mn=",x2.mn,"x2.mx=",x2mx,"x2=",x2[i],"i1:",sum(i1),
+                  "i2:",sum(i2),"Pr=",prob.1[i],prob.2[i]))
     }
   }
+  X <- spline(x=x1,y=x2,n=1000,method = "natural")
 
-  s <- 2*sd(x1,na.rm=TRUE); m <- mean(x1,na.rm=TRUE)
-  x1x2 <- data.frame(y=(x2-m)/s,x=(x1-m)/s)
-  x.smooth <- lm(y ~ x+I(x^2)+ I(x^3)+I(x^4)+I(x^5)+I(x^6)+I(x^7)+I(x^8)+I(x^9),data=x1x2)
-  
   if (plot) {
+#    x11(); plot(F1,type="l"); points(CDF.1,col="red")
+#    x11(); plot(F2,type="l"); points(CDF.2,col="red")
+#    x11(); plot(F1$y,F2$y,type="l")
     x11()
-    plot(x1,x2,main="Local quantile transfer function",type="n")
+    plot(x2,x1,main="Local quantile transfer function",type="n",
+         ylim=minmax,xlim=range(CDF.2$x,na.rm=TRUE))
     grid()
-    lines(minmax,minmax,col="grey70")
-    points(x1,x2,pch=20,col="grey30",cex=0.7)
-    lines(x1,predict(x.smooth)*s + m,col="red")
-  }  
-  if (smooth) x2 <- predict(x.smooth)*s+m
-  
+    lines(c(min(CDF.1$x),max(CDF.2$x)),c(min(CDF.2$x),max(CDF.2$x)),col="grey70")
+    points(x2,x1,pch=20,col="grey30",cex=0.7)
+    lines(X$y,X$x,col="red")
+  }
   Y.new <- rep(NA,length(Y))
-  for (i in 1:length(Y)) Y.new[i] <- min(x2[(x1 >= Y[i])],na.rm=TRUE)
+
+  if (smooth) {
+    for (i in 1:length(Y)) Y.new[i] <- min(X$y[(X$x >= Y[i])],na.rm=TRUE)
+  } else for (i in 1:length(Y)) Y.new[i] <- min(x2[(x1 >= Y[i])],na.rm=TRUE)
+
+  if (plot) {
+    q <- (1:length(Y.new))[is.element(Y.new,c(quantile(Y.new,seq(0.1,0.9,by=0.1),na.rm=TRUE)))]
+    print("Quantiles for Y.new:")
+    print(q)
+    for (iii in q) {
+      lines(c(0,Y.new[iii]),rep(Y[iii],2),col="blue",lty=2); points(Y.new[iii],Y[iii],pch=">",col="blue")
+      lines(rep(Y.new[iii],2),c(Y[iii],0),col="blue",lty=3); points(Y.new[iii],0,pch=19,col="blue",cex=0.5)
+    }
+  }
   
   if (exists("obs",envir=environment(CDFtransfer))) {
     obs$precip <- Y.new

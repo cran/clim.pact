@@ -8,7 +8,7 @@
   \code{\link{mapField}} or \code{\link{grd.box.ts}} whenever appropriate.}  
 \usage{plotField(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
                       col="black",col.coast="grey",lty=1,lwd=1,what="ano",
-                      type="l",pch=26,my.col=NULL,add=FALSE,
+                      type="l",pch=".",my.col=NULL,add=FALSE,
                       main=NULL,sub=NULL,xlab=NULL,ylab=NULL,
                       xlim=NULL,ylim=NULL)}
 \arguments{

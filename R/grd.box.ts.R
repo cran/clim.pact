@@ -1,5 +1,5 @@
 grd.box.ts <- function(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
-                       col="grey10",lwd=1,lty=1,pch=26,add=FALSE,
+                       col="grey10",lwd=1,lty=1,pch=".",add=FALSE,
                        filter=NULL,type="l",main=NULL,sub=NULL,xlab=NULL,ylab=NULL,
                        xlim=NULL,ylim=NULL) {
 
@@ -57,9 +57,13 @@ if (!is.null(attributes(x$tim)$unit)) {
   #print(summary(y))
 
   tunit <- attributes(x$tim)$units
-  if (!is.null(tunit)) tunit <- lower.case(substr(tunit,1,3)) else
-                       tunit <- "mon"
-                       
+  if (!is.null(tunit)) tunit <- lower.case(substr(tunit,1,3)) else {
+        tunit <- attributes(x$tim)$units
+        if (!is.null(tunit)) tunit <- lower.case(substr(tunit,1,3)) else
+                             if (min(diff(x$mm))==1) tunit <- "mon" else
+                                                     tunit <- "day"
+  }
+                            
   if (tunit== "mon") {
     clim <- y
     for (im in 1:12) {

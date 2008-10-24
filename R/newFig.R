@@ -5,9 +5,9 @@
 
 
 newFig <- function() {
-   sinfo <- Sys.info()
-   if (lower.case(sinfo[1])=="linux") x11() else
-                                      windows()
+#   sinfo <- Sys.info()
+#   if (lower.case(sinfo[1])=="linux") x11() else
+#                                      windows()
 #   if (class(options()$device)=="character") {
 #     device.type <- options()$device[1]
 #     dev <- paste(device.type,"()",sep="") 
@@ -21,4 +21,5 @@ newFig <- function() {
 #     print(paste("You seem to run R on",sinfo[1],"which doesn't run smoothly with clim.pact -",
 #                 "maybe you should consider using Linux?"))
 #   }
+  dev.new()
 }

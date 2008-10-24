@@ -25,12 +25,14 @@ if (is.null(main)) {
 }
 if (class(obs)[2]=="daily.station.record") {
   if (sum(is.finite(obs$t2m)) > 0) {
-    newFig()
-    plot(obs$yy + obs$mm/12 + obs$dd/365.25, obs$t2m,pch=20,cex=0.5,
-         main=main,sub="met.no Klima DataVareHus",
-         xlab="Time",ylab="Temperature (deg C)")
-    grid()
-    lines(obs$yy + obs$mm/12 + obs$dd/365.25, obs$t2m,lty=3,col="grey")
+    if (!add) {
+      newFig()
+      plot(obs$yy + obs$mm/12 + obs$dd/365.25, obs$t2m,pch=20,cex=0.5,
+           main=main,sub="met.no Klima DataVareHus",
+           xlab="Time",ylab="Temperature (deg C)")
+      grid()
+    }
+    lines(obs$yy + obs$mm/12 + obs$dd/365.25,obs$t2m,lty=3,col=col,type="b",pch=pch,cex=0.5)
   }
 
   if (sum(is.finite(obs$precip)) > 0) {

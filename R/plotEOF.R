@@ -94,7 +94,7 @@ if (n.fld>1) legend(min(x$lon),max(x$lat),id,
              col=c(col.tab),lty=1,
              lwd=2,merge=TRUE, bg='gray95')
 
-if (ok.eps) dev.copy2eps(file="plotEOF_1.eps")
+#if (ok.eps) dev.copy2eps(file="plotEOF_1.eps")
 
 newFig()
 if (length(tot.var)==1) variance <- 100*(W+dW)^2/tot.var else {
@@ -117,7 +117,7 @@ for (i in 1:length(var.eof)) {
 points(var.eof)
 points(var.eof,pch=20,cex=0.8,col="darkgrey")
 grid()
-if (ok.eps) dev.copy2eps(file="plotEOF_2.eps")
+#if (ok.eps) dev.copy2eps(file="plotEOF_2.eps")
 
 newFig()
 yymm<-x$yy + (x$mm-0.5)/12 + (x$dd-0.5)/365.25
@@ -133,7 +133,7 @@ if (length(grep("combined",class(x)))>0)
 if (sum(x$id.t!=x$id.t[1])>0) lines(yymm[x$id.t!=x$id.t[1]],
           PC[x$id.t!=x$id.t[1],i.eof],col="blue",lty=2,lwd=2)
 grid()
-if (ok.eps) dev.copy2eps(file="plotEOF_3.eps")
+#if (ok.eps) dev.copy2eps(file="plotEOF_3.eps")
 
 detach(x)
 

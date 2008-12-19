@@ -9,9 +9,12 @@
   Functions handy for downscaling PFDs.
 
   DSpdf.exp() is used to downscale expeoential distributions for daily
-  rainfall according to Benestad, R.E., C. Achberger, &  E. Fernandez
-  (2005) Empirical-statistical downscaling of distribution functions for
-  daily precipitation, met-no report, 12-2005, Climate, pp.43
+  rainfall according to:
+
+  Benestad, R.E. (2007) Climate Research, CR34:195-210, doi:
+  10.3354/cr00693 (\url{http://www.int-res.com/articles/cr_oa/c034p195.pdf})
+  Benestad, R.E., C. Achberger, &  E. Fernandez (2005) 'Empirical-statistical downscaling of distribution functions for
+  daily precipitation', met-no report, 12-2005, Climate, pp.43
   (\url{http://met.no/english/r_and_d_activities/publications/2005/12_2005/abstract_12_2005.html}). The dataset exp.law1 is used for this downscaling. 
 
   CDFtransfer() is a function that facilitates local quantile
@@ -22,7 +25,7 @@
  Clim. Branch Memo 58;  Beard, L.R., 1943, Trans. Amer. Meteor. Soc. Civ. Eng., 108, 1110-1160; Chegodaev, N.N., 1953 (in Russian) State Rail Transport Publishing House; Folland, C. and Anderson, C. (2002), J. Clim. 15, 2954-2960, equation (1)
 }
 \usage{
-DSpdf.exp(obs=NULL,dT=0,dP=0,plot=TRUE,year=NULL,month=NULL)
+DSpdf.exp(obs=NULL,dT=0,dP=0,plot=TRUE,year=NULL,month=NULL,quadratic=TRUE)
 data(exp.law1)
 CDFtransfer(Y,CDF.2,CDF.1=NULL,method="empiricalRanking",plot=FALSE,silent=FALSE,smooth=TRUE)
 empiricalRanking(x)
@@ -45,6 +48,8 @@ empiricalRanking(x)
   \item{silent}{TRUE: less clutter on the screen.}
   \item{smooth}{Uses a 9th-order polynomial fit to provide a smoother
     fit for the local quantile transformation.}
+  \item{quadratic}{Flag to toggle between the linear or the quadratic
+    regression model in Benestad (2007)}
  }
 \value{A field object.}
 \author{R.E. Benestad}

@@ -35,10 +35,11 @@ if (!add) {
      xlab="Longitude",ylab="Latitude")
 }
 
-if (range(x$lon)[2]-range(x$lon)[1] > 360) {
-  xy.cont <- COn0E65N(lon.cont, lat.cont)
-  addland(lon=xy.cont$x,lat=xy.cont$y)
-} else addland()
+#if (range(x$lon)[2]-range(x$lon)[1] > 360) {
+#  xy.cont <- COn0E65N(lon.cont, lat.cont)
+#  addland(lon=xy.cont$x,lat=xy.cont$y)
+#} else
+addland()
 grid()
 
 col.tab <- col[1:length(id)]

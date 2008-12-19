@@ -97,7 +97,7 @@ if (!is.null(mon)) {
     if (l.anom) obs <- obsa
     yy <- obs$yy
     ny <- length(obs$yy)
-    mm <- rep(as.vector(mon[1]),ny)
+    mm <- rep(as.vector(mm[1]),ny)
     yymm <- yy + (mm -0.5)/12
     #print(dim(obs$val))
     #print(length(rowMeans(obs$val[,mon])))
@@ -148,6 +148,11 @@ if (!is.null(mon)) {
 
   good <- !is.na(value)
   YYMM <- yymm; YY <- yy; MM <- mm; VALUE <- value; PRE.p.fit <- pre.p.fit
+  if (sum(good)==0) {
+    print(paste("plotStation: ",method,"(obs$val[,mon]) or obs$val[,mon] gave zero valid data points!",sep=""))
+    print(summary(obs$val))
+    stop("Cannot continue")
+  }
   yymm <- yymm[good]; yy <- yy[good]; mm <- mm[good]
   pre.p.fit <- pre.p.fit[good]
   value <- value[good]

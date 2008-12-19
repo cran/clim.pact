@@ -1,4 +1,4 @@
-plotDSobj <- function(result,outdir="output",figs=c(1,2,3,4),main="") {
+plotDSobj <- function(result,outdir="dsgraphicsoutput/",figs=c(1,2,3,4),main="") {
 
 if (class(result)!="objDS") {
   stop("The argument is not an 'objDS' object!")
@@ -273,7 +273,7 @@ points(7,max(rates+err),pch=21); text(8,max(rates+err),"not sign.")
 
 
 objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
-                  mon=NULL,direc="output/",cal.id=NULL,
+                  mon=NULL,direc="dsgraphicsoutput/",cal.id=NULL,
                   ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
                   method="lm",leps=FALSE,param="t2m",failure.action=NULL,
                   plot.res=FALSE,plot.rate=FALSE,xtr.args="",
@@ -299,7 +299,11 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
   y.mod[5,]<-cos(3*wx); y.mod[6,]<-sin(3*wx)
   y.mod[7,]<-cos(4*wx); y.mod[8,]<-sin(4*wx)
   if (is.null(mon)) mon  <-  1:12
-  
+
+  if ( (direc!="./") &  !file.exists(direc) ) {
+  print(paste("Create new directory (1):",direc))
+  dir.create( direc )
+}
   result <- list(station=station)
   print(paste("objDS: field.obs$v.name=",field.obs$v.name))
   if (is.null(positive) &
@@ -315,10 +319,10 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     #print(imon)
     cormap <- corField(field.obs,station,mon=imon,main="",plot=plot)
     if (plot) {
-       #print("HERE1"); print(dev.cur()); print(direc); print(options()$device)
+       #print("HERE1"); print(dev.cur()); print(direc)))
        dev.copy2eps(file=paste(direc,"cormap_",cmon[imon],".eps",sep=""))
        #dev2bitmap(file=paste("cormap_",cmon[imon],".jpg",sep=""),type="jpeg",width=2.37,height=2.37,res=300)
-       dev2bitmap(file=paste(direc,"cormap_",cmon[imon],".jpg",sep=""),res=300)
+       #dev2bitmap(file=paste(direc,"cormap_",cmon[imon],".jpg",sep=""),res=300)
     }
 
     # Find optimal longitudes & latitudes:
@@ -377,17 +381,18 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
       if (plot) {
         #print("HERE2"); print(dev.cur()); print(direc); print(options()$device)
         dev.copy2eps(file=paste(direc,"objDS_",cmon[imon],"_1.eps",sep=""))
-        dev2bitmap(file=paste(direc,"objDS_",cmon[imon],"_1.jpg",sep=""),type="jpeg",width=2.37,height=2.37,res=300)
+        #dev2bitmap(file=paste(direc,"objDS_",cmon[imon],"_1.jpg",sep=""),type="jpeg",width=2.37,height=2.37,res=300)
       }
     }
-    print("catFields:")
-    #print(">>> Check REB 11.02.2004!")
-    #print(x.rng)
-    #print(c(sum(!is.finite(field.obs$dat)),sum(!is.finite(field.gcm$dat))))
-    #print(summary(field.obs$lon)); print(summary(field.obs$lat))
-    #print(summary(field.gcm$lon)); print(summary(field.gcm$lat))
-    #print(c(length(field.obs$yy),length(field.obs$mm),length(field.obs$id.t),NA,dim(field.obs$dat)))
-    #print(c(length(field.gcm$yy),length(field.gcm$mm),length(field.gcm$id.t),NA,dim(field.gcm$dat)))
+#    print("catFields:")
+#    print(">>> Check REB 11.02.2004!")
+#    print(x.rng)
+#    print(c(sum(!is.finite(field.obs$dat)),sum(!is.finite(field.gcm$dat))))
+#    print(summary(field.obs$lon)); print(summary(field.obs$lat))
+#    print(summary(field.gcm$lon)); print(summary(field.gcm$lat))
+#    print(c(length(field.obs$yy),length(field.obs$mm),length(field.obs$id.t),NA,dim(field.obs$dat)))
+#    print(c(length(field.gcm$yy),length(field.gcm$mm),length(field.gcm$id.t),NA,dim(field.gcm$dat)))
+#    print(summary(field.gcm))
 
     field.2 <- catFields(field.obs,field.gcm,lon=x.rng,lat=y.rng,mon=imon)
 

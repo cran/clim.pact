@@ -14,6 +14,14 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
                         forceBC=TRUE,use.cdfcont=FALSE,torg=NULL,t.unit=NULL) {
 #print("retrieve.nc:")
   library(ncdf)
+
+  # Some definitions and handy variables:
+  cmon<-c('Jan','Feb','Mar','Apr','May','Jun',
+          'Jul','Aug','Sep','Oct','Nov','Dec')
+  season<-cbind(c(12,1,2),c(3,4,5),c(6,7,8),c(9,10,11))
+  season.c<-c("","DJF","MAM","JJA","SON")
+
+
   if (!file.exists(filename)) {
     stop(paste("Sorry,",filename," does not exist!"))
   }
@@ -34,19 +42,18 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
     }
   } 
   v1 <- cdfvars[ipick]
- 
-  #nd <- ncid$ndims
+
+  # read the metadata on the data file: header information
   nd <- ncid$var[[ipick]]$ndims
   cdfdims <- rep("-",nd)
   for (i in 1:nd) cdfdims[i] <- ncid$var[[ipick]]$dim[[i]]$name
-#print(cdfdims)
   ilon <- grep(x.nam,lower.case(cdfdims))
   ilat <- grep(y.nam,lower.case(cdfdims))
   itim <- grep(t.nam,lower.case(cdfdims))
   ilev <- grep(z.nam,lower.case(cdfdims))
-#print(c(ilon,ilat,itim,ilev)) 
   scal <- NULL; offs <- NULL
 
+  # Get metadata/attributes:
   arv <- att.get.ncdf(ncid, cdfvars[ipick], 'scale_factor')
   if( arv$hasatt ) scal <- arv$value else
        scal <- 1
@@ -66,12 +73,13 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   arv <- att.get.ncdf(ncid, cdfdims[itim], 'calendar')
   if( arv$hasatt ) calendar <- arv$value else
        calendar <- "ordinary"
-print(calendar)
+  if (!silent) print(calendar)
   if (calendar=="noleap") {
     print("Detected 'noleap' Calendar: set daysayear=365")
     daysayear <- 365
   }
 
+  # Get the time information : time origin & chronology/dates:
   if ( (is.null(torg)) | is.null(t.unit)) {
     if ( (lower.case(a[1])=="linux") & (use.cdfcont) ) {
        if (!silent) print("Linux & use.cdfcont : call cdfconf()")
@@ -93,13 +101,7 @@ print(calendar)
     }
   }
 
-#print(torg); print(t.unit)
-  
-  if (!silent) print(paste("Reading",v1))
-  arv <- att.get.ncdf(ncid, v1, 'long_name')
-  if( arv$hasatt ) lon.nam <- arv$value else lon.nam <- v1
-  v.nam <- v1
-  
+  # The coordinates/dimension data:
   lon <- get.var.ncdf(ncid,cdfdims[ilon])
   lat <- get.var.ncdf(ncid,cdfdims[ilat])
   tim <- get.var.ncdf(ncid,cdfdims[itim])
@@ -116,55 +118,20 @@ print(calendar)
     print(paste("Get the levels: ",min(z.rng),max(z.rng)))
     lev <- get.var.ncdf(ncid,cdfdims[ilev])
     attr(lev,"unit") <- eval(parse(text=paste("ncid$dim$",cdfdims[ilev],"$units",sep="")))
-# HERE 05.02.2008   
-#    if (length(lev)==1) nd <- nd - 1
   } else {
     lev <- NULL
   }
 
+  arv <- att.get.ncdf(ncid, v1, 'long_name')
+  if( arv$hasatt ) lon.nam <- arv$value else lon.nam <- v1
+  v.nam <- v1
+
+  # Get the dimensions: start with default
   start <- rep(1,nd); count <- rep(1,nd)
-# count <- c(length(lon),length(lat),length(tim))
   for (i in 1:nd) count[i] <- eval(parse(text=paste("ncid$dim$'",cdfdims[i],"'$len",sep="")))
   varsize <- count
-  lon.we <- lon
-  if (!is.null(x.rng)) {
-    if (!silent) print(paste("Longitudes: ",min(lon[is.finite(lon)]),"-",max(lon[is.finite(lon)]),attr(lon,"unit")))
-    if (!silent) print(paste("extract: ",min(x.rng),"-",max(x.rng)))
-    if (min(x.rng) < 0 & max(lon > 180)) start[1] <- max(c(sum(lon < min(x.rng))),1) else  # REB fix 21.10.2005
-                                         start[1] <- max(sum(lon < min(x.rng))+1)          # REB fix 21.10.2005/ REB fix 10.01.2008
-### Problem indicated by Lijun Fan Jan 08 2008 - selecged area shifted one grid-box to the southwest.    
-    ix <- (lon >= min(x.rng) & lon <= max(x.rng))
-    if (!silent) print(paste("sum(ix)=",sum(ix)))
-    lon <- lon[ix]
-     attr(lon,"unit") <- eval(parse(text=paste("ncid$'dim$",cdfdims[ilon],"$units'",sep="")))
-    count[1] <- length(lon)
-  }
-  if (!is.null(y.rng)) {
-    if (!silent) print(paste("Latitudes: ",min(lat[is.finite(lat)]),"-",max(lat[is.finite(lat)]),attr(lat,"unit")))
-    if (!silent) print(paste("extract: ",min(y.rng),"-",max(y.rng)))
 
-    if (lat[1] > lat[2]) start[2] <- max(sum(lat < min(y.rng)),1) else          # REB fix 21.10.2005/ REB fix 10.01.2008
-                         start[2] <- max(sum(lat < min(y.rng))+1,1)             # REB fix 21.10.2005/ REB fix 10.01.2008
-    iy <- (lat >= min(y.rng) & lat <= max(y.rng))
-    lat <- lat[iy]    
-    attr(lat,"unit") <- eval(parse(text=paste("ncid$dim$",cdfdims[ilat],"$units",sep="")))
-    count[2] <- length(lat)
-  }
-  if ((!is.null(z.rng)) & nd ==4  ) {
-    if (lev[1] > lev[2]) start[3] <- min(sum(lev < min(z.rng)),1) else          # REB fix 21.10.2005/ REB fix 10.01.2008
-                         start[3] <- min(sum(lev < min(z.rng))+1,1)             # REB fix 21.10.2005/ REB fix 10.01.2008 
-    iz <- (lev >= min(z.rng) & lev <= max(z.rng))
-    lev <- lev[iz]    
-    count[3] <- length(lev)
-    nz <- length(lev)
-  }
-
-
-  cmon<-c('Jan','Feb','Mar','Apr','May','Jun',
-          'Jul','Aug','Sep','Oct','Nov','Dec')
-  season<-cbind(c(12,1,2),c(3,4,5),c(6,7,8),c(9,10,11))
-  season.c<-c("","DJF","MAM","JJA","SON")
-
+  # The time axis:
   dtim <- diff(tim)
   if ( sum(dtim<=0) > 0) {
     print(paste("Warning! Test of chonological order finds",sum(dtim<=0),"jump(s)"))
@@ -231,6 +198,13 @@ print(calendar)
     yy  <- yy0 + floor((tim+mm0-1)/12)
     dd <- rep(15,length(tim))
     obj.type <- "monthly.field.object"
+  }  else if (substr(lower.case(t.unit),1,3)=="yea") {
+    tim <- floor(tim)
+    mm <- rep(mm0,length(tim))
+    yy  <- yy0 + tim
+    dd <- rep(dd0,length(tim))
+    obj.type <- "monthly.field.object"
+    t.unit <- "month"
   } else if (substr(lower.case(t.unit),1,3)=="day") {
     if (yy0!=0) mmddyy <- caldat(tim + julday(mm0,dd0,yy0)) else if (median(diff(tim)) > 29){
       year <- yy0 + floor(tim/daysayear)
@@ -282,87 +256,113 @@ print(calendar)
       yy <- yy[it1:it2]; mm <- mm[it1:it2]; dd <- dd[it1:it2]
     }       
   }
-  nt <- length(tim); ny <- length(lat)
- 
-  if (!silent) print(cbind(start,count,varsize))
-  if (!is.null(y.rng) & lat[1] > lat[length(lat)]) {
-    start[2] <- varsize[2] - start[2] - count[2] + 1
-  }
 
-  start[!is.finite(start)] <- 1; start[is.element(start,0)] <- 1; start[!is.numeric(start)] <- 1
-  count[!is.finite(count)] <- 1; count[is.element(count,0)] <- 1; count[!is.numeric(count)] <- 1
-  if (count[1]*count[2]*count[3] > 0) {
-    #if (!silent) 
-    print(cbind(start,count,varsize))
-    nx <- length(lon); ny <- length(lat); nt <- length(tim)
-    if (!silent) print(paste("Reading",v1))
-    data <- get.var.ncdf(ncid,v1,start=start,count=count)
-    dim(data) <- count
-#x11(); image(lon,lat,data[,,1],main="eastern H."); addland()
-  } else data <- NULL
+  # Vertical coordinates if they exist...
+  if ((!is.null(z.rng)) & nd ==4  ) {
+    if (lev[1] > lev[2]) start[3] <- min(sum(lev < min(z.rng)),1) else          # REB fix 21.10.2005/ REB fix 10.01.2008
+                         start[3] <- min(sum(lev < min(z.rng))+1,1)             # REB fix 21.10.2005/ REB fix 10.01.2008 
+    iz <- (lev >= min(z.rng) & lev <= max(z.rng))
+    lev <- lev[iz]    
+    count[3] <- length(lev)
+    nz <- length(lev)
+  } else nz <- 1
   
-  if (min(x.rng) < 0 & max(lon.we > 180)) {
-    if (!silent) print("read the data from western hemisphere also")
-    lon.we[lon.we > 180] <- lon.we[lon.we > 180] - 360
-#print(lon.we)
-    start[1] <- seq(1,length(lon.we),by=1)[(lon.we >= min(x.rng)) & (lon.we < 0)][1]
-    ix <- (lon.we >= min(x.rng) & lon.we < 0)
-    if (sum(ix)> 0) {
-      lon.we <- lon.we[ix]
-#print(lon.we)
-      count[1] <- length(lon.we)
-      lon <- lon[!is.element(lon,lon.we)]
-      if (!silent) print(cbind(start,count,varsize))
-      start[!is.finite(start)] <- 1; start[is.element(start,0)] <- 1; start[!is.numeric(start)] <- 1
-      count[!is.finite(count)] <- 1; count[is.element(count,0)] <- 1; count[!is.numeric(count)] <- 1
-      data.w <- get.var.ncdf(ncid,v1,start=start,count=count)
-# HERE 05.02.2008
-      print(c(dim(data.w),NA,count))
-      dim(data.w) <- count 
+  if (!silent) print(paste("Latitudes: ",min(lat[is.finite(lat)]),"-",
+                           max(lat[is.finite(lat)]),attr(lat,"unit")))
+  
+  # Extract latitude range:
+  if (!is.null(y.rng)) {
+    if (!silent) print(paste("extract: ",min(y.rng),"-",max(y.rng)))
 
-      print(dim( data ))
-        print(dim( data.w ))
-        print(start)
-        print(count)
-
-      lon <- c(lon.we,lon)
-#x11(); image(lon.we,lat,data.w[,,1],main="western H."); addland()
-      dat <- matrix(nrow=nt,ncol=ny*(nx+count[1]))
-      dim(dat) <- c(nt,ny,nx+count[1])
-      if (nd==3) {
-        for (i in 1:nt) {
-          if (!is.null(data)) dat[i,,] <- t(rbind(matrix(data.w[,,i],sum(ix),ny),matrix(data[,,i],nx,ny))) else
-                              dat[i,,] <- t(matrix(data.w[,,i],sum(ix),ny))
-        }
-    } else if (nd==4) {
-        for (i in 1:nt) {
-          if (!is.null(data)) dat[i,,,] <- t(rbind(matrix(data.w[,,,i],sum(ix),ny),matrix(data[,,,i],nx,ny,nz))) else
-                              dat[i,,,] <- t(matrix(data.w[,,,i],sum(ix),ny,nz))
-        }
-    }     
-      attr(lon,"unit") <- eval(parse(text=paste("ncid$dim$",cdfdims[ilon],"$units",sep="")))
-#print(lon); print(dim(t(dat[1,,]))); print(dim(dat)); print(length(lon)); print(length(lat))
-#print(dim(data));   print(dim(data.w)); print(sum(ix))       
-#x11(); image(lon,lat,t(dat[1,,]),main="east+west"); addland()
-    #print("East and west combined!")
-      rm(data,data.w)
-    } else {
-       dat <- data*NA; dim(dat) <- c(nt,ny,nx)
-       for (i in 1:nt) dat[i,,] <- t(as.matrix(data[,,i]))
-       rm(data)
+    iy <- (lat >= min(y.rng) & lat <= max(y.rng))
+    start[2] <- min( (1:length(lat))[iy] )
+    count[2] <- sum(iy)
+    if (lat[length(lat)] > lat[1]) {
+      start[2] <- length(lat) - start[2] +1
     }
-  } else {
-  
- # Re-order the data: (old convention)
-
-    if (!silent) print(c(nt,ny,nx,NA,dim(data)))
-    dat <- data*NA; dim(dat) <- c(nt,ny,nx); dim(data) <- c(nx,ny,nt);  
-    for (i in 1:nt) dat[i,,] <- t(as.matrix(data[,,i]))
-    rm(data)
+    lat <- lat[iy]
   }
+  y.rng <- range(lat)
+  
+  
+  if (!silent) print(paste("Longitudes: ",min(lon[is.finite(lon)]),"-",
+                           max(lon[is.finite(lon)]),attr(lon,"unit")))
+
+  # Split the reading up into two hemispheres:
+  lon.e <-  lon
+  lon.w <-  lon - 360
+
+  # Extract the longitudes:
+  if (!is.null(x.rng)) {
+    if (!silent) print(paste("extract: ",min(x.rng),"-",max(x.rng)))
+    ix.e <- (lon.e >= min((x.rng))) & (lon.e <  max((x.rng)))
+    ix.w <- (lon.w >= min((x.rng))) & (lon.w <= max((x.rng)))
+  } else {
+    ix.e <- is.finite(lon); ix.w <- !is.finite(lon)
+  }
+
+   # Read the data:  
+  if (!silent) print(paste("Reading",v1))
+  if (sum(ix.e)>1) {
+    start.e <- min( (1:length(lon))[ix.e] )
+    stopp.e <- max( (1:length(lon))[ix.e] )
+    start[1] <- start.e ; count[1] <- stopp.e - start.e + 1; nx.e <- count[1]
+    if (!silent) print("read the data from EASTERN hemisphere")
+    if (!silent) print(cbind(start,count,varsize))
+    data.e <- get.var.ncdf(ncid,v1,start=start,count=count)
+    dim(data.e) <- count
+    eastern.hemisphere <- TRUE
+  } else {eastern.hemisphere <- FALSE; nx.e <- 0}
+  
+  if (sum(ix.w)>1) {
+    start.w <- min( (1:length(lon))[ix.w] )
+    stopp.w <- max( (1:length(lon))[ix.w] )
+    start[1] <- start.w ; count[1] <- stopp.w - start.w + 1; nx.w <- count[1]
+    if (!silent) print("read the data from WESTERN hemisphere")
+    if (!silent) print(cbind(start,count,varsize))
+    data.w <- get.var.ncdf(ncid,v1,start=start,count=count)
+    western.hemisphere <- TRUE
+  } else {western.hemisphere <- FALSE; nx.w <- 0; ix.w[] <- FALSE}
+
+  if (eastern.hemisphere & western.hemisphere) {
+    lon.we <- intersect(lon[ix.w],lon[ix.e])
+    if (length(lon.we)>0) ix.w[is.element(lon,lon.we)] <- FALSE
+  }
+  lon <- lon[ix.e | ix.w]
+  x.rng <- range(lon)
+
+  nt <- length(tim); ny <- length(lat); nx <- length(lon)
+ 
+  dat <- matrix(nrow=nt,ncol=ny*(nx.e+nx.w))
+  dim(dat) <- c(nt,ny,nx.e+nx.w)
+  if (!silent) {
+    print("dim dat:"); print(dim( dat )); print(c(nx.e,nx.w,ny,nz,nt)); print(x.rng)
+  }
+
+  # Merge the different hemispheres:
+  if (nd==3) {
+    for (i in 1:nt) {
+      if (eastern.hemisphere & western.hemisphere)
+        dat[i,,] <- t(rbind(matrix(data.w[,,i],nx.w,ny),matrix(data.e[,,i],nx.e,ny))) else
+      if (eastern.hemisphere) dat[i,,] <- t(matrix(data.e[,,i],nx.e,ny)) else
+      if (western.hemisphere) dat[i,,] <- t(matrix(data.w[,,i],nx.w,ny))
+     }
+  } else if (nd==4) {
+    for (i in 1:nt) {
+       if (eastern.hemisphere & western.hemisphere)
+         dat[i,,,] <- t(rbind(matrix(data.w[,,,i],nx.w,ny),matrix(data[,,,i],nx.e,ny,nz))) else
+       if (eastern.hemisphere) dat[i,,,] <- t(matrix(data.e[,,,i],nx.e,ny,nz)) else
+       if (western.hemisphere) dat[i,,,] <- t(matrix(data.w[,,,i],nx.w,ny,nz))
+       }
+   }     
+    #print("East and west combined!")
+  if (eastern.hemisphere) rm(data.e); if (western.hemisphere) rm(data.w)
+  
   close.ncdf(ncid)
-  nx <- length(lon)  
-  print("dim(dat):"); print(dim(dat))
+  print("dim(dat):"); print(dim(dat)); print(c(length(tim),length(lat),length(lon)))
+
+# Data is read ...
+# Check the data! -------------------------------------------------
 
 # Check for 'model dates', i.e. 360-day year
   #print("---- --- -- - Check for 'model dates', i.e. 360-day year . .. ... ...."); print(nd)
@@ -382,10 +382,6 @@ print(calendar)
 
     if (force365.25==-1) {
       print("> > > > FORCING a '360-day' model year! < < < <")
-      # BUG! REB - dating fixed 20.01.2006
-#      yy <- yy0 + floor((tim +(mm0-1)*30+dd0-2)/360)        
-#      mm <- mod(mm0 + floor((dd0+tim-2)/30)-1,12)+1
-#      dd <- mod(dd0+tim-2,30)+1
       juldays <- caldat(tim+julday(mm0,dd0,yy0));            # REB 20.1.2006
       yy <- caldat(juldays)$year
       mm <- caldat(juldays)$month
@@ -431,15 +427,12 @@ print(calendar)
   x.srt <- order(lon)
   y.srt <- order(lat)
   lon <- lon[x.srt]
+  if (lat[length(lat)] < lat[1]) {
+    if (nd==3) dat <- dat[,y.srt,] else
+               dat <- dat[,,y.srt,]
+  }
   lat <- lat[y.srt]
-#  if (nd==3) dat <- dat[,y.srt,x.srt] else
-#             dat <- dat[,,y.srt,x.srt]
-  dat <- dat[,y.srt,x.srt] 
   
-  nx <- length(lon)
-  ny <- length(lat)
-  nt <- length(tim)
-
   if ((max(mm) > 12) & (max(dd) <= 12)) {
     mm2 <- mm; mm <- dd; dd <- mm2; rm(mm2)
   }
@@ -472,20 +465,21 @@ print(calendar)
         }
   }
 
+  
   if ((unit=="K") | (unit=="Kelvin") |
       (unit=="degrees Kelvin") |
       (unit=="deg K") | (unit=="degK")) {
     dat <- dat - 273
     unit <- "deg C"
   }
-    if ((unit=="Pa") | (substr(strip(lower.case(unit)),1,6)=="pascal") |
+
+  if ((unit=="Pa") | (substr(lower.case(unit),1,6)=="pascal") |
       (unit=="N/m^2") |
       (unit=="N m^{-1}")) {
     dat <- dat/100
     unit <- "hPa"
   }
   if (!silent) print(summary(as.vector(dat)))
-
   if (!silent) print(paste("dimensions",nt,ny,nx))
   eos <- nchar(v.nam)
   if (instring("-",v.nam)> 0) {
@@ -505,10 +499,6 @@ print(calendar)
                   daysayear=daysayear)
   attr(tim,"unit") <- t.unit
   attr(tim,"time_origin") <- torg
-
-#print(obj.type)
-#print(paste("min(diff):",min(diff(tim))))
-#print(sum(is.element(diff(mm),0)))
 
   if ((obj.type=="daily.field.object") & (min(diff(tim))>=28) & (regular) &
       (sum(is.element(diff(mm),0))>0) & (substr(lower.case(t.unit),1,3)=="day")) {
@@ -649,4 +639,23 @@ fixField <- function(x,torg=NULL,t.unit=NULL,scal=NULL,offs=NULL,
   if (is.null(x$dat.att$fixes)) x$dat.att$fixes <- paste("fixField ",date(),": ",torg,t.unit,scal,offs,sep="") else
                                 x$dat.att$fixes <- paste(x$dat.att$fixes,date(),": ",torg,t.unit,scal,offs,sep="")
   invisible(x)
+}
+
+
+test.retrieve.nc <- function(filename="sst.wkmean.1981-1989.nc") {
+
+  sst1 <- retrieve.nc(filename,t.rng=c("01-Jan-1981","31-Dec-1981"),v.nam="sst")
+  sst2 <- retrieve.nc(filename,t.rng=c("01-Jan-1981","31-Dec-1981"),v.nam="sst",
+                    x.rng=c(-90,-40),y.rng=c(0,60))
+  sst3 <- retrieve.nc(filename,t.rng=c("01-Jan-1981","31-Dec-1981"),v.nam="sst",
+                    x.rng=c(-60,40),y.rng=c(10,70))
+
+  image(sst1$lon,sst1$lat,t(sst1$dat[1,,]),ylim=c(0,90),xlim=c(-100,50))
+  addland()
+  contour(sst1$lon,sst1$lat,t(sst1$dat[1,,]),add=TRUE,col="white")
+  contour(sst2$lon,sst2$lat,t(sst2$dat[1,,]),add=TRUE,col="blue")
+  contour(sst3$lon,sst3$lat,t(sst3$dat[1,,]),add=TRUE,col="darkgreen",lty=2)
+
+  polygon(c(-90,rep(-40,2),rep(-90,2)),c(rep(0,2),rep(60,2),0),border="blue")
+  polygon(c(-60,rep(40,2),rep(-60,2)),c(rep(10,2),rep(70,2),10),border="darkgreen",lty=2)
 }

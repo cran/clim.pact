@@ -83,9 +83,94 @@ stereogr<- function(map.obj,NH=TRUE,lat.0=0,inv.col=FALSE,levels=NULL,sym=TRUE,d
 #  par(old.par)
 }
 
+map2sphere <- function(z,X=seq(-180,180,by=1),Y=seq(-90,90,by=1),pal="rainbow",nlevs=21,breaks=NULL,quick=FALSE,add=FALSE) {
+  print("map2sphere:")
+  colour <- eval(parse(text=paste(pal,"(n=",nlevs,")",sep="")))
+  if (class(z)=="map") {
+    Z <- z$map
+    X <- z$lon
+    Y <- z$lat
+    z <- Z
+  } else if (is.list(z)) {
+    components <- names(z)
+    v1 <- eval(parse(text=paste("z$",components[1],sep="")))
+    v2 <- eval(parse(text=paste("z$",components[2],sep="")))
+    v3 <- eval(parse(text=paste("z$",components[3],sep="")))
+    l <- c(length(v1),length(v2),length(v3))
+    srt <- order(l,decreasing=TRUE)
+    Z <- eval(parse(text=paste("z$",components[srt[1]],sep="")))
+    d <- dim(Z)
+    X <- eval(parse(text=paste("z$",components[l==d[1]],sep="")))
+    Y <- eval(parse(text=paste("z$",components[l==d[2]],sep="")))
+    X[X > 180] <- X[X > 180] - 360
+    srtx <- order(X)
+    X <- X[srtx]
+    z <- Z[srtx,]
+  }
+  if (is.null(breaks)) breaks <- seq(min(z,na.rm=TRUE),max(z,na.rm=TRUE),length=nlevs+1)
+  
+  # print(X);print(Y)
+  nx <- length(z[,1]); ny <-  length(z[1,])
+  #print(c(nx,ny))
+  nX <- length(X); nY <- length(Y)
+  dx <- 0.5*diff(X)[1]; dy <- 0.5*diff(Y)[1]
+  if ( (nx != length(X)) | (ny != length(Y)) ) {
+    x <- rep((1:nx),ny); y <- sort(rep((1:ny),nx))
+    Z <- interp(x,y,z,X,Y)$z
+    z <- Z
+  }
+  x11()
+  if (!add) plot(cos(seq(0,2*pi,length=360)),sin(seq(0,2*pi,length=360)),type="l",xlab="",ylab="")
+  phi <- c(-80,-70,-60,-50,-40,40,50,60,70,80,90)
+  steps <- c(6,5,4,3,2,1,2,3,4,5,6)
+  j1 <- 1
+  for (jj in 1:length(phi)) {
+    j2 <- max( (1:ny)[Y <= phi[jj]] )
+    ystep <- min(c(steps[jj],j2-j1))
+    if (!quick)  ystep <- 1 
+    sy1 <- sin(2*pi*(Y-dy*ystep)/360)
+    sy2 <- sin(2*pi*(Y+dy*ystep)/360)
+    cy <- cos(2*pi*Y/360)
+    #print(c(j1,j2,ystep))
+    for (j in seq(j1,j2,ystep)) {
+      py1 <- sy1[j]
+      py2 <- sy2[j]
+      xstep <- steps[min( (1:length(steps))[phi >= Y[j]] )]
+      if (!quick)  xstep <- 1
+      x1 <- sin(2*pi*(X-dx*xstep)/360)*cy[j]
+      x2 <- sin(2*pi*(X+dx*xstep)/360)*cy[j]
+      #print(c(Y[j],xstep))
+      for (i in seq(1,nX,by=xstep)) {
+        if ( (X[i] >= -90) & (X[i] <= 90) & (is.finite(z[i,j])) ) {
+          px1 <- x1[i] 
+          px2 <- x2[i] 
+          ilev <- round( nlevs*(z[i,j] - min(z,na.rm=TRUE))/diff(range(z,na.rm=TRUE)) )
+          polygon(c(px2,rep(px1,2),rep(px2,2)),
+                  c(rep(py1,2),rep(py2,2),py1),
+                  col=colour[ilev], border=colour[ilev])
+         }
+       }
+    }
+    j1 <- j2+1
+  }
+  
+}
 
 
-satellite <- function(map.obj,col="black",lwd=2,lty=1,add=FALSE,
+
+satellite <- function(map,lon.0=0,lat.0=0,pal="rainbow",nlevs=21,breaks=NULL,quick=FALSE,add=FALSE) {
+#  HERE
+#  call map2sphere
+#  Find map senter - flip if necessary
+#  project onto sphere the visible part
+
+  print("This function is not finished")
+  map2sphere(z=map$map,X=map$lon,Y=map$lat,pal=pal,nlevs=nlevs,
+             breaks=breaks,quick=quick,add=add)
+}
+
+
+satelliteOld <- function(map.obj,col="black",lwd=2,lty=1,add=FALSE,
                       las = 1,lon.0=NULL,lat.0=NULL,method="normal",
                       ni=100,nj=100, n.nearest=4,max.dist=3,landdata="addland2") {
   if (class(map.obj)!="map")  stop("Need a map object (mapField)")

@@ -1,6 +1,8 @@
 \name{objDS}
 \alias{climate analysis}
+\alias{climate diagnostics}
 \alias{objDS}
+\alias{plotDSobj}
 \alias{downscaling}
 \title{Objective downscaling of monthly means}
 \description{'Objective' downscaling based on \code{\link{DS}}. The
@@ -15,13 +17,18 @@ and E of the station location in order to avoid problems with dimensions
 if one only contains one data point (the domain becomes a line instead
 of a rectangle).
 }
-\usage{objDS(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
-          mon=NULL,direc="output/",cal.id=NULL,
+\usage{
+objDS(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
+          mon=NULL,direc="dsgraphicsoutput/",cal.id=NULL,
           ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
           method="lm",leps=FALSE,param="t2m",failure.action=NULL,
           plot.res=FALSE,plot.rate=FALSE,xtr.args="",
           swsm="step",predm="predict",lsave=FALSE,rmac=TRUE,
-          silent=FALSE,qualitycontrol=TRUE,LINPACK=TRUE,wOBS=0.25)}
+          silent=FALSE,qualitycontrol=TRUE,LINPACK=TRUE,wOBS=0.25)
+
+plotDSobj(result,outdir="dsgraphicsoutput/",figs=c(1,2,3,4),main="")}
+
+}
 
 \arguments{
     \item{field.obs}{ The gridded observation predictor \code{\link{retrieve.nc}}.}
@@ -67,6 +74,12 @@ of a rectangle).
     \item{failure.action}{If stepwise screening in
       \code{\link{DS}} fails to select any variables, then call the
       function specified by a character string, unless set to NULL.}
+    
+    \item{result}{A 'objDS' object from \code{\link{objDS}}.}
+    \item{outdir}{Directory for storing EPS-files with figures}
+    \item{figs}{Figs to plot: 1 - time series, 2 - time series of 
+    residuals, 3 - distribution of residuals, 4 - rates of change.}
+    \item{main}{title of plot}
 }
 
 \value{An 'objDS' object -  a list of objects:
@@ -91,14 +104,21 @@ of a rectangle).
 \dontrun{
 library(clim.pact)
 oslo<-getnordklim("Oslo-Blindern")
-slp.obs <- retrieve.nc("ncep_slp.nc")         # Get gridded observations/analysis from NCEP
-slp.gcm <- retrieve.nc("EH4OPYC_B2_slp.nc")   # Get results from climate models
-ds <- objDS(field.obs=slp.obs,field.gcm=slp.gcm,station=oslo)
+t2m.obs <- retrieve.nc("air.mon.mean.nc.nc")         # Get gridded observations/analysis from NCEP
+t2m.gcm <- retrieve.nc("pcmdi.ipcc4.mpi_echam5.20c3m.run1.daily.tas_A2_1961-1980.nc",
+            v.nam="tas",x.rng=obs$lon+c(-40,40),y.rng=obs$lat+c(-20,15) # Get results from climate models
+attr(field.gcm$tim,"unit")
+attr(field.gcm$tim,"unit") <- "month"     # Fix - sometimes retrieve.nc doesn't manage to attribute the
+                                          # correct time units
+class(field.gcm)
+class(field.gcm) <- c("field","monthly.field.object") # Fix.
 
-t2m <- retrieve.nc("~/data/analysis/DNMI_t2m.nc")
-t2m.gcm <- retrieve.nc("~/data/mpi/mpi-gsdio_t2m.nc",
-           x.rng=range(t2m$lon),y.rng=range(t2m$lat))
-ds <- objDS(field.obs=t2m,field.gcm=t2m.gcm,station=oslo)
+ds1 <- objDS(field.obs=t2m.obs,field.gcm=t2m.gcm,station=oslo)
+
+data(DNMI.t2m)
+ds2 <- objDS(field.obs=DNMI.t2m,field.gcm=t2m.gcm,station=oslo)
+plotDSobj(ds2)
+
 }
 }
 \keyword{models}

@@ -3,6 +3,7 @@
 \alias{field.object}
 \alias{fixField}
 \alias{monthly}
+\alias{test.retrieve.nc}
 \title{Retrieve data from a netCDF file}
 \description{\code{retrieve.nc} reads a netCDF file and picks out vectors that look like
   lngitude, latitude and time. Returns the first 3-D field in the file.
@@ -21,10 +22,12 @@ This routine reequres the \code{\link[ncdf]{ncdf}}-package is currently only ava
                         l.scale=FALSE,greenwich=TRUE,silent=FALSE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,force.chron=TRUE,
-                        force365.25=FALSE,regular=TRUE,daysayear=365.25,forceBC=TRUE,use.cdfcont=FALSE,torg=NULL,t.unit=NULL)
+                        force365.25=FALSE,regular=TRUE,daysayear=365.25,forceBC=TRUE,
+                        use.cdfcont=FALSE,torg=NULL,t.unit=NULL)
        fixField(x,torg=NULL,t.unit=NULL,scal=NULL,offs=NULL, 
                      x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,greenwich=TRUE)
-       monthly(x,param="t2m")
+       test.retrieve.nc(filename="sst.wkmean.1981-1989.nc")
+       monthly(x,param="t2m",method="mean")
 }
 
 }
@@ -59,6 +62,8 @@ This routine reequres the \code{\link[ncdf]{ncdf}}-package is currently only ava
     \item{t.unit}{Time unit, similar to the 'time\_unit' attribute in
       netCDF files. e.g. 'day'. A NULL value (default) will try to detect from
       the file header.}
+    \item{method}{Function to use when computing monthly values
+      (e.g. mean, sd, max, min)}
   }
   \value{A "field.object" list:
     \tabular{ll}{

@@ -99,7 +99,7 @@ plotField <- function(x,lon=NULL,lat=NULL,tim=NULL,mon=NULL,val.rng=NULL,
       results <- mapField(x,l=l,what=what,col=col,col.coast=col.coast,lty=lty,
                           lwd=lwd,val.rng=val.rng,xlim=xlim,ylim=ylim)
     } else if (sum(ii) > 1) {
-      map <- meanField(x,xlim=lon,ylim=lat,t.rng=range(x$yy[ii]))
+      map <- meanField(x,lon.rng=range(lon),lat.rng=range(lat),t.rng=range(x$yy[ii]))
       results <- mapField(x,col=col,col.coast=col.coast,lty=lty,lwd=lwd,val.rng=val.rng)
     }       
     lon.lat <- TRUE

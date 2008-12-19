@@ -5,7 +5,7 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
 
   if (add) newFig <- FALSE
   
-  if (options()$device[1]=="none") plot=FALSE
+#  if (options()$device[1]=="none") plot=FALSE
   if (!is.null(y)) {
     nx.1 <- dim(x$map)[1]; ny.1 <- dim(x$map)[2]
     nx.2 <- dim(y$map)[1]; ny.2 <- dim(y$map)[2]

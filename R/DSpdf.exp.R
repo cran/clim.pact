@@ -43,7 +43,7 @@ lagField <- function(fields,lag=1) {
 }
 
 
-DSpdf.exp <- function(obs=NULL,dT=0,dP=0,plot=TRUE,year=NULL,month=NULL) {
+DSpdf.exp <- function(obs=NULL,dT=0,dP=0,plot=TRUE,year=NULL,month=NULL,quadratic=TRUE) {
   data(exp.law1)
   data(addland)
   dist <- min(distAB(obs$lon,obs$lat,lon.cont,lat.cont),na.rm=TRUE)/1000
@@ -62,8 +62,13 @@ DSpdf.exp <- function(obs=NULL,dT=0,dP=0,plot=TRUE,year=NULL,month=NULL) {
                        alt=obs$alt,dist=dist,precip=mean(obs$precip[ii]))
   extrap.chg <- data.frame(temp=mean(obs$t2m[ii])+dT,lon=obs$lon,lat=obs$lat,
                          alt=obs$alt,dist=dist,precip=mean(obs$precip[ii])+dP)
-  slope.model <- lm(slope ~ temp + precip + lon + lat + alt + dist,data=slope)
-  const.model <- lm(const ~ temp + precip + lon + lat + alt + dist,data=const)
+  if (!quadratic) {
+    slope.model <- lm(slope ~ temp + precip + lon + lat + alt + dist,data=slope)
+    const.model <- lm(const ~ temp + precip + lon + lat + alt + dist,data=const)
+  } else {
+    slope.model <- lm(slope ~ temp + precip + I(temp^2) + I(precip^2) + alt + dist + lon + lat,data=slope)
+    const.model <- lm(const ~ temp + precip + I(temp^2) + I(precip^2) + alt + dist + lon + lat,data=const)
+  }
   smod <- step(slope.model,trace=0)
   cmod <- step(const.model,trace=0)
   slope.dep <- predict(smod,newdata=extrap.dep)

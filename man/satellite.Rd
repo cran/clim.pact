@@ -2,14 +2,18 @@
 \alias{polar stereographic}
 \alias{stereogr}
 \alias{satellite}
+\alias{map2sphere}
+\alias{satelliteOld}
 \title{Satellite view / polar stereographic}
 \description{Produces polar stereographic maps / satellite
   views. \code{stereogr} is simpler, newer, and faster then \code{satellite}.}
 \usage{
 stereogr(map.obj,NH=TRUE,lat.0=0,inv.col=FALSE,levels=NULL,sym=TRUE,dr=0.01,main=NULL)
-satellite(map.obj,col="black",lwd=2,lty=1,add=FALSE,
+satelliteOld(map.obj,col="black",lwd=2,lty=1,add=FALSE,
                       las = 1,lon.0=NULL,lat.0=NULL,method="normal",
                       ni=100,nj=100,n.nearest=4,max.dist=3,landdata=addland2)
+map2sphere(z,X=seq(-180,180,by=1),Y=seq(-90,90,by=1),pal="rainbow",nlevs=21,breaks=NULL,quick=FALSE,add=FALSE)
+satellite(map,lon.0=0,lat.0=0,pal="rainbow",nlevs=21,breaks=NULL,quick=FALSE,add=FALSE)
 }
 \arguments{
     \item{map.obj}{a map object (\code{\link{mapField}}).}
@@ -34,6 +38,14 @@ satellite(map.obj,col="black",lwd=2,lty=1,add=FALSE,
     \item{sym}{symmetric colour scale?.}
     \item{dr}{used for masking interpolated values in data voids. Look
       of result may be sensitive to spatial grid resolution.}
+    \item{z}{The gridded data.}
+    \item{X}{x-coordinate of z}
+    \item{Y}{y-coordinate of z}
+    \item{map}{mpa object to be mapped.}
+    \item{pal}{palette.}
+    \item{quick}{Faster high-resolution plot.}
+    \item{nlevs}{number of levels for contour/shading levels}
+    \item{breaks}{break points for contour/shading levels}
  }
 \value{}
 \author{R.E. Benestad}

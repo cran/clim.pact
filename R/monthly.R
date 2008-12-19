@@ -1,4 +1,4 @@
-monthly <- function(x,param="t2m") {
+monthly <- function(x,param="t2m",method="mean") {
   if (class(x)[2]!="daily.field.object" & class(x)[2]!="daily.station.record") {
       print("class(x) gives:")
       print(class(x))
@@ -25,7 +25,8 @@ monthly <- function(x,param="t2m") {
       ii <- is.element(x$yy,yy[it]) & is.element(x$mm,mm[it])
       ndays[it] <- sum(ii,is.na=TRUE)
       #print(c(dim(x$dat[ii,]), NA,ndays[it],NA,yy[it],mm[it],NA,it))
-      dat[it,] <- colMeans(x$dat[ii,],na.rm=TRUE)
+#      dat[it,] <- colMeans(x$dat[ii,],na.rm=TRUE)
+      dat[it,] <-  apply(x$dat[ii, ], MARGIN=2,FUN=method)
     }
     dim(dat) <- c(nt,ny,nx)
     x$dat <- dat[ndays > 25,,]
@@ -57,7 +58,8 @@ monthly <- function(x,param="t2m") {
    #print(c(length(dat),length(yy),length(mm),length(ndays)))
    x <- station.obj(x=dat,yy=yy,mm=mm,obs.name=param,unit=x$unit,
                     station= x$station,lat=x$lat,lon=x$lon,alt=x$alt,
-                    location=x$location,country=x$country,ele=x$ele,ndays=ndays)
+                    location=x$location,country=x$country,ele=x$ele)
+   x$ndays <- ndays
   }
   invisible(x)
 }

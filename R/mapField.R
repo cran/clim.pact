@@ -19,7 +19,7 @@ mapField <- function(x,l=NULL,greenwich=TRUE,plot=TRUE,
   }
   clim <- x$dat[l,,]
   dd.rng <- range(x$dd,na.rm=TRUE)
-  if (is.null(attr(x$tim,"units"))) attr(x$tim,"units") <- x$attributes$time.unit
+        if (is.null(attr(x$tim,"units"))) attr(x$tim,"units") <- x$attributes$time.unit
   if ( (lower.case(substr(attr(x$tim,"units"),1,5))=="month") |
        ((dd.rng[2]-dd.rng[1]<4) & (x$mm[2]-x$mm[1]>0)) ) {
     it <- mod(1:nt,12)==mod(l,12)
@@ -36,9 +36,9 @@ mapField <- function(x,l=NULL,greenwich=TRUE,plot=TRUE,
 #      }
 #    }
   } else {
-
       if (!is.null(x$attributes$daysayear)) daysayear <- x$attributes$daysayear else
                                           daysayear <- 365.25
+
       ac.mod<-matrix(rep(NA,nt*6),nt,6)
       if (substr(lower.case(attributes(x$tim)$units),1,3)=="day") jtime <- x$tim
       if (substr(lower.case(attributes(x$tim)$units),1,4)=="hour")  jtime <- x$tim/24
@@ -154,7 +154,7 @@ mapField <- function(x,l=NULL,greenwich=TRUE,plot=TRUE,
     addland(col=col.coast)
   }   # plot
   
-  results <- list(map=t(round(map,3)),lon=x$lon,lat=x$lat,tim=x$tim,
+  results <- list(map=t(round(map,3)),lon=x$lon,lat=x$lat,tim=x$tim[l],
                   date=date,description=descr,attributes=x$attributes)
   class(results) <- "map"
   attr(results,"long_name") <- attr(x$dat,"long_name")

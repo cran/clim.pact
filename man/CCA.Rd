@@ -34,9 +34,11 @@ the means of a simple and crude interpolation/gridding. \code{check.repeat} is a
 function that eliminates repeated years in the station objects.
 }
 \usage{
-CCA(x1,x2,SVD=TRUE,plot=TRUE,main="CCA",sub="",test=FALSE,i.eofs=1:8,LINPACK=TRUE)
+CCA(x1,x2,SVD=TRUE,plot=TRUE,main="CCA",sub="",
+    test=FALSE,i.eofs=1:8,LINPACK=TRUE)
 plotCCA(cca)
-testCCA(method="CCA",reconstr=FALSE,mode=1,test=TRUE,LINPACK=TRUE,SVD=TRUE,n.pc=4,synthetic=TRUE)
+testCCA(method="CCA",reconstr=FALSE,mode=1,test=TRUE,
+        LINPACK=TRUE,SVD=TRUE,n.pc=4,synthetic=TRUE)
 Psi(cca)
 predictCCA(Psi,X)
 stations2field(data.set=c("narp"),ele=101,obj.type="monthly.field.object",

@@ -21,7 +21,7 @@ cdfcont <- function(filename,path="",method=NULL) {
     stop(paste("Sorry,",paste(path,filename,sep="")," does not exist!"))
   }
   eval(parse(text=paste(method,'("rm -f cdfcont.txt")',sep="")))
-  eval(parse(text=paste(method,'("ncdump -h ',path,filename,' > cdfcont.txt",intern=T)',sep="")))
+  eval(parse(text=paste(method,'("ncdump -h ',path,filename,' > cdfcont.txt",intern=TRUE)',sep="")))
   cdfhead <- readLines("cdfcont.txt")
   #print(cdfhead)
   cdfvars <- cdfhead[c(grep("float",lower.case(cdfhead)),
@@ -98,7 +98,7 @@ cdfcont <- function(filename,path="",method=NULL) {
   } else miss <- NA
 
   #print("clean up")
-  system("rm -f cdfcont.txt",intern=T)
+  system("rm -f cdfcont.txt",intern=TRUE)
   content <- list(vars=cdfvars,dims=cdfdims,time.origin=torg,time.unit=tunit,
                   add.offset=as.numeric(offs),scale.factor=as.numeric(scal),
        missing.value=as.numeric(miss))

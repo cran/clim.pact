@@ -25,11 +25,13 @@ t2m.eof <- EOF2field(eof)
 # Check if the EOF reconstruction reproduces the original field:
 newFig()
 plotField(t2m,lat=60,lon=10)
-plotField(t2m.eof,lat=60,lon=10,add=TRUE,lty=2,col="red")  # Very similar time series
+plotField(t2m.eof,lat=60,lon=10,add=TRUE,lty=2,col="red")
+               # Very similar time series
 
 newFig()
 mapField(t2m.eof)
-mapField(t2m,add=TRUE,col="red",lty=2,lwd=1)  # Very similar spatial pattern/contours
+mapField(t2m,add=TRUE,col="red",lty=2,lwd=1)
+               # Very similar spatial pattern/contours
 
 sst <- retrieve.nc("~/data/analysis/DNMI_sst.nc")
 eof <- EOF(sst)

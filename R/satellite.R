@@ -56,7 +56,7 @@ stereogr<- function(map.obj,NH=TRUE,lat.0=0,inv.col=FALSE,levels=NULL,sym=TRUE,d
   contour(x.grd,y.grd,map,add=TRUE)
 # test:   points(x[good],y[good],pch="+",col="red")
 
-  data(addland)
+  data(addland,envir = environment())
   if (!NH) lat.cont <- -lat.cont
   ok <- is.finite(lon.cont) & is.finite(lat.cont)  & (lat.cont>lat.0)
   lat.cont <- abs(lat.cont)
@@ -285,8 +285,8 @@ satelliteOld <- function(map.obj,col="black",lwd=2,lty=1,add=FALSE,
     }
   }
 
-  z.levs <- seq(-max(abs(as.vector(map.xy)),na.rm=T),
-                 max(abs(as.vector(map.xy)),na.rm=T),length=41)
+  z.levs <- seq(-max(abs(as.vector(map.xy)),na.rm=TRUE),
+                 max(abs(as.vector(map.xy)),na.rm=TRUE),length=41)
   my.col <- rgb(c(seq(0,1,length=20),rep(1,21)),
                 c(abs(sin((0:40)*pi/40))),
                 c(c(rep(1,21),seq(1,0,length=20))))
@@ -318,7 +318,7 @@ satelliteOld <- function(map.obj,col="black",lwd=2,lty=1,add=FALSE,
 #  
 
   if (!add) {
-    eval(parse(text=paste("data(",landdata,")",sep="")))
+    eval(parse(text=paste("data(",landdata,",envir = environment())",sep="")))
     lon.cont[lon.cont > 180] <- lon.cont[lon.cont > 180] - 360
 
     iwest <- lon.cont < lon.0

@@ -9,7 +9,8 @@
   appropriateness. Also see \code{\link{anomaly.field}}.}
 \usage{
 anomaly.station(obs,period=c(1961,1990),param=c("t2m","precip"))
-daily2monthly.station(obs,param="t2m",min.days.month=20,method="mean",na.rm=TRUE)
+daily2monthly.station(obs,param="t2m",min.days.month=20,
+                      method="mean",na.rm=TRUE)
 }
 \arguments{
     \item{obs}{Monthly station series}

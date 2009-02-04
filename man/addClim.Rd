@@ -22,9 +22,12 @@ preClim.station(x,dd=NULL,mm=NULL,yy=NULL,param=1)
 data(oslo.dm, envir=environment())
 oslo.dma <- anomaly.station(oslo.dm)
 oslo.dmac <- addClim.station(oslo.dma)
-plot(oslo.dm$yy+(oslo.dm$mm-1)/12+oslo.dm$dd/365.25,oslo.dm$t2m,type="l",lwd=3,col="grey",xlim=c(1980,1985))
-lines(oslo.dm$yy+(oslo.dm$mm-1)/12+oslo.dm$dd/365.25,oslo.dmac$t2m,lty=2)
+plot(oslo.dm$yy+(oslo.dm$mm-1)/12+oslo.dm$dd/365.25,oslo.dm$t2m,
+     type="l",lwd=3,col="grey",xlim=c(1980,1985))
 lines(oslo.dm$yy+(oslo.dm$mm-1)/12+oslo.dm$dd/365.25,
-      preClim.station(oslo.dma, oslo.dm$dd, oslo.dm$mm, oslo.dm$yy),col="red",lwd=2)
+      oslo.dmac$t2m,lty=2)
+lines(oslo.dm$yy+(oslo.dm$mm-1)/12+oslo.dm$dd/365.25,
+      preClim.station(oslo.dma, oslo.dm$dd, oslo.dm$mm,
+      oslo.dm$yy),col="red",lwd=2)
 }
 \keyword{manip}

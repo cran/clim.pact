@@ -12,8 +12,8 @@ Klein Tank, A.M.G. and Coauthors (2002)
 Data and metadata available at \url{http://eca.knmi.nl}
 
 }
-\usage{getecsn(location="prompt",param=c("TG","RR"),dataset="blended",data.path="data.eca",country=NULL,
-               update = FALSE)
+\usage{getecsn(location="prompt",param=c("TG","RR"),dataset="blended",
+               data.path="data.eca",country=NULL,update = FALSE)
 }
 \arguments{
   \item{location}{ name of climate station location.}

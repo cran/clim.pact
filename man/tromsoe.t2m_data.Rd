@@ -1,7 +1,7 @@
 \name{tromsoe.t2m}
 \alias{tromsoe.t2m}
 \title{Monthly mean temperature in Tromsoe.}
-\description{A station record of monthly mean temperature Troms{\o}.}
+\description{A station record of monthly mean temperature Tromso.}
 \usage{data(tromsoe.t2m)}
 \format{a <- list of "monthly.station.record" class:
     \tabular{ll}{

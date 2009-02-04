@@ -8,12 +8,15 @@
 \description{Produces polar stereographic maps / satellite
   views. \code{stereogr} is simpler, newer, and faster then \code{satellite}.}
 \usage{
-stereogr(map.obj,NH=TRUE,lat.0=0,inv.col=FALSE,levels=NULL,sym=TRUE,dr=0.01,main=NULL)
+stereogr(map.obj,NH=TRUE,lat.0=0,inv.col=FALSE,levels=NULL,sym=TRUE,
+         dr=0.01,main=NULL)
 satelliteOld(map.obj,col="black",lwd=2,lty=1,add=FALSE,
-                      las = 1,lon.0=NULL,lat.0=NULL,method="normal",
-                      ni=100,nj=100,n.nearest=4,max.dist=3,landdata=addland2)
-map2sphere(z,X=seq(-180,180,by=1),Y=seq(-90,90,by=1),pal="rainbow",nlevs=21,breaks=NULL,quick=FALSE,add=FALSE)
-satellite(map,lon.0=0,lat.0=0,pal="rainbow",nlevs=21,breaks=NULL,quick=FALSE,add=FALSE)
+             las = 1,lon.0=NULL,lat.0=NULL,method="normal",
+             ni=100,nj=100,n.nearest=4,max.dist=3,landdata=addland2)
+map2sphere(z,X=seq(-180,180,by=1),Y=seq(-90,90,by=1),pal="rainbow",
+           nlevs=21,breaks=NULL,quick=FALSE,add=FALSE)
+satellite(map,lon.0=0,lat.0=0,pal="rainbow",nlevs=21,breaks=NULL,
+          quick=FALSE,add=FALSE)
 }
 \arguments{
     \item{map.obj}{a map object (\code{\link{mapField}}).}

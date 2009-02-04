@@ -1,4 +1,4 @@
-\name{Downscale PDF}
+\name{DSpdf.exp}
 \alias{DSpdf.exp}
 \alias{exp.law1}
 \alias{exp.par}
@@ -27,7 +27,8 @@
 \usage{
 DSpdf.exp(obs=NULL,dT=0,dP=0,plot=TRUE,year=NULL,month=NULL,quadratic=TRUE)
 data(exp.law1)
-CDFtransfer(Y,CDF.2,CDF.1=NULL,method="empiricalRanking",plot=FALSE,silent=FALSE,smooth=TRUE)
+CDFtransfer(Y,CDF.2,CDF.1=NULL,method="empiricalRanking",plot=FALSE,
+            silent=FALSE,smooth=TRUE,xlab="x2",ylab="x1")
 empiricalRanking(x)
 }
 \arguments{
@@ -50,6 +51,8 @@ empiricalRanking(x)
     fit for the local quantile transformation.}
   \item{quadratic}{Flag to toggle between the linear or the quadratic
     regression model in Benestad (2007)}
+  \item{xlab}{see \code{\link{plot}}}
+  \item{ylab}{see \code{\link{plot}}}
  }
 \value{A field object.}
 \author{R.E. Benestad}

@@ -173,9 +173,9 @@ a<-DS(dat=oslo.t2m,preds=eof.mc,plot=FALSE)
 \dontrun{
 # Example 1: for computing common EOFs and using these as a basis for DS.
 slp.obs <- retrieve.nc("ncep_slp.nc",x.rng=c(-20,40),y.rng=c(50,70))
-                                              # Get gridded observations/analysis from NCEP
-slp.gcm <- retrieve.nc("EH4OPYC_B2_slp.nc")   # Get results from climate models
-slp <- catFields(slp.obs,slp.gcm)             # combine the fields.
+                                 # Get gridded observations/analysis from NCEP
+slp.gcm <- retrieve.nc("EH4OPYC_B2_slp.nc") # Get results from climate models
+slp <- catFields(slp.obs,slp.gcm)           # combine the fields.
 eof <- EOF(slp,mon=1)
 obs <- getnordklim("Stockholm")
 ds <- DS(preds=eof,obs)
@@ -190,7 +190,8 @@ library(clim.pact)
 
 t2m<-retrieve.nc("DNMI_t2m.nc")
 
-# Manipulate the data: assign one part as calibration and one part as independent data
+# Manipulate the data: assign one part as calibration and one part as
+# independent data
 nt<-length(t2m$tim)
 t2m$id.t[1:floor(nt/2)]<-"calibrate"
 t2m$id.t[ceiling(nt/2):nt]<-"independent"

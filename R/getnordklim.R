@@ -51,7 +51,7 @@ if (ascii) {
 # Read the information about the stations: Metadata
 # 
 
-  data(nordklim.meta)
+  data(nordklim.meta,envir = environment())
 
 # Save as R-data-file
   save(obs,meta,file=fr.name)

@@ -16,7 +16,7 @@
 
 addland<-function(col="grey50",lwd=1) {
 
-data("addland")
+data("addland",envir = environment())
 lines(lon.cont,lat.cont,type="l",col=col,lwd=lwd)
 lon.cont<-lon.cont+360
 lines(lon.cont,lat.cont,type="l",col=col,lwd=lwd)

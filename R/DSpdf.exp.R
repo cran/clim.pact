@@ -44,8 +44,8 @@ lagField <- function(fields,lag=1) {
 
 
 DSpdf.exp <- function(obs=NULL,dT=0,dP=0,plot=TRUE,year=NULL,month=NULL,quadratic=TRUE) {
-  data(exp.law1)
-  data(addland)
+  data(exp.law1,envir = environment())
+  data(addland,envir = environment())
   dist <- min(distAB(obs$lon,obs$lat,lon.cont,lat.cont),na.rm=TRUE)/1000
   
   slope <- data.frame(slope=exp.par$slope,temp=exp.par$mt2m,lon=exp.par$lons,
@@ -108,7 +108,7 @@ DSpdf.exp <- function(obs=NULL,dT=0,dP=0,plot=TRUE,year=NULL,month=NULL,quadrati
     text(48,0.15,"ln(density)",srt=90,cex=0.8)    
     for (i in seq(1,100,by=10)) lines(rep(i,2)/2+50,c(0.10,0.101))
     text(70,0.09,model,cex=0.8)
-    text(70,0.07,paste("Low precip cut-off:"=exp.par$minAmountPrecip),cex=0.8)
+    text(70,0.07,paste("Low precip cut-off=",exp.par$minAmountPrecip,"mm/day"),cex=0.8,col="grey")
     if (dT != 0) {
       lines(exp.x,pdf.chg,lty=2,lwd=1,col="steelblue")
       lines(exp.x/2+50,log.fit.chg/100+0.1,lty=2,col="steelblue",lwd=1)
@@ -135,12 +135,14 @@ DSpdf.exp <- function(obs=NULL,dT=0,dP=0,plot=TRUE,year=NULL,month=NULL,quadrati
 
 
 CDFtransfer <-  function(Y,CDF.2,CDF.1=NULL,method="empiricalRanking",
-                         plot=FALSE,silent=FALSE,smooth=TRUE) {
+                         plot=FALSE,silent=FALSE,smooth=TRUE,xlab="x2",ylab="x1") {
 
+  station <- FALSE
   if (class(Y)[1]=="station") {
     obs <- Y
     print("Extracting precip from station object")
     Y <- obs$precip
+    station <- TRUE
   }
 
   # If CDF.1 is NULL, use the distribution from Y
@@ -188,14 +190,14 @@ CDFtransfer <-  function(Y,CDF.2,CDF.1=NULL,method="empiricalRanking",
 #    x11(); plot(F1$y,F2$y,type="l")
     x11()
     plot(x2,x1,main="Local quantile transfer function",type="n",
-         ylim=minmax,xlim=range(CDF.2$x,na.rm=TRUE))
+         ylim=minmax,xlim=range(CDF.2$x,na.rm=TRUE),xlab=xlab,ylab=ylab)
     grid()
     lines(c(min(CDF.1$x),max(CDF.2$x)),c(min(CDF.2$x),max(CDF.2$x)),col="grey70")
     points(x2,x1,pch=20,col="grey30",cex=0.7)
     lines(X$y,X$x,col="red")
   }
   Y.new <- rep(NA,length(Y))
-
+         
   if (smooth) {
     for (i in 1:length(Y)) Y.new[i] <- min(X$y[(X$x >= Y[i])],na.rm=TRUE)
   } else for (i in 1:length(Y)) Y.new[i] <- min(x2[(x1 >= Y[i])],na.rm=TRUE)
@@ -209,11 +211,11 @@ CDFtransfer <-  function(Y,CDF.2,CDF.1=NULL,method="empiricalRanking",
       lines(rep(Y.new[iii],2),c(Y[iii],0),col="blue",lty=3); points(Y.new[iii],0,pch=19,col="blue",cex=0.5)
     }
   }
-  
-  if (exists("obs",envir=environment(CDFtransfer))) {
+  if (station) {
     obs$precip <- Y.new
     Y.new <- obs
   }
+  print(length(Y.new))
   invisible(Y.new)
 }
 

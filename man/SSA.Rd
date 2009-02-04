@@ -5,7 +5,8 @@
 \title{Singular Spectrum Analysis}
 \description{After von Storch & Zwiers (1999), Statistical Analysis in Climate Research, p. 312}
 \usage{
-SSA(x,m,plot=TRUE,main="SSA analysis",sub="",LINPACK=TRUE, param = "t2m", anom = TRUE)
+SSA(x,m,plot=TRUE,main="SSA analysis",sub="",LINPACK=TRUE,
+    param = "t2m", anom = TRUE)
 plotSSA(ssa,main="SSA analysis",sub="")
 }
 \arguments{

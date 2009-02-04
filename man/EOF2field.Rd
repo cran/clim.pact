@@ -11,7 +11,7 @@
 }
 
 \value{A 'field' object (see \code{\link{retrieve.nc}}).}
-}
+
 \author{R.E. Benestad}
 \examples{
 \dontrun{

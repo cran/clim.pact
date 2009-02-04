@@ -68,7 +68,7 @@ if (!is.null(attributes(x$tim)$unit)) {
     clim <- y
     for (im in 1:12) {
       ii <- mod((1:nt)-1,12)+1 == im
-      clim[ii] <- mean(y[ii],na.rm=T)
+      clim[ii] <- mean(y[ii],na.rm=TRUE)
     }
   } else {
     ac.mod<-matrix(rep(NA,nt*6),nt,6)

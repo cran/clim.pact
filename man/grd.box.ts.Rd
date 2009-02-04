@@ -7,8 +7,8 @@
 \usage{
 grd.box.ts(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
                        col="grey10",lwd=1,lty=1,pch=".",add=FALSE,
-                       filter=NULL,type="l",main=NULL,sub=NULL,xlab=NULL,ylab=NULL,
-                       xlim=NULL,ylim=NULL)
+                       filter=NULL,type="l",main=NULL,sub=NULL,xlab=NULL,
+                       ylab=NULL,xlim=NULL,ylim=NULL)
 }
 \arguments{
     \item{x}{A field object.}

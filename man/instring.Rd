@@ -17,7 +17,7 @@
     \item{target}{string to search.}
     \item{case.match}{FALSE -> not case sensitive.}
   }
-\value{vector of intigers.}
+\value{vector of integers.}
 \author{R.E. Benestad}
 \examples{
 instring("e","efile.dat")

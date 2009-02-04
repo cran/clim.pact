@@ -80,7 +80,7 @@ getecsn <- function(location="prompt",param=c("TG","RR"),dataset="blended",
     ccode <- country.code[is.element(contr,lower.case(country))]
     match <- is.element(locs$CN,ccode)
     #print("match")
-  }  else if ((location=="prompt") & (is.null(country))) match <- rep(T,length(locs$LOCNAME))
+  }  else if ((location=="prompt") & (is.null(country))) match <- rep(TRUE,length(locs$LOCNAME))
 
   #print((1:length(locs$LOCNAME))[match])
   if (sum(match)==0) stop(paste('Could not find',location)) else

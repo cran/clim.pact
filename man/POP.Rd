@@ -7,7 +7,8 @@
 %\deqn{X_{t+1} = A X_t + \eta}{X(t+1) = A X(t) + noise}.
 }
 \usage{
-POP(x,plot=TRUE,main="POP analysis",sub="",test=FALSE,i.eofs=1:8,LINPACK=TRUE, mode = 1)
+POP(x,plot=TRUE,main="POP analysis",sub="",test=FALSE,
+    i.eofs=1:8,LINPACK=TRUE, mode = 1)
 plotPOP(pop,mode = 1, main = "POP analysis", sub = "")
 }
 \arguments{

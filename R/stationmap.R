@@ -47,8 +47,8 @@ ele.c<-switch(as.character(ele),
 #                        col.names=c("i","location","height","country",
 #                                    "number","Lat.deg","Lat.min","N.S",
 #                                    "Lon.deg","Lon.min","E.W"))
-data(nacd.meta)
-data(nordklim.meta)
+data(nacd.meta,envir = environment())
+data(nordklim.meta,envir = environment())
 
 #-------------------------------------------------------------------
 # Selection of NACD and NORDKLIMstations.

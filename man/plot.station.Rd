@@ -7,10 +7,11 @@
   \link{avail.elem}, \link{avail.locs} can be used to identify the
   station records available (in a given subdirectory).
 }
-\usage{plotStation(obs,l.anom=TRUE,mon=NULL,
-                        leps=FALSE,out.dir="output",what="b",trend=TRUE,std.lev=TRUE,
-                        type="b",pch=21,col="grey30",lwd=1,lty=1,add=FALSE,
-                        main=NULL,sub=NULL,xlab=NULL,ylab=NULL,normal.period=NULL,method="rowMeans")}
+\usage{plotStation(obs,l.anom=TRUE,mon=NULL,leps=FALSE,
+                   out.dir="output",what="b",trend=TRUE,std.lev=TRUE,
+                   type="b",pch=21,col="grey30",lwd=1,lty=1,add=FALSE,
+                   main=NULL,sub=NULL,xlab=NULL,ylab=NULL,
+                   normal.period=NULL,method="rowMeans")}
 
 \arguments{
   \item{obs}{A climate station series. }

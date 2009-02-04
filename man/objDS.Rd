@@ -26,8 +26,7 @@ objDS(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
           swsm="step",predm="predict",lsave=FALSE,rmac=TRUE,
           silent=FALSE,qualitycontrol=TRUE,LINPACK=TRUE,wOBS=0.25)
 
-plotDSobj(result,outdir="dsgraphicsoutput/",figs=c(1,2,3,4),main="")}
-
+plotDSobj(result,outdir="dsgraphicsoutput/",figs=c(1,2,3,4),main="")
 }
 
 \arguments{
@@ -104,12 +103,15 @@ plotDSobj(result,outdir="dsgraphicsoutput/",figs=c(1,2,3,4),main="")}
 \dontrun{
 library(clim.pact)
 oslo<-getnordklim("Oslo-Blindern")
-t2m.obs <- retrieve.nc("air.mon.mean.nc.nc")         # Get gridded observations/analysis from NCEP
+t2m.obs <- retrieve.nc("air.mon.mean.nc.nc")
+            # Get gridded observations/analysis from NCEP
 t2m.gcm <- retrieve.nc("pcmdi.ipcc4.mpi_echam5.20c3m.run1.daily.tas_A2_1961-1980.nc",
-            v.nam="tas",x.rng=obs$lon+c(-40,40),y.rng=obs$lat+c(-20,15) # Get results from climate models
+            v.nam="tas",x.rng=obs$lon+c(-40,40),y.rng=obs$lat+c(-20,15)
+            # Get results from climate models
 attr(field.gcm$tim,"unit")
-attr(field.gcm$tim,"unit") <- "month"     # Fix - sometimes retrieve.nc doesn't manage to attribute the
-                                          # correct time units
+attr(field.gcm$tim,"unit") <- "month"
+            # Fix - sometimes retrieve.nc doesn't manage to attribute the
+            # correct time units
 class(field.gcm)
 class(field.gcm) <- c("field","monthly.field.object") # Fix.
 

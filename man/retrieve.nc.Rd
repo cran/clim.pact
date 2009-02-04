@@ -18,19 +18,19 @@ This routine reequres the \code{\link[ncdf]{ncdf}}-package is currently only ava
 }
 
 \usage{
-       retrieve.nc(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO",
-                        l.scale=FALSE,greenwich=TRUE,silent=FALSE,
-                        x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
-                        x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,force.chron=TRUE,
-                        force365.25=FALSE,regular=TRUE,daysayear=365.25,forceBC=TRUE,
-                        use.cdfcont=FALSE,torg=NULL,t.unit=NULL)
-       fixField(x,torg=NULL,t.unit=NULL,scal=NULL,offs=NULL, 
-                     x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,greenwich=TRUE)
-       test.retrieve.nc(filename="sst.wkmean.1981-1989.nc")
-       monthly(x,param="t2m",method="mean")
+retrieve.nc(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO",
+            l.scale=FALSE,greenwich=TRUE,silent=FALSE,
+            x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
+            x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,
+            force.chron=TRUE,force365.25=FALSE,regular=TRUE,
+            daysayear=365.25,forceBC=TRUE,
+            use.cdfcont=FALSE,torg=NULL,t.unit=NULL)
+fixField(x,torg=NULL,t.unit=NULL,scal=NULL,offs=NULL, 
+         x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,greenwich=TRUE)
+test.retrieve.nc(filename="sst.wkmean.1981-1989.nc")
+monthly(x,param="t2m",method="mean")
 }
 
-}
 \arguments{
     \item{filename}{name of netCDF file.}
     \item{v.nam}{name of variable. "AUTO" -> smart search.}
@@ -102,7 +102,8 @@ slp  <- list(dat=X.2$dat,lon=X.2$lon,lat=X.2$lat,tim=X.2$tim,lev=X.2$lev,
              attributes=dat.att)
  class(slp) <- c("field")
 
-# For reading the IPCC FoAR netCDF files that uses a 365-day year (no leap years) and starts on time count year 0:
+# For reading the IPCC FoAR netCDF files that uses a 365-day year (no leap years)
+#  and starts on time count year 0:
 gcm <- retrieve.nc(fname,v.nam="tas",x.rng=c(-50,50),y.rng=c(30,75),forceBC=FALSE)
 }
 }

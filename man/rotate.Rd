@@ -5,18 +5,16 @@
   describing the locations on a sphere that correspond to a given
   longitude and latitude. Two reference points are given, one for the
   new 'north pole': 
-  \deqn{\vec{r}_0 = [\cos(\phi_0)\cos(\theta_0),\sin(\phi_0),\cos(\phi_0)\sin(\theta_0)].}
-  {r0 = [cos(lat.0)*cos(lon.0),sin(lat.0),cos(lat.0)*sin(lon.0).} and
-  and one for a point on the same meridian \deqn{\vec{r}_x}{rx}, but closer to the
+  \eqn{\vec{r}_0 = [\cos(\phi_0)\cos(\theta_0),\sin(\phi_0),\cos(\phi_0)\sin(\theta_0)]} and
+  one for a point on the same meridian \eqn{\vec{r}_x}{rx}, but closer to the
   equator. The vector corresponing to each of the longitude-latitude point is given by:
-  \deqn{\vec{r}_i = [\cos(\phi_i)\cos(\theta_i),\sin(\phi_i),\cos(\phi_i)\sin(\theta_i)].}
-  {r[i] =[cos(lats[i])*cos(lons[i]),sin(lats[i]),cos(lats[i])*sin(lons[i]).}
+  \eqn{\vec{r}_i = [\cos(\phi_i)\cos(\theta_i),\sin(\phi_i),\cos(\phi_i)\sin(\theta_i)]}.
 
   The new spherical coordinates are computed as follows: new latitude
-  (\code{phi}) is the angle between the the vectors \deqn{\vec{r}_0}{r0}
-    and \deqn{\vec{r}_i}{r[i]}. The new longitude (\code{theta}) is the
-      angle between the the vectors \deqn{\vec{r}_i-\vec{r}_0}{r[i]-r0} 
-    and \deqn{\vec{r}_x-\vec{r}_0}{rx-r0}. The angles are estimated by
+  (\code{phi}) is the angle between the the vectors \eqn{\vec{r}_0}{r0}
+    and \eqn{\vec{r}_i}{r[i]}. The new longitude (\code{theta}) is the
+      angle between the the vectors \eqn{\vec{r}_i-\vec{r}_0}{r[i]-r0} 
+    and \eqn{\vec{r}_x-\vec{r}_0}{rx-r0}. The angles are estimated by
     taking the inner-product and the arc-cosine.
 }
 \usage{rotate(lons,lats,lon.0=NULL,lat.0=NULL, method = "Cayley-Klein", test = TRUE)}

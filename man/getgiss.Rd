@@ -19,8 +19,10 @@ then call \code{getgiss} again with the station details. It is easier to access
 the NARP data.
 }
 \usage{
-getgiss(stnr=NULL,location=NULL,lon=NULL,lat=NULL,stations=NULL,silent=FALSE)
-getnarp(stnr=NULL,location=NULL,lon=NULL,lat=NULL,stations=NULL,silent=FALSE,ele=101)
+getgiss(stnr=NULL,location=NULL,lon=NULL,lat=NULL,stations=NULL,
+        silent=FALSE)
+getnarp(stnr=NULL,location=NULL,lon=NULL,lat=NULL,stations=NULL,
+        silent=FALSE,ele=101)
 }
 
 \arguments{

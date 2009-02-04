@@ -5,7 +5,8 @@
 \usage{mapField(x,l=NULL,greenwich=TRUE,plot=TRUE,
                      what="ano",method="nice",val.rng=NULL,
                      col="black",col.coast="grey",lwd=2,lty=1,
-                     add=FALSE,las = 1,levels=NULL,xlim=NULL,ylim=NULL,newFig=TRUE)
+                     add=FALSE,las = 1,levels=NULL,xlim=NULL,
+                     ylim=NULL,newFig=TRUE)
 }
 \arguments{
     \item{x}{ A field object. }

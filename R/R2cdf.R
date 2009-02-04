@@ -267,7 +267,7 @@ r2cdf <- function(filename,x,missing=-999.99,cleanup=TRUE,
   cat("}",file=cdf,sep = "\n")
   close(cdf)
   
-  system(paste("ncgen -b  -o ",filename,".nc ",filename,".cdf",sep=""),intern=T)
+  system(paste("ncgen -b  -o ",filename,".nc ",filename,".cdf",sep=""),intern=TRUE)
 
-  if (cleanup) system(paste("rm -f ",filename,sep=""),intern=T)
+  if (cleanup) system(paste("rm -f ",filename,sep=""),intern=TRUE)
 }

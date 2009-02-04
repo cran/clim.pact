@@ -128,9 +128,11 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
 
   # Get the dimensions: start with default
   start <- rep(1,nd); count <- rep(1,nd)
+  
   for (i in 1:nd) count[i] <- eval(parse(text=paste("ncid$dim$'",cdfdims[i],"'$len",sep="")))
   varsize <- count
-
+  start.test <- start; count.test=count
+  count.test[1:(length(count.test)-1)] <- 1
   # The time axis:
   dtim <- diff(tim)
   if ( sum(dtim<=0) > 0) {
@@ -191,6 +193,45 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
     yy0 <- 1
   }
 
+# Check for 'model dates', i.e. 360-day year
+  #print("---- --- -- - Check for 'model dates', i.e. 360-day year . .. ... ...."); print(nd)
+#  if (nd==3) y.test <- as.vector(dat[,1,1]) else y.test <- as.vector(dat[,1,1,1])
+  y.test <-  data.e <- get.var.ncdf(ncid,v1,start=start.test,count=count.test)
+  #print(c(sum(is.finite(y.test)),length(y.test)))
+  if ( (sum(is.finite(y.test)) > 100) & (daysayear != 360) ){
+    ac.gcm  <- data.frame(y=y.test, x1=as.vector(cos(2*pi*tim/360)), 
+                                    x2=as.vector(sin(2*pi*tim/360)))
+    ac.real <- data.frame(y=y.test, x1=as.vector(cos(2*pi*tim/daysayear)), 
+                                    x2=as.vector(sin(2*pi*tim/daysayear)))
+    lm.gcm <- lm(y ~ x1 + x2,data=ac.gcm); r2.gcm <- summary(lm.gcm)$r.squared
+    lm.real <- lm(y ~ x1 + x2,data=ac.real); r2.real <- summary(lm.real)$r.squared
+    #print(summary(lm.gcm))
+    #print(summary(lm.real))
+    #print(force365.25) 
+
+    if (force365.25==-1) {
+      print("> > > > FORCING a '360-day' model year! < < < <")
+      juldays <- caldat(tim+julday(mm0,dd0,yy0));            # REB 20.1.2006
+      yy <- caldat(juldays)$year
+      mm <- caldat(juldays)$month
+      dd <- caldat(juldays)$day
+      daysayear<- 365.25
+      force365.25 <- TRUE
+    }
+    if (is.finite(r2.gcm) & is.finite(r2.real)) {
+      if ( (r2.gcm > r2.real) & (length(rownames(table(diff(tim)))) <= 2) &
+          ( (substr(lower.case(t.unit),1,3)=="day") | (substr(lower.case(t.unit),1,4)=="hour") ) & 
+          !force365.25) {
+        print("> > > > Detecting a '360-day' model year! < < < <")
+        yy <- yy0 + floor((tim +(mm0-1)*30+dd0-2)/360)
+        mm <- mod(mm0 + floor((dd0+tim-2)/30)-1,12)+1
+        dd <- mod(dd0+tim-2,30)+1
+        daysayear<- 360
+      }
+    }
+  }
+  
+  
   if (!silent) print(paste("Time unit:",lower.case(t.unit)))
   if (substr(lower.case(t.unit),1,3)=="mon") {
     tim <- floor(tim)
@@ -206,7 +247,8 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
     obj.type <- "monthly.field.object"
     t.unit <- "month"
   } else if (substr(lower.case(t.unit),1,3)=="day") {
-    if (yy0!=0) mmddyy <- caldat(tim + julday(mm0,dd0,yy0)) else if (median(diff(tim)) > 29){
+    if ((yy0!=0) & (daysayear==365.25)) mmddyy <- caldat(tim + julday(mm0,dd0,yy0)) else
+    if (median(diff(tim)) > 29){
       year <- yy0 + floor(tim/daysayear)
       month <- mm0 + rep(1:12,ceiling(length(year)/12))[1:length(tim)] -1
       day <- rep(15,length(tim))
@@ -227,6 +269,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
     t.unit <- "day"
     obj.type <- "daily.field.object"
   } 
+
 
   nt <- length(tim)
   if (!is.null(t.rng)) {
@@ -277,9 +320,9 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
     iy <- (lat >= min(y.rng) & lat <= max(y.rng))
     start[2] <- min( (1:length(lat))[iy] )
     count[2] <- sum(iy)
-    if (lat[length(lat)] > lat[1]) {
-      start[2] <- length(lat) - start[2] +1
-    }
+#    if (lat[length(lat)] > lat[1]) {
+#      start[2] <- length(lat) - start[2] +1
+#    }
     lat <- lat[iy]
   }
   y.rng <- range(lat)
@@ -287,7 +330,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   
   if (!silent) print(paste("Longitudes: ",min(lon[is.finite(lon)]),"-",
                            max(lon[is.finite(lon)]),attr(lon,"unit")))
-
+  
   # Split the reading up into two hemispheres:
   lon.e <-  lon
   lon.w <-  lon - 360
@@ -312,6 +355,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
     data.e <- get.var.ncdf(ncid,v1,start=start,count=count)
     dim(data.e) <- count
     eastern.hemisphere <- TRUE
+    LonE <- get.var.ncdf(ncid,cdfdims[ilon],start=start[1],count=count[1])
   } else {eastern.hemisphere <- FALSE; nx.e <- 0}
   
   if (sum(ix.w)>1) {
@@ -322,14 +366,19 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
     if (!silent) print(cbind(start,count,varsize))
     data.w <- get.var.ncdf(ncid,v1,start=start,count=count)
     western.hemisphere <- TRUE
+    LonW <- get.var.ncdf(ncid,cdfdims[ilon],start=start[1],count=count[1])
   } else {western.hemisphere <- FALSE; nx.w <- 0; ix.w[] <- FALSE}
 
+  Lat <- get.var.ncdf(ncid,cdfdims[ilat],start=start[2],count=count[2])
+  
   if (eastern.hemisphere & western.hemisphere) {
     lon.we <- intersect(lon[ix.w],lon[ix.e])
     if (length(lon.we)>0) ix.w[is.element(lon,lon.we)] <- FALSE
-  }
-  lon <- lon[ix.e | ix.w]
-  x.rng <- range(lon)
+    lon <- c(LonE,LonW) 
+  } else if (eastern.hemisphere) lon <- LonE else
+         if (western.hemisphere) lon <- LonW else stop('Error in retrieve.nc - smothing is wrong!')
+#  lon <- lon[ix.e | ix.w]
+   x.rng <- range(lon)
 
   nt <- length(tim); ny <- length(lat); nx <- length(lon)
  
@@ -364,43 +413,6 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
 # Data is read ...
 # Check the data! -------------------------------------------------
 
-# Check for 'model dates', i.e. 360-day year
-  #print("---- --- -- - Check for 'model dates', i.e. 360-day year . .. ... ...."); print(nd)
-#  if (nd==3) y.test <- as.vector(dat[,1,1]) else y.test <- as.vector(dat[,1,1,1])
-  y.test <- as.vector(dat[,1,1]) 
-  #print(c(sum(is.finite(y.test)),length(y.test)))
-  if ( (sum(is.finite(y.test)) > 100) & (daysayear != 360) ){
-    ac.gcm  <- data.frame(y=y.test, x1=as.vector(cos(2*pi*tim/360)), 
-                                    x2=as.vector(sin(2*pi*tim/360)))
-    ac.real <- data.frame(y=y.test, x1=as.vector(cos(2*pi*tim/daysayear)), 
-                                    x2=as.vector(sin(2*pi*tim/daysayear)))
-    lm.gcm <- lm(y ~ x1 + x2,data=ac.gcm); r2.gcm <- summary(lm.gcm)$r.squared
-    lm.real <- lm(y ~ x1 + x2,data=ac.real); r2.real <- summary(lm.real)$r.squared
-    #print(summary(lm.gcm))
-    #print(summary(lm.real))
-    #print(force365.25) 
-
-    if (force365.25==-1) {
-      print("> > > > FORCING a '360-day' model year! < < < <")
-      juldays <- caldat(tim+julday(mm0,dd0,yy0));            # REB 20.1.2006
-      yy <- caldat(juldays)$year
-      mm <- caldat(juldays)$month
-      dd <- caldat(juldays)$day
-      daysayear<- 365.25
-      force365.25 <- TRUE
-    }
-    if (is.finite(r2.gcm) & is.finite(r2.real)) {
-      if ( (r2.gcm > r2.real) & (length(rownames(table(diff(tim)))) <= 2) &
-          ( (substr(lower.case(t.unit),1,3)=="day") | (substr(lower.case(t.unit),1,4)=="hour") ) & 
-          !force365.25) {
-        print("> > > > Detecting a '360-day' model year! < < < <")
-        yy <- yy0 + floor((tim +(mm0-1)*30+dd0-2)/360)
-        mm <- mod(mm0 + floor((dd0+tim-2)/30)-1,12)+1
-        dd <- mod(dd0+tim-2,30)+1
-        daysayear<- 360
-      }
-    }
-  }
 
 # Extra processing for NCEP files e.g. with Time unit: hours since 1-1-1 00:00:0.0.
   if ( ((substr(lower.case(t.unit),1,4)=="hour") |

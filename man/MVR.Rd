@@ -14,7 +14,8 @@ For the expression \deqn{Ax = b}{Ax=b}, then the projection of b onto the column
 }
 
 \usage{
-MVR(x,y,plot=TRUE,main="Multivariate regression",sub="",test=FALSE,i.eofs=1:8,LINPACK=TRUE, SVD=TRUE)
+MVR(x,y,plot=TRUE,main="Multivariate regression",sub="",test=FALSE,
+    i.eofs=1:8,LINPACK=TRUE, SVD=TRUE)
 }
 \arguments{
     \item{x}{A field or an eof object.}

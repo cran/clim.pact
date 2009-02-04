@@ -4,7 +4,8 @@
 \description{Produces maps.}
 \usage{map(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
                plot=TRUE,inv.col=FALSE,add=FALSE,las = 1,
-                    levels=NULL,main=NULL,sub=NULL,xlim=NULL,ylim=NULL,newFig=TRUE)}
+               levels=NULL,main=NULL,sub=NULL,xlim=NULL,
+               ylim=NULL,newFig=TRUE)}
 \arguments{
     \item{x}{A map object.}
     \item{y}{A map object. If given, \code{map.map} plots the

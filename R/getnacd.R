@@ -47,7 +47,7 @@ if (ascii) {
 
 # Read the information about the stations: Metadata
 
-  data(meta.nacd)
+  data(meta.nacd,envir = environment())
 
 # Save as R-data-file
   save(obs,meta.nacd,file=fr.name)

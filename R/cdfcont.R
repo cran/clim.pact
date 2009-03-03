@@ -20,7 +20,7 @@ cdfcont <- function(filename,path="",method=NULL) {
   if (!file.exists(paste(path,filename,sep=""))) {
     stop(paste("Sorry,",paste(path,filename,sep="")," does not exist!"))
   }
-  eval(parse(text=paste(method,'("rm -f cdfcont.txt")',sep="")))
+  if (lower.case(a[1])=="linux") eval(parse(text=paste(method,'("rm -f cdfcont.txt")',sep="")))
   eval(parse(text=paste(method,'("ncdump -h ',path,filename,' > cdfcont.txt",intern=TRUE)',sep="")))
   cdfhead <- readLines("cdfcont.txt")
   #print(cdfhead)

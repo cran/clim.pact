@@ -17,6 +17,7 @@ upper.case <- function(u.case) {
   if (is.factor(u.case)) { lfac <- TRUE }
   if ( (!is.character(u.case)) & (!is.factor(u.case)) ) return()  
   str<-as.character(u.case)
+#  print(min(nchar(str)))
   if ( (min(nchar(str))==0) & (is.null(str)) ) return()
 #  print(str)  
   upper.case<-str

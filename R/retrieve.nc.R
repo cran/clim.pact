@@ -261,6 +261,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
     obj.type <- "daily.field.object"
   } else if (substr(lower.case(t.unit),1,4)=="hour") {
     if (yy0!=0) mmddyy <- caldat(tim/24 + julday(mm0,dd0,yy0)) else {
+      stop("retrieve.nc: time unit='hour' but no proper initial year provided (year=0 is problematic)")
     }
     mm <- mmddyy$month
     yy <- mmddyy$year
@@ -268,8 +269,17 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
     tim <- tim/24
     t.unit <- "day"
     obj.type <- "daily.field.object"
-  } 
-
+  } else if (substr(lower.case(t.unit),1,5)=="minut") {
+    if (yy0!=0) mmddyy <- caldat(tim/(24*60) + julday(mm0,dd0,yy0)) else {
+      stop("retrieve.nc: time unit='minute' but no proper initial year provided (year=0 is problematic)")
+    }
+    mm <- mmddyy$month
+    yy <- mmddyy$year
+    dd <- mmddyy$day
+    tim <- tim/(24*60)
+    t.unit <- "day"
+    obj.type <- "daily.field.object"
+  }
 
   nt <- length(tim)
   if (!is.null(t.rng)) {
@@ -328,8 +338,8 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   y.rng <- range(lat)
   
   
-  if (!silent) print(paste("Longitudes: ",min(lon[is.finite(lon)]),"-",
-                           max(lon[is.finite(lon)]),attr(lon,"unit")))
+  if (!silent) print(paste("Longitudes: ",lon[1],"-",
+                           lon[length(lon)],attr(lon,"unit")))
   
   # Split the reading up into two hemispheres:
   lon.e <-  lon
@@ -439,6 +449,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   x.srt <- order(lon)
   y.srt <- order(lat)
   lon <- lon[x.srt]
+  dat <- dat[,,x.srt]
   if (lat[length(lat)] < lat[1]) {
     if (nd==3) dat <- dat[,y.srt,] else
                dat <- dat[,,y.srt,]

@@ -14,7 +14,7 @@
 
 #------------------------------------------------------------------------
 
-map.eof <- function(x,i.eof=1,nlevs=9,add=FALSE,
+mapEOF <- function(x,i.eof=1,nlevs=9,add=FALSE,
             col=c("red","blue","darkgreen","steelblue"),lwd=2,lty=1) {
 
 if (class(x)[1]!= "eof") stop ("The argument must be an 'eof' object") 

@@ -234,12 +234,6 @@ mergeEOF <- function(eof1,eof2,plot=TRUE,silent=FALSE,method="lm",
   invisible(eof)
 }
 
-  mapEOF <- function(x,i.eof=1,nlevs=5,add=FALSE,
-                   col=c("red","blue","darkgreen","steelblue"),lwd=2,lty=1) {
-  map <- map.eof(x,i.eof=i.eof,nlevs=nlevs,add=add,col=col,lwd=lwd,lty=lty)
-  invisible(map)
-} 
-
 
 adjustEOF <- function(x) {
   options(width=150)

@@ -115,7 +115,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   print(paste("Time, units: ",t.unit))
 
   if (length(ilev)>0) {
-    print(paste("Get the levels: ",min(z.rng),max(z.rng)))
+    if (!is.null(z.rng)) print(paste("Get the levels: ",min(z.rng),max(z.rng)))
     lev <- get.var.ncdf(ncid,cdfdims[ilev])
     attr(lev,"unit") <- eval(parse(text=paste("ncid$dim$",cdfdims[ilev],"$units",sep="")))
   } else {
@@ -311,14 +311,14 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   }
 
   # Vertical coordinates if they exist...
-  if ((!is.null(z.rng)) & nd ==4  ) {
+  if ((!is.null(z.rng)) & nd==4  ) {
     if (lev[1] > lev[2]) start[3] <- min(sum(lev < min(z.rng)),1) else          # REB fix 21.10.2005/ REB fix 10.01.2008
                          start[3] <- min(sum(lev < min(z.rng))+1,1)             # REB fix 21.10.2005/ REB fix 10.01.2008 
     iz <- (lev >= min(z.rng) & lev <= max(z.rng))
     lev <- lev[iz]    
     count[3] <- length(lev)
     nz <- length(lev)
-  } else nz <- 1
+  } else if (nd==4) {nz <- sum(is.finite(lev)); z.rng <- range(lev,na.rm=TRUE)} else nz <- 1
   
   if (!silent) print(paste("Latitudes: ",min(lat[is.finite(lat)]),"-",
                            max(lat[is.finite(lat)]),attr(lat,"unit")))
@@ -393,11 +393,17 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   nt <- length(tim); ny <- length(lat); nx <- length(lon)
  
   dat <- matrix(nrow=nt,ncol=ny*(nx.e+nx.w))
-  dim(dat) <- c(nt,ny,nx.e+nx.w)
+  if (nd==3) dim(dat) <- c(nt,ny,nx.e+nx.w) else
+  if (nd==4) dim(dat) <- c(nt,ny,nx.e+nx.w,nz)
   if (!silent) {
-    print("dim dat:"); print(dim( dat )); print(c(nx.e,nx.w,ny,nz,nt)); print(x.rng)
+    print("dim dat:"); print(dim( dat )); print(c(nx.e,nx.w,ny,nz,nt)); print(x.rng);
+    if (eastern.hemisphere) print(dim(data.e))
+    if (western.hemisphere) print(dim(data.w))
   }
 
+  if (nx.e==0) eastern.hemisphere <- FALSE
+  if (nx.w==0) western.hemisphere <- FALSE
+  
   # Merge the different hemispheres:
   if (nd==3) {
     for (i in 1:nt) {
@@ -407,6 +413,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
       if (western.hemisphere) dat[i,,] <- t(matrix(data.w[,,i],nx.w,ny))
      }
   } else if (nd==4) {
+    if (!silent) print("4D:")
     for (i in 1:nt) {
        if (eastern.hemisphere & western.hemisphere)
          dat[i,,,] <- t(rbind(matrix(data.w[,,,i],nx.w,ny),matrix(data[,,,i],nx.e,ny,nz))) else
@@ -418,7 +425,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   if (eastern.hemisphere) rm(data.e); if (western.hemisphere) rm(data.w)
   
   close.ncdf(ncid)
-  print("dim(dat):"); print(dim(dat)); print(c(length(tim),length(lat),length(lon)))
+  print("dim(dat):"); print(dim(dat)); print(c(length(tim),length(lat),length(lon),length(lev)))
 
 # Data is read ...
 # Check the data! -------------------------------------------------
@@ -445,15 +452,21 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
     lon[lon > 180] <- lon[lon > 180]-360
   }
 
-#  print("Sort longs and lats")
+  print("Sort longs and lats")
   x.srt <- order(lon)
   y.srt <- order(lat)
   lon <- lon[x.srt]
-  dat <- dat[,,x.srt]
-  if (lat[length(lat)] < lat[1]) {
-    if (nd==3) dat <- dat[,y.srt,] else
-               dat <- dat[,,y.srt,]
+  if (nd==3) dat <- dat[,,x.srt] else {
+     dat <- dat[,,x.srt,]
+     dim(dat) <- c(length(tim),length(lat),length(lon),length(lev))
   }
+  if (lat[length(lat)] < lat[1]) {
+    if (nd==3) dat <- dat[,y.srt,] else {
+      dat <- dat[,y.srt,,]
+      dim(dat) <- c(length(tim),length(lat),length(lon),length(lev))
+    }
+  }
+  
   lat <- lat[y.srt]
   
   if ((max(mm) > 12) & (max(dd) <= 12)) {

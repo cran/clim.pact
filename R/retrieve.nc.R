@@ -11,7 +11,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,
                         force.chron=TRUE,force365.25=FALSE,regular=TRUE,daysayear=365.25,
-                        forceBC=TRUE,use.cdfcont=FALSE,torg=NULL,t.unit=NULL) {
+                        forceBC=TRUE,use.cdfcont=FALSE,torg=NULL,t.unit=NULL,miss2na=TRUE) {
 #print("retrieve.nc:")
   library(ncdf)
 
@@ -253,7 +253,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
       month <- mm0 + rep(1:12,ceiling(length(year)/12))[1:length(tim)] -1
       day <- rep(15,length(tim))
       mmddyy <- list(day=day,month=month,year=year)
-    } else stop(paste('There is a problem with the time dimansion - I do not know what to do.',
+    } else stop(paste('There is a problem with the time dimension - I do not know what to do.',
                       'Can be fixed witrh NCO? (http://sf.net/projects/nco)'))
     mm <- mmddyy$month
     yy <- mmddyy$year
@@ -408,7 +408,8 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   if (nd==3) {
     for (i in 1:nt) {
       if (eastern.hemisphere & western.hemisphere)
-        dat[i,,] <- t(rbind(matrix(data.w[,,i],nx.w,ny),matrix(data.e[,,i],nx.e,ny))) else
+#        dat[i,,] <- t(rbind(matrix(data.w[,,i],nx.w,ny),matrix(data.e[,,i],nx.e,ny))) else
+        dat[i,,] <- t(rbind(matrix(data.e[,,i],nx.e,ny),matrix(data.w[,,i],nx.w,ny))) else
       if (eastern.hemisphere) dat[i,,] <- t(matrix(data.e[,,i],nx.e,ny)) else
       if (western.hemisphere) dat[i,,] <- t(matrix(data.w[,,i],nx.w,ny))
      }
@@ -425,8 +426,8 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   if (eastern.hemisphere) rm(data.e); if (western.hemisphere) rm(data.w)
   
   close.ncdf(ncid)
-  print("dim(dat):"); print(dim(dat)); print(c(length(tim),length(lat),length(lon),length(lev)))
-
+#  print("dim(dat):"); print(dim(dat)); print(c(length(tim),length(lat),length(lon),length(lev)))
+#  print(summary(c(dat))); stop("HERE")
 # Data is read ...
 # Check the data! -------------------------------------------------
 
@@ -478,10 +479,10 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   if (l.scale) {   
     if (!silent) print("BEFORE scale adjustment & weeding")
     if (!silent) print(summary(as.vector(dat)))
-    dat[dat == miss] <- NA
+    if (miss2na) dat[dat == miss] <- NA
     if (sum(is.na(dat))>0) print(paste(sum(is.na(dat)),"of",length(dat),
-                                 " are set to 'NA'"))
-      if (!silent) print("AFTER scale adjustment & weeding")
+                                 " are set to 'NA'; missing value=",miss))
+    if (!silent) print("AFTER scale adjustment & weeding")
   }
 
   if ((l.scale) & !is.null(scal)) {

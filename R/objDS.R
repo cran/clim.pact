@@ -356,10 +356,10 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     y.rng <- c(max(c(min(field.obs$lat),max(latx[latx < station$lat])), na.rm=TRUE),
                min(c(max(field.obs$lat),min(latx[latx > station$lat])), na.rm=TRUE))
     #print(x.rng); print(y.rng)
-    if (x.rng[1] > station$lon-10) x.rng[1] <- station$lon-10
-    if (x.rng[2] < station$lon+10) x.rng[2] <- station$lon+10
-    if (y.rng[1] > station$lat-10) y.rng[1] <- station$lat-10
-    if (y.rng[2] < station$lat+10) y.rng[2] <- station$lat+10
+    if (x.rng[1] > station$lon-15) x.rng[1] <- station$lon-15
+    if (x.rng[2] < station$lon+15) x.rng[2] <- station$lon+15
+    if (y.rng[1] > station$lat-5) y.rng[1] <- station$lat-5
+    if (y.rng[2] < station$lat+5) y.rng[2] <- station$lat+5
     #print(x.rng); print(y.rng)
     if (plot) {
       #print("HERE1"); print(dev.cur()); print(direc); print(options()$device)
@@ -386,7 +386,7 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     }
 #    print("catFields:")
 #    print(">>> Check REB 11.02.2004!")
-#    print(x.rng)
+    print(x.rng); print(y.rng)
 #    print(c(sum(!is.finite(field.obs$dat)),sum(!is.finite(field.gcm$dat))))
 #    print(summary(field.obs$lon)); print(summary(field.obs$lat))
 #    print(summary(field.gcm$lon)); print(summary(field.gcm$lat))
@@ -395,7 +395,9 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
 #    print(summary(field.gcm))
 
     field.2 <- catFields(field.obs,field.gcm,lon=x.rng,lat=y.rng,mon=imon)
-
+#    field.2 <- catFields(field.obs,field.gcm,mon=imon)
+#    print(field.gcm$lon); print(field.gcm$lat); print(summary(c(field.gcm$dat))); field.gcm$dat[!is.finite(field.gcm$dat)] <- 0
+#    map(meanField(field.obs)); print("OK1"); map(meanField(field.gcm)); stop("...HERE...") 
     #print(c(length(field.2$yy),length(field.2$mm),length(field.2$id.t),NA,dim(field.2$dat)))
     if (!is.null(wOBS)) {                                    #REB 21.03.05
       if (!silent) print("Weight down GCM:")
@@ -417,11 +419,11 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
 
     if (!silent) print("DS:")
     ds <- DS(preds=eof,dat=station,direc=direc,cal.id=cal.id,
-                  ldetrnd=ldetrnd,i.eofs=i.eofs,ex.tag=ex.tag,
-                  method=method,plot=FALSE,leps=leps,param=param,
-                  plot.res=plot.res,plot.rate=plot.rate,xtr.args=xtr.args,
-                  swsm=swsm,predm=predm,lsave=lsave,rmac=rmac,
-                  silent=silent)
+             ldetrnd=ldetrnd,i.eofs=i.eofs,ex.tag=ex.tag,
+             method=method,plot=FALSE,leps=leps,param=param,
+             plot.res=plot.res,plot.rate=plot.rate,xtr.args=xtr.args,
+             swsm=swsm,predm=predm,lsave=lsave,rmac=rmac,
+             silent=silent)
     if ( (ds$screening.failure) & !is.null(failure.action) ) {
       if (!silent) print(">>> objDS: call failure.action <<<")
       if (!silent) print(paste(failure.action,"(obs=station, mon=",imon,")",sep=""))

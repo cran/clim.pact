@@ -396,10 +396,10 @@ if ( length(step.wise$coefficients)<=1 ) {
   print("--------------------------------------------------------------")
   screening.failure <- TRUE
   x <-  list(screening.failure=screening.failure);
-  x
   warning("ds: screening failure - no correlation")
-  if (exit.on.screening.failure) return()
+  if (exit.on.screening.failure) return(x)
 }
+
 if (length(step.wise$coefficients)>1) {
   if (!is.null(stat$r.squared)) {
     r2 <- round(stat$r.squared*100)
@@ -485,7 +485,7 @@ if (!silent) print(summary(step.wise))
 # A "fudge" to avoid problems when stepwise rejects all the predictors
 # (i.e. only returns an intercept)
 if (length(pre.gcm)==1) {
-  if (!silent) print(c(length(pre.gcm),c(length(yy.gcm))))
+  if (!silent) print(paste("ds: ,length(pre.gcm)=",length(pre.gcm),", c(length(yy.gcm)=",c(length(yy.gcm))))
   pre.gcm <- rep(pre.gcm,length(yy.gcm))
 }
 
@@ -545,40 +545,36 @@ for (i in 1:length(i.eofs)) {
     incl[i]<-TRUE
   }
 }
-#print(incl)
+#print("incl:");print(incl) 
 
 # Note that the intercept is included in lm.coe, but not in the
 # coefficients held by c.
 
 lm.coe <- coef(step.wise)
-
 # Find the predictor patterns
 
 preds2D<-preds$EOF
 dims <- dim(preds2D)
 if (length(dims) > 2) dim(preds2D)<-c(dims[1],dims[2]*dims[3])
 
-if (!silent) print("Reconstruct the spatial patterns")
-if (!silent) print(lm.coe)
+if (!silent) {print("Reconstruct the spatial patterns"); print(lm.coe)}
 i.last <- 0
 list.expr <- "list("
 id <- row.names(table(preds$id.x))
-#print(id)
-#print(table(preds$id.lon))
-#print(table(preds$id.lat))
+#print(id); print(table(preds$id.lon)); print(table(preds$id.lat))
 for (i in 1:n.fld) {
-#  print(id[i])
+  print(id[i])
   i.lon <- preds$id.lon == id[i]
   i.lat <- preds$id.lat == id[i]
   ny<-preds$size[2,i]
   nx<-preds$size[3,i]
   i.fld <- seq(i.last+1,i.last+ny*nx,by=1)
   i.last <- max(i.fld)
-#  print(paste("Dimension of field ",i))
-#  print(dim(preds2D))
+#  print(paste("Dimension of field ",i));  print(dim(preds2D))
   EOF.1 <- t(preds2D[,i.fld])
   EOF.1 <-  EOF.1[,incl]
-  print(dim(EOF.1)); print(c(sum(incl),length(incl),sum(i.fld)))  ############################# 
+#  print("dim(EOF.1):"); print(dim(EOF.1));
+#  print("c(sum(incl),length(incl),sum(i.fld)):"); print(c(sum(incl),length(incl),sum(i.fld)))  ############################# 
   expr <- paste("X.",i," <- cbind(0,EOF.1) %*% lm.coe[1:(sum(incl)+1)]",sep="")
   eval(parse(text=expr))
 #  print(paste("2D -> 3D: nx=",nx," ny=",ny))
@@ -640,7 +636,6 @@ if (!silent) print(paste("P-value of trend-fit for downscaled scenario",gcm.trnd
 #---------------------------------------------------
 
 #print(paste(">---9: length y.o=",length(y.o),"length(yy.o)=",length(yy.o)))
-
 if (!silent) print("Dignosis:")
 if (!silent) print(direc)
 if (!silent) print(preds.id)
@@ -669,7 +664,7 @@ list.expr <- paste(list.expr,
          "n.fld=n.fld,unit=ds.unit,n.eofs=n.eofs,",
          "rate.ds=rate.ds,rate.err=rate.err,gcm.trnd.p=gcm.trnd.p,",
          "y.o=y.o,mm.o=mm.o,yy.o=yy.o,dd.o=dd.o,screening.failure=screening.failure,",
-         "fit.p=fit.p,fit.r2=r2,pre.p.fit=pre.p.fit,",
+         "fit.p=fit.p,fit.r2=r2,pre.p.fit=pre.p.fit,transposed=preds$transposed,",
          "pre.gcm=pre.gcm,pre.y=pre.y,gcm.stat=gcm.stat,",
          "month=month,v.name=v.name, region=preds$region,",
          "id.1=cal.id,id.2=preds$id.t[preds$id.t!=cal.id][1],",

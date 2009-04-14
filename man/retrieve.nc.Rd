@@ -24,7 +24,7 @@ retrieve.nc(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO",
             x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,
             force.chron=TRUE,force365.25=FALSE,regular=TRUE,
             daysayear=365.25,forceBC=TRUE,
-            use.cdfcont=FALSE,torg=NULL,t.unit=NULL)
+            use.cdfcont=FALSE,torg=NULL,t.unit=NULL,miss2na=TRUE)
 fixField(x,torg=NULL,t.unit=NULL,scal=NULL,offs=NULL, 
          x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,greenwich=TRUE)
 test.retrieve.nc(filename="sst.wkmean.1981-1989.nc")
@@ -64,6 +64,7 @@ monthly(x,param="t2m",method="mean")
       the file header.}
     \item{method}{Function to use when computing monthly values
       (e.g. mean, sd, max, min)}
+    \item{miss2na}{FLAG: TRUE - set missing value from netCDF meta data to NA}
   }
   \value{A "field.object" list:
     \tabular{ll}{

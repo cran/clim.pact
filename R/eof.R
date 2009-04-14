@@ -242,7 +242,7 @@ for (i in 1:fields$n.fld) {
   nt <- length(yy)
   stdv[i] <- sd(dat.x,na.rm=TRUE)
 
-  print(summary(c(dat.x)))
+  print("summary(c(dat.x)) - 1:"); print(summary(c(dat.x)))
   if (!silent) print(paste("Remove mean values at each grid point",nx*ny))
   for (j.y in 1:ny) {
     for (i.x in 1:nx) {
@@ -251,7 +251,7 @@ for (i in 1:fields$n.fld) {
       dat.x[,j.y,i.x] <- dat.x[,j.y,i.x] -  clim[ixy]
     }
   }
-  print(summary(c(dat.x)))
+  print("summary(c(dat.x)) - 2:"); print(summary(c(dat.x)))
 
   #print("Add geographical weighting")
   if (l.wght) {
@@ -322,27 +322,32 @@ dat.d2[!is.finite(dat.d2)]<-0
 if (!silent) print(paste("Data range:",min(dat.d2),"-",max(dat.d2)," dimensions=",
             dim(dat.d2)[1],"x",dim(dat.d2)[2],"  std=",round(stdv,2)))
 
+
+dim.dat <- dim(dat)
+if (dim.dat[2] < dim.dat[1]) transposed <- TRUE else
+                             transposed <- FALSE
 if (LINPACK) {
-  #print("svd:")
-  pca<-svd(t(dat.d2),LINPACK = TRUE) 
-  } else {
-  #print("La.svd:")
-  # REB 17.08.2006: As from R 2.3.0, using 'method="dgesvd"' is deprecated.
-  #pca<-La.svd(t(dat.d2),method="dgesvd")
-  pca<-La.svd(t(dat.d2))
+  if (transposed) pca<-svd(dat.d2,LINPACK = TRUE) else
+                  pca<-svd(t(dat.d2),LINPACK = TRUE)
+} else {
+  if (transposed) pca<-La.svd(dat.d2) else
+                  pca<-La.svd(t(dat.d2))
 }
 if (neofs > dim(dat.d2)[2]) neofs <- dim(dat.d2)[2]
 
 dim.v <- dim(pca$v); dim.u <- dim(pca$v); ; dim.x <- dim(dat.d2)
-if ((dim.v[1] == dim.x[2]) & (dim.v[2] == dim.x[1])) {
-  print("TRANSPOSE V & U:")
-  pca$v <- t(pca$v)
-  pca$u <- t(pca$u)
-  transposed <- TRUE
-  print(dim(dat.d2));print(dim(pca$v));print(dim(pca$u))
-} else transposed <- FALSE
 
-PC<-pca$v[,1:neofs]
+#if ((dim.v[1] == dim.x[2]) & (dim.v[2] == dim.x[1])) {
+if (transposed) {
+  print("-------- TRANSPOSE V & U: (time dim > space dim) ----------")
+  pca.v <- pca$v
+  pca$v <- pca$u
+  pca$u <- pca.v
+} else  pca$v <- t(pca$v)
+
+#print(paste("time:",nt,"space:",ny*nx));print(dim(dat.d2)); print(dim(pca$v)); print(dim(pca$u))
+
+PC<-pca$v[,1:neofs] 
 EOF<-t(pca$u[,1:neofs])
 W<-pca$d[1:neofs]
 tot.var <- sum(pca$d^2)
@@ -351,6 +356,8 @@ Var.eof<-100*pca$d[1:neofs]^2/tot.var
 dW <- W*sqrt(2.0/n.eff)
 
 # 2D->3D transform, invert weighting
+
+#print(size)
 
 #print("2D->3D transform")
 i.last <- 0
@@ -363,6 +370,7 @@ for (i in 1:fields$n.fld) {
   EOF.1 <- EOF[,i.fld]
   dim(EOF.1)<-c(neofs,size[2,i],size[3,i])
 #  print(l.wght)
+#  print("dim(EOF.1):"); print(dim(EOF.1))
   if (l.wght) for (ieof in 1:neofs) EOF.1[ieof,,]<-
              EOF.1[ieof,,]*stdv[i]/eval(parse(text=paste("Wght.",i,sep="")))
 #  print('eof.patt<-t(EOF.1[1,,])')
@@ -408,16 +416,18 @@ attr(tim,"time_origin") <- fields$attributes$time.origin
 
 #print("Construct list object")
 #print(c(length(yy),length(mm),length(dd),length(tim),length(id.t),NA,dim(PC)))
+#print("dim(EOF):"); print(dim(EOF)); print("dim(PC):"); print(dim(PC)); print("len(W):"); print(length(W))
 
 eof<-list(EOF=EOF,W=W,PC=PC,id=preds.id,n.fld=fields$n.fld,tot.var=tot.var,
           id.t=id.t,id.x=fields$id.x,size=size,dW=dW,mon=mon,l.wght=l.wght,
           id.lon=id.lons,id.lat=id.lats,region=region,tim=tim,
-          lon=lons,lat=lats,var.eof=Var.eof,yy=yy,mm=mm,dd=dd,
+          lon=lons,lat=lats,var.eof=Var.eof,yy=yy,mm=mm,dd=dd,transposed=transposed,
           v.name=fields$v.name,c.mon=c.mon,f.name=fname,clim=clim,
           attributes=fields$attributes)
 class(eof) <- c("eof",class(fields))
 #save(file='data/ceof.Rdata',eof,ascii=FALSE)
 if (lsave) save(file=fname,eof,ascii=FALSE) 
 
+#print("end of EOF")
 invisible(eof)
 }

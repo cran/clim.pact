@@ -155,20 +155,22 @@ if (is.null(mon)) mon <- 1:12
 
         if ( (class(y)[1]=="station") & (sum(is.finite(x$dat[i2,j,i]))> 10) ) {
                                     good <- is.finite(y.ts[i1]) & is.finite(x$dat[i2,j,i])
-                                    ii1 <- i1 & good
-                                    ii2 <- i2 & good
+#                                    ii1 <- i1 & good
+#                                    ii2 <- i2 & good
+#                                    ii1 <- is.finite(y.ts[i1])
+#                                    ii2 <- is.finite(x$dat[i2,j,i])
 #        if (length(i1) != length(ii1)) print(c(length(i1),length(ii1),length(good),
 #                                               length(y.ts[i1]),length(x$dat[i2,j,i])))
 #        if (length(i2) != length(ii2)) print(c(length(i2),length(ii2),length(good),
 #                                               length(y.ts[i1]),length(x$dat[i2,j,i])))
 #        print(rbind(yy[ii1]*100+mm[ii1],
 #                    x$yy[ii2]*100+x$mm[ii2]))
-                                    r.test <- cor.test(x$dat[ii2,j,i],y.ts[ii1])
+                                    r.test <- cor.test(x$dat[i2,j,i][good],y.ts[i1][good])
                                   } else if (class(y)[1]=="field") {
                                     good <- is.finite(y.ts[i1,j,i]) & is.finite(x$dat[i2,j,i])
-                                    ii1 <- i1 & good
-                                    ii2 <- i2 & good
-                                    r.test <- cor.test(x$dat[ii2,j,i],y.ts[ii1,j,i])
+#                                    ii1 <- is.finite(y.ts[i1,j,i])
+#                                    ii2 <- is.finite(x$dat[i2,j,i]
+                                    r.test <- cor.test(x$dat[i2,j,i][good],y.ts[i1,j,i][good])
                                   } else {
                                     #print(c(i,j,sum(is.finite(x$dat[i2,j,i]))))
                                     r.test <- list(estimate=NA,p.value=NA) }

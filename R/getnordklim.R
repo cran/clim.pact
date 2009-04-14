@@ -114,9 +114,20 @@ scale <- switch(as.character(ele[1]),
 
 val<-as.matrix(obs[,4:15])*scale
 val[val <= -99.9] <- NA
-location<-upper.case(substr(location,1,4))
-locations <- upper.case(substr(as.character(meta$location),1,4))
-in.app<-is.element(locations,location) 
+#location<-upper.case(substr(location,1,4))
+#locations <- upper.case(substr(as.character(meta$location),1,4))
+#in.app<-is.element(locations,location)
+test.char <- 4
+Location <- location
+in.app <- rep(F,length(meta$location))
+while ( (sum(in.app)!=1) & (test.char <= nchar(Location)) ) {
+  location<-upper.case(substr(Location,1,test.char))
+  locations <- upper.case(substr(as.character(meta$location),1,test.char))
+  in.app<-is.element(locations,location)
+  test.char <- test.char +1
+}
+#print(c(sum(in.app)!=1,test.char <= nchar(Location)))
+#stop(paste(sum(in.app),"-",test.char))
 
 no.find<-FALSE
 if ((sum(in.app)==0) & !(silent)) {
@@ -135,7 +146,7 @@ if ((sum(in.app)==0) & !(silent)) {
   no.find<-TRUE
   print("Available locations:")
   print(meta$location)
-} else if (sum(in.app)>0) {
+} else if (sum(in.app)==1) {
   location <- strip(as.character(meta$location[in.app]))
   meta<-meta[in.app,]
   iloc<-is.element(station,meta$number)

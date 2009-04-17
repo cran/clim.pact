@@ -109,8 +109,10 @@ if (class(fields)[2]=="monthly.field.object") {
   ac.mod[,6]<-sin(6*pi*jtim/daysayear)
   if (l.rm.ac) {
     for (ip in seq(1,np,by=1)) {
-      ac.fit<-lm(dat[,ip] ~ ac.mod)
-      dat[!is.na(dat[,ip]),ip]<-ac.fit$residual
+      if (sum(is.finite(dat[,ip]))> 0.5*nt) {
+        ac.fit<-lm(dat[,ip] ~ ac.mod)
+        dat[!is.na(dat[,ip]),ip]<-ac.fit$residual
+      } else dat[,ip] <- NA
     }
   }
   if (is.null(mon))  {

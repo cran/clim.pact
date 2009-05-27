@@ -244,7 +244,7 @@ for (i in 1:fields$n.fld) {
   nt <- length(yy)
   stdv[i] <- sd(dat.x,na.rm=TRUE)
 
-  print("summary(c(dat.x)) - 1:"); print(summary(c(dat.x)))
+  #print("summary(c(dat.x)) - 1:"); print(summary(c(dat.x)))
   if (!silent) print(paste("Remove mean values at each grid point",nx*ny))
   for (j.y in 1:ny) {
     for (i.x in 1:nx) {
@@ -253,7 +253,7 @@ for (i in 1:fields$n.fld) {
       dat.x[,j.y,i.x] <- dat.x[,j.y,i.x] -  clim[ixy]
     }
   }
-  print("summary(c(dat.x)) - 2:"); print(summary(c(dat.x)))
+  #print("summary(c(dat.x)) - 2:"); print(summary(c(dat.x)))
 
   #print("Add geographical weighting")
   if (l.wght) {
@@ -345,7 +345,7 @@ if (transposed) {
   pca.v <- pca$v
   pca$v <- pca$u
   pca$u <- pca.v
-} else  pca$v <- t(pca$v)
+} 
 
 #print(paste("time:",nt,"space:",ny*nx));print(dim(dat.d2)); print(dim(pca$v)); print(dim(pca$u))
 

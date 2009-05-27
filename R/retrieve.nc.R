@@ -37,7 +37,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   if (nv > 1) {
     ipick <- grep(v.nam,cdfvars)
     if (length(ipick)==0) {
-      print(cdfvars)
+      #print(cdfvars)
       ipick <- as.numeric(readline(paste("Choose variable (1 - ",length(cdfvars),"): ",sep="")))
     }
   } 
@@ -75,7 +75,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
        calendar <- "ordinary"
   if (!silent) print(calendar)
   if (calendar=="noleap") {
-    print("Detected 'noleap' Calendar: set daysayear=365")
+    if (!silent) print("Detected 'noleap' Calendar: set daysayear=365")
     daysayear <- 365
   }
 
@@ -109,7 +109,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
 #print("Attributes:")
   attr(lon,"unit") <- eval(parse(text=paste("ncid$dim$'",cdfdims[ilon],"'$units",sep="")))
   attr(lat,"unit") <- eval(parse(text=paste("ncid$dim$'",cdfdims[ilat],"'$units",sep="")))
-  print(paste("ncid$dim$'",cdfdims[itim],"$units'",sep=""))
+  if (!silent) print(paste("ncid$dim$'",cdfdims[itim],"$units'",sep=""))
   attr(tim,"unit") <- eval(parse(text=paste("ncid$dim$'",cdfdims[itim],"'$units",sep="")))
   if (is.null(t.unit)) t.unit <- attr(tim,"unit")
   print(paste("Time, units: ",t.unit))
@@ -137,21 +137,21 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   dtim <- diff(tim)
   if ( sum(dtim<=0) > 0) {
     print(paste("Warning! Test of chonological order finds",sum(dtim<=0),"jump(s)"))
-    print(paste("median(dtim)=",median(dtim)))
+    if (!silent) print(paste("median(dtim)=",median(dtim)))
     if (force.chron) {
       nt <- length(tim)
       tim.att <- attributes(tim)
       dtims <- as.numeric(row.names(table(dtim)))
       if (length(dtims < 4)) {
-        print(paste("Force correction: assume tim[1] is correct,",
-                    median(dtim),"is correct time step, and length=",nt))
+        if (!silent) print(paste("Force correction: assume tim[1] is correct,",
+                                  median(dtim),"is correct time step, and length=",nt))
         tim <- seq(tim[1],tim[1]+(nt-1)*dtim[1],by=median(dtim))
       } else {
         dt <- readline("What is the correct time step? (0 leaves tim unchanged)")
         if (dt != 0) tim <- seq(tim[1],tim[1]+nt-1,by=dt)
       }
     }
-    print(paste("length(tim)=",length(tim),"nt=",nt))
+    if (!silent) print(paste("length(tim)=",length(tim),"nt=",nt))
   }
 
   if ((is.null(torg)) & (regexpr("since",t.unit)[1]>0)) {
@@ -169,7 +169,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   } 
 
   if (!is.null(torg)) {
-    print(paste("torg=",torg))
+    if (!silent) print(paste("torg=",torg))
     yy0 <- datestr2num(torg)[1]
     mm0 <- datestr2num(torg)[2]
     dd0 <- datestr2num(torg)[3]
@@ -210,7 +210,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
     #print(force365.25) 
 
     if (force365.25==-1) {
-      print("> > > > FORCING a '360-day' model year! < < < <")
+      if (!silent) print("> > > > FORCING a '360-day' model year! < < < <")
       juldays <- caldat(tim+julday(mm0,dd0,yy0));            # REB 20.1.2006
       yy <- caldat(juldays)$year
       mm <- caldat(juldays)$month
@@ -302,7 +302,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
       it <- 1:length(tim)
       it1 <- min(it[(yy*10000 + mm*100 + dd >= yy.1*10000+mm.1*100+dd.1)],na.rm=TRUE)
       it2 <- max(it[(yy*10000 + mm*100 + dd <= yy.2*10000+mm.2*100+dd.2)],na.rm=TRUE)
-      if (!silent) print(c(yy.1,mm.1,dd.1)); print(c(yy.2,mm.2,dd.2)); print(c(it1,it2))
+      if (!silent) {print(c(yy.1,mm.1,dd.1)); print(c(yy.2,mm.2,dd.2)); print(c(it1,it2))}
       tim <- tim[it1:it2]
       start[nd] <- max(c(1,it1),na.rm=TRUE)
       count[nd] <- length(tim)
@@ -486,7 +486,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   }
 
   if ((l.scale) & !is.null(scal)) {
-     print(paste("Scaling: dat <- dat *",scal))
+     if (!silent) print(paste("Scaling: dat <- dat *",scal))
      if (is.finite(scal)) dat <- dat * scal
   }
   # Have included a sanity test to detect an old 'bug': offset 273 and
@@ -497,7 +497,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
         a <- readline(prompt="Correct an old bug? (y/n)")
         if (lower.case(a)=="y") dat <- dat + offs} else
         if (is.finite(offs)) {
-          print(paste("Offset: dat <- dat +",offs))
+          if (!silent) print(paste("Offset: dat <- dat +",offs))
           dat <- dat + offs
         }
   }

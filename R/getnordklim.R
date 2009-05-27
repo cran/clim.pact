@@ -117,7 +117,7 @@ val[val <= -99.9] <- NA
 #location<-upper.case(substr(location,1,4))
 #locations <- upper.case(substr(as.character(meta$location),1,4))
 #in.app<-is.element(locations,location)
-test.char <- 4
+test.char <- min(c(nchar(location),4))
 Location <- location
 in.app <- rep(F,length(meta$location))
 while ( (sum(in.app)!=1) & (test.char <= nchar(Location)) ) {

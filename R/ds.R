@@ -563,7 +563,7 @@ list.expr <- "list("
 id <- row.names(table(preds$id.x))
 #print(id); print(table(preds$id.lon)); print(table(preds$id.lat))
 for (i in 1:n.fld) {
-  print(id[i])
+ # print(id[i])
   i.lon <- preds$id.lon == id[i]
   i.lat <- preds$id.lat == id[i]
   ny<-preds$size[2,i]

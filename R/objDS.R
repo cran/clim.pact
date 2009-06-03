@@ -244,6 +244,10 @@ axis(1, 1:24, rep(months,2))
 axis(2)
 grid()
 
+transposed <- c(result$Jan$transposed,result$Feb$transposed,result$Mar$transposed,result$Apr$transposed,
+                result$May$transposed,result$Jun$transposed,result$Jul$transposed,result$Aug$transposed,
+                result$Sep$transposed,result$Oct$transposed,result$Nov$transposed,result$Dec$transposed)
+                                
 scl <- diff(range(c(rates+err,rates-err),na.rm=TRUE))/10
 polygon(c(1:24,reverse(1:24)),c(rep(rates+err,2),reverse(rep(rates-err,2))),
         col="wheat",border="grey",lwd=2)
@@ -252,8 +256,10 @@ lines(0:24+0.5,c(r2[1],rep(r2,2))/10*scl+min(rates-err,na.rm=TRUE),
 lines(rep(rates,2),lwd=2)
 points((1:24)[rep(p.val < 5,2)],rep(rates[p.val < 5],2),pch=20,cex=1.5)
 points((1:24)[rep(p.val >= 5,2)],rep(rates[p.val >= 5],2),pch=21,cex=1.5)
-text((1:24)-0.33,rep(rates-0.01*diff(range(c(rates+err,rates-err),na.rm=TRUE)),2),rep(rates,2),
-       cex=0.8,col="grey45")
+if (sum(transposed)>0) text((1:24)[transposed],rep(rates[transposed],2),rep("T",sum(transposed)),cex=0.4,col="yellow")
+                                
+text((1:24)+0.33,rep(rates+0.01*diff(range(c(rates+err,rates-err),na.rm=TRUE)),2),rep(rates,2),
+       pos=3,cex=0.8,col="grey45")
 
 for (i in 0:10) {
   lines(c(23.8,24),rep(i*scl + min(rates-err,na.rm=TRUE),2),col="steelblue")
@@ -276,7 +282,7 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
                   mon=NULL,direc="dsgraphicsoutput/",cal.id=NULL,
                   ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
                   method="lm",leps=FALSE,param="t2m",failure.action=NULL,
-                  plot.res=FALSE,plot.rate=FALSE,xtr.args="",
+                  plot.res=FALSE,plot.rate=FALSE,xtr.args="",opt.dom=TRUE,
                   swsm="step",predm="predict",lsave=FALSE,rmac=TRUE,
                   silent=FALSE,qualitycontrol=TRUE,LINPACK=TRUE,wOBS=0.25) {
 
@@ -301,22 +307,18 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
   if (is.null(mon)) mon  <-  1:12
 
   if ( (direc!="./") &  !file.exists(direc) ) {
-  print(paste("Create new directory (1):",direc))
+  if (!silent) print(paste("Create new directory (1):",direc))
   dir.create( direc )
 }
   result <- list(station=station)
-  print(paste("objDS: field.obs$v.name=",field.obs$v.name))
+  if (!silent) print(paste("objDS: field.obs$v.name=",field.obs$v.name))
   if (is.null(positive) &
       sum(is.element(c("t2m","tem"),lower.case(substr(field.obs$v.name,1,3))))> 0) {
       positive <- TRUE
   }
   rates <- rep(NA,12)
   for (imon in mon) {
-#    if (plot) {
-#      newFig()
-#      if (dev.cur() > 1) par(cex.sub=0.6,cex.axis=0.6,cex.lab=0.6,fin=c(2.37,2.37))
-#    }
-    #print(imon)
+
     cormap <- corField(field.obs,station,mon=imon,main="",plot=plot)
     if (plot) {
        #print("HERE1"); print(dev.cur()); print(direc)))
@@ -356,10 +358,10 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     y.rng <- c(max(c(min(field.obs$lat),max(latx[latx < station$lat])), na.rm=TRUE),
                min(c(max(field.obs$lat),min(latx[latx > station$lat])), na.rm=TRUE))
     #print(x.rng); print(y.rng)
-    if (x.rng[1] > station$lon-15) x.rng[1] <- station$lon-15
-    if (x.rng[2] < station$lon+15) x.rng[2] <- station$lon+15
-    if (y.rng[1] > station$lat-5) y.rng[1] <- station$lat-5
-    if (y.rng[2] < station$lat+5) y.rng[2] <- station$lat+5
+    if (x.rng[1] > station$lon-20) x.rng[1] <- station$lon-20 # REB. 29.05.2009: use larger minimum domain
+    if (x.rng[2] < station$lon+20) x.rng[2] <- station$lon+20
+    if (y.rng[1] > station$lat-15) y.rng[1] <- station$lat-15
+    if (y.rng[2] < station$lat+15) y.rng[2] <- station$lat+15
     #print(x.rng); print(y.rng)
     if (plot) {
       #print("HERE1"); print(dev.cur()); print(direc); print(options()$device)
@@ -386,7 +388,7 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     }
 #    print("catFields:")
 #    print(">>> Check REB 11.02.2004!")
-    print(x.rng); print(y.rng)
+    if (!silent) print(paste("Extracted region:",x.rng[1],"-",x.rng[2],"E/ ",y.rng[1],"-",y.rng[2],"N"))
 #    print(c(sum(!is.finite(field.obs$dat)),sum(!is.finite(field.gcm$dat))))
 #    print(summary(field.obs$lon)); print(summary(field.obs$lat))
 #    print(summary(field.gcm$lon)); print(summary(field.gcm$lat))
@@ -394,8 +396,8 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
 #    print(c(length(field.gcm$yy),length(field.gcm$mm),length(field.gcm$id.t),NA,dim(field.gcm$dat)))
 #    print(summary(field.gcm))
 
-    field.2 <- catFields(field.obs,field.gcm,lon=x.rng,lat=y.rng,mon=imon)
-#    field.2 <- catFields(field.obs,field.gcm,mon=imon)
+    if (opt.dom) field.2 <- catFields(field.obs,field.gcm,lon=x.rng,lat=y.rng,mon=imon) else 
+                 field.2 <- catFields(field.obs,field.gcm,mon=imon)
 #    print(field.gcm$lon); print(field.gcm$lat); print(summary(c(field.gcm$dat))); field.gcm$dat[!is.finite(field.gcm$dat)] <- 0
 #    map(meanField(field.obs)); print("OK1"); map(meanField(field.gcm)); stop("...HERE...") 
     #print(c(length(field.2$yy),length(field.2$mm),length(field.2$id.t),NA,dim(field.2$dat)))
@@ -432,7 +434,7 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
   }
     ds$x.rng <- x.rng; ds$y.rng <- y.rng
 
-    print("Grading for spatial pattern")
+    if (!silent) print("Grading for spatial pattern")
     field.x <- catFields(field.obs,lon=field.2$lon,lat=field.2$lat,mon=imon)
     dims <- dim(field.x$dat)
     if ( (length(dims)==3) & (dims[2]>1) & (dims[3]>1) ) {
@@ -450,7 +452,7 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     }
     if (sum(valid) > 30) grade.pattern <- round(10*cor(patt.1[valid],patt.2[valid]))/10 else
                          grade.pattern <- NA
-    print(paste("Spatial correlation: ",sum(valid),"valid points. r=",grade.pattern))
+    if (!silent) print(paste("Spatial correlation: ",sum(valid),"valid points. r=",grade.pattern))
 
     ds$grade.pattern <- grade.pattern
 

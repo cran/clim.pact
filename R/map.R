@@ -4,6 +4,11 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
   library(akima)
 
   if (add) newFig <- FALSE
+  if (class(x)[1]=="eof") {
+    X <- plotEOF(x,plot=FALSE)
+    x <- X
+    rm(X)
+  }
   
 #  if (options()$device[1]=="none") plot=FALSE
   if (!is.null(y)) {

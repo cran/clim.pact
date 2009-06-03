@@ -9,7 +9,7 @@
 }
 \usage{plotEOF(x,i.eof=1,nlevs=5,
                    col=c("red","blue","darkgreen","steelblue"),
-                   main=NULL,sub=NULL)}
+                   main=NULL,sub=NULL,plot=TRUE)}
 \arguments{
     \item{x}{An \code{\link{EOF}} object.}
     \item{i.eof}{EOF to plot.}
@@ -17,6 +17,7 @@
     \item{col}{Colour.}
     \item{main}{Preset main title (see \code{\link{plot}}).}
     \item{sub}{subtitle}
+    \item{plot}{if false, only return a map object of chosen EOF.}
     }
 \value{}
 \author{R.E. Benestad}

@@ -324,10 +324,12 @@ dat.d2[!is.finite(dat.d2)]<-0
 if (!silent) print(paste("Data range:",min(dat.d2),"-",max(dat.d2)," dimensions=",
             dim(dat.d2)[1],"x",dim(dat.d2)[2],"  std=",round(stdv,2)))
 
+transposed <- TRUE
 
 dim.dat <- dim(dat)
 if (dim.dat[2] < dim.dat[1]) transposed <- TRUE else
                              transposed <- FALSE
+
 if (LINPACK) {
   if (transposed) pca<-svd(dat.d2,LINPACK = TRUE) else
                   pca<-svd(t(dat.d2),LINPACK = TRUE)
@@ -340,20 +342,36 @@ if (neofs > dim(dat.d2)[2]) neofs <- dim(dat.d2)[2]
 dim.v <- dim(pca$v); dim.u <- dim(pca$v); ; dim.x <- dim(dat.d2)
 
 #if ((dim.v[1] == dim.x[2]) & (dim.v[2] == dim.x[1])) {
+
+#print(paste("time:",nt,"space:",ny*nx));print(dim(dat.d2)); print(dim(pca$v)); print(dim(pca$u))
+
 if (transposed) {
-  print("-------- TRANSPOSE V & U: (time dim > space dim) ----------")
+#  print("-------- TRANSPOSE V & U: (time dim > space dim) ----------")
   pca.v <- pca$v
   pca$v <- pca$u
-  pca$u <- pca.v
-} 
+  pca$u <- pca.v   
+} else {
+  d.v <- dim(pca$v); d.u <- dim(pca$u)
+  if (d.v[1]!=d.u[1]) {
+    pca$v <- pca$v
+    pca$u <- pca$u
+  } else {
+    pca$v <- t(pca$v)
+    pca$u <- pca$u
+  }    
+}
 
 #print(paste("time:",nt,"space:",ny*nx));print(dim(dat.d2)); print(dim(pca$v)); print(dim(pca$u))
 
 PC<-pca$v[,1:neofs] 
 EOF<-t(pca$u[,1:neofs])
+
+#print("dim(EOF):");print(dim(EOF));print("dim(PC):");print(dim(PC))
 W<-pca$d[1:neofs]
 tot.var <- sum(pca$d^2)
 Var.eof<-100*pca$d[1:neofs]^2/tot.var
+
+# print(round(t(PC)%*%PC),4) - OK
 
 dW <- W*sqrt(2.0/n.eff)
 
@@ -425,7 +443,7 @@ eof<-list(EOF=EOF,W=W,PC=PC,id=preds.id,n.fld=fields$n.fld,tot.var=tot.var,
           id.lon=id.lons,id.lat=id.lats,region=region,tim=tim,
           lon=lons,lat=lats,var.eof=Var.eof,yy=yy,mm=mm,dd=dd,transposed=transposed,
           v.name=fields$v.name,c.mon=c.mon,f.name=fname,clim=clim,
-          attributes=fields$attributes)
+          attributes=fields$attributes,transposed=transposed)
 class(eof) <- c("eof",class(fields))
 #save(file='data/ceof.Rdata',eof,ascii=FALSE)
 if (lsave) save(file=fname,eof,ascii=FALSE) 

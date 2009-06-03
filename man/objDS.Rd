@@ -22,7 +22,7 @@ objDS(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
           mon=NULL,direc="dsgraphicsoutput/",cal.id=NULL,
           ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
           method="lm",leps=FALSE,param="t2m",failure.action=NULL,
-          plot.res=FALSE,plot.rate=FALSE,xtr.args="",
+          plot.res=FALSE,plot.rate=FALSE,xtr.args="",opt.dom=TRUE,
           swsm="step",predm="predict",lsave=FALSE,rmac=TRUE,
           silent=FALSE,qualitycontrol=TRUE,LINPACK=TRUE,wOBS=0.25)
 
@@ -70,6 +70,7 @@ plotDSobj(result,outdir="dsgraphicsoutput/",figs=c(1,2,3,4),main="")
     \item{wOBS}{Used for weighting down GCM results in the common EOF
       analysis. The GCM results are re-scaled after the
       analysis.\code{wOBS=NULL} skips this scaling/re-scaling.}
+    \item{opt.dom}{FALSE - do not search for 'optimum' domain.}
     \item{failure.action}{If stepwise screening in
       \code{\link{DS}} fails to select any variables, then call the
       function specified by a character string, unless set to NULL.}

@@ -105,7 +105,9 @@ if (!add) {
            col=c(col.tab[1:n.fld]),
            lwd=2,lty=1,merge=TRUE,bg="grey95")
     }
-
+    if (is.null(ds.obj$transposed)) ds.obj$transposed <- FALSE
+    if (ds.obj$transposed) mtext("transposed",col="grey80",cex=0.6,side=4)
+    
     if (leps) { 
         if (dev.cur()>1) dev.off()
       if (!file.exists(direc)){
@@ -156,6 +158,7 @@ if (plot.ts) {
      paste(month,": Trend fit: P-value=",gcm.trnd.p,"%; ",
            "Projected trend= ",rate.ds,"+-",rate.err," ",
            unit,"/decade",sep=""))
+  if (ds.obj$transposed) mtext("transposed",col="grey80",cex=0.6,side=4)
 }
 
 if (leps) { 
@@ -182,6 +185,7 @@ lines(c(min(yymm.gcm),max(yymm.gcm)),c(rate.ds,rate.ds),col = "red",lwd=2)
 
 legend(min(yymm.gcm),max(y.lim.tr),c("Polinomial fit","Linear fit"),
        lwd=c(3,2),col=c("blue","red"),cex=0.7,bg="grey95")
+if (ds.obj$transposed) mtext("transposed",col="grey80",cex=0.6,side=4)
 if (leps) { 
     if (dev.cur()>1) dev.off()
   file.copy(figname,direc)
@@ -203,7 +207,7 @@ plot(yymm.o,step.wise$residual,type="l",lwd=3,
                 region,"] ->",v.name,")"),sub=sub,xlab=xlab,ylab=ylab)
 lines(yymm.o,pre.y-mean(pre.y,na.rm=TRUE),col="grey",lty=3); 
 grid()
-
+if (ds.obj$transposed) mtext("transposed",col="grey80",cex=0.6,side=4)
 
 if (leps) { 
     if (dev.cur()>1) dev.off()

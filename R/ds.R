@@ -674,6 +674,7 @@ list.expr <- paste(list.expr,
 ds<-eval(parse(text=list.expr))
 if (!silent) print(paste("File name:",fname))
 if (method=="anm") ds$analog <- analog
+ds$transformed <- preds$transformed
 class(ds) <- "ds"
 if (lsave) save(file=fname,ds,ascii=FALSE) 
 #print("Plotting...")

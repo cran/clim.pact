@@ -1,6 +1,6 @@
 catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
                        plot.interp=FALSE,interval.1=NULL,
-                       interval.2=NULL,mon=NULL,demean=TRUE) {
+                       interval.2=NULL,mon=NULL,demean=TRUE,silent=FALSE) {
   library(akima)
   l.one=FALSE
   l.newgrid <- FALSE
@@ -32,7 +32,7 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
   }
   
   if (!is.null(interval.1)) {
-    print(interval.1)
+    if (!silent) print(interval.1)
     i1 <- ( (field.1$yy>=interval.1[1]) & (field.1$yy<=interval.1[2]))
     field.1$dat <- field.1$dat[i1,,]
     field.1$tim <- field.1$tim[i1]
@@ -43,7 +43,7 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
   } else i1 <- is.finite(field.1$yy)
   
   if (!is.null(interval.2)) {
-    print(interval.2)
+    if (!silent) print(interval.2)
     i2 <- ( (field.2$yy>=interval.2[1]) & (field.2$yy<=interval.2[2]))
     field.2$dat <- field.2$dat[i2,,]
     field.2$tim <- field.2$tim[i2]
@@ -56,7 +56,7 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
   if (!is.null(mon)) {
     cmon<-c('Jan','Feb','Mar','Apr','May','Jun',
             'Jul','Aug','Sep','Oct','Nov','Dec')
-    print(paste("Extract",cmon[mon]))
+    if (!silent) print(paste("Extract",cmon[mon]))
     i1 <- is.element(field.1$mm,mon)
     i2 <- is.element(field.2$mm,mon)
     field.1$dat <- field.1$dat[i1,,]
@@ -108,7 +108,7 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
   }
 
   if ((demean) & !l.one) {
-    print("Subtracting mean values...")
+    if (!silent) print("Subtracting mean values...")
 #    dim(field.1$dat) <- c(nt.1,ny.1*nx.1)
 #    field.1$dat <- field.1$dat - colMeans(field.1$dat)
 #    dim(field.1$dat) <- c(nt.1,ny.1,nx.1)
@@ -128,7 +128,7 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
         field.2$dat[,j,i] <- field.2$dat[,j,i]-mean(field.2$dat[,j,i])
       }
     }
-    print("---")
+    if (!silent) print("---")
   }
   if (!is.null(lat) & !is.null(lon)) {
     interpolate <- !((length(lat)==2) & (length(lon)==2))
@@ -149,7 +149,7 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
       dat.1 <- field.1$dat[,iy,ix]
       #print(dim(dat.1))
     } else {
-      print("interpolate 1st field - please be patient")
+      if (!silent) print("interpolate 1st field - please be patient")
       l.newgrid <- TRUE
       lat.x<-rep(field.1$lat,length(field.1$lon))
       lon.x<-sort(rep(field.1$lon,length(field.1$lat)))
@@ -170,7 +170,7 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
       }
     } 
   } else {
-    print("Use the grid of first field - no interpolation :-)")
+    if (!silent) print("Use the grid of first field - no interpolation :-)")
     lat <- field.1$lat
     lon <- field.1$lon
     dat.1 <- field.1$dat
@@ -195,7 +195,7 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
   
   if (!l.one & (l.different | l.newgrid)) {
     
-    print("Interpolate 2nd field - please be patient")
+    if (!silent) print("Interpolate 2nd field - please be patient")
     for (it in 1:nt.2) {
       Z.in<-as.matrix(field.2$dat[it,,])
       Z.out<-interp(lat.x,lon.x,Z.in,lat,lon)

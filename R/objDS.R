@@ -396,8 +396,8 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
 #    print(c(length(field.gcm$yy),length(field.gcm$mm),length(field.gcm$id.t),NA,dim(field.gcm$dat)))
 #    print(summary(field.gcm))
 
-    if (opt.dom) field.2 <- catFields(field.obs,field.gcm,lon=x.rng,lat=y.rng,mon=imon) else 
-                 field.2 <- catFields(field.obs,field.gcm,mon=imon)
+    if (opt.dom) field.2 <- catFields(field.obs,field.gcm,lon=x.rng,lat=y.rng,mon=imon,silent=silent) else 
+                 field.2 <- catFields(field.obs,field.gcm,mon=imon,silent=silent)
 #    print(field.gcm$lon); print(field.gcm$lat); print(summary(c(field.gcm$dat))); field.gcm$dat[!is.finite(field.gcm$dat)] <- 0
 #    map(meanField(field.obs)); print("OK1"); map(meanField(field.gcm)); stop("...HERE...") 
     #print(c(length(field.2$yy),length(field.2$mm),length(field.2$id.t),NA,dim(field.2$dat)))

@@ -37,7 +37,7 @@
 }  
 \usage{
 catFields(field.1,field.2=NULL,lat=NULL,lon=NULL,plot.interp=FALSE,
-           interval.1=NULL,interval.2=NULL,mon=NULL,demean=TRUE) 
+           interval.1=NULL,interval.2=NULL,mon=NULL,demean=TRUE,silent=FALSE) 
 }
 \arguments{
     \item{field.1}{A 'field.object'. }
@@ -54,7 +54,8 @@ catFields(field.1,field.2=NULL,lat=NULL,lon=NULL,plot.interp=FALSE,
       should be set to 'FALSE' if for instance two time slices are
       concatinated and the object is to investigate the mean change
       between these periods (see examples in \code{\link{eof.dc}} or
-      \code{\link{eof.dmc}}).} 
+      \code{\link{eof.dmc}}).}
+    \item{silent}{FALSE: verbose output.}
   }
 \value{A 'field.object'.}
 \author{R.E. Benestad}

@@ -330,6 +330,8 @@ dim.dat <- dim(dat)
 if (dim.dat[2] < dim.dat[1]) transposed <- TRUE else
                              transposed <- FALSE
 
+print(paste("transposed=",transposed,"LINPACK=",LINPACK,"dim(dat)=",dim.dat[1],"x",dim.dat[2]))
+
 if (LINPACK) {
   if (transposed) pca<-svd(dat.d2,LINPACK = TRUE) else
                   pca<-svd(t(dat.d2),LINPACK = TRUE)
@@ -343,19 +345,21 @@ dim.v <- dim(pca$v); dim.u <- dim(pca$v); ; dim.x <- dim(dat.d2)
 
 #if ((dim.v[1] == dim.x[2]) & (dim.v[2] == dim.x[1])) {
 
-#print(paste("time:",nt,"space:",ny*nx));print(dim(dat.d2)); print(dim(pca$v)); print(dim(pca$u))
+print(paste("time:",nt,"space:",ny*nx));print(dim(dat.d2)); print(dim(pca$v)); print(dim(pca$u))
 
 if (transposed) {
-#  print("-------- TRANSPOSE V & U: (time dim > space dim) ----------")
+  print("-------- TRANSPOSE V & U: (time dim > space dim) ----------")
   pca.v <- pca$v
   pca$v <- pca$u
   pca$u <- pca.v   
 } else {
   d.v <- dim(pca$v); d.u <- dim(pca$u)
   if (d.v[1]!=d.u[1]) {
-    pca$v <- pca$v
+    print("d.v[1]!=d.u[1]")
+    if (!LINPACK) pca$v <- t(pca$v) 
     pca$u <- pca$u
   } else {
+    print("d.v[1]==d.u[1]")
     pca$v <- t(pca$v)
     pca$u <- pca$u
   }    

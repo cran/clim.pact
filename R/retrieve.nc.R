@@ -106,6 +106,14 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   lat <- get.var.ncdf(ncid,cdfdims[ilat])
   tim <- get.var.ncdf(ncid,cdfdims[itim])
 
+# Check the chonology:
+  dt <- tim[2]-tim[1]
+  Dt <- tim[length(tim)] - tim[1]
+  if (round(length(tim)*dt) != Dt) {
+    print(paste("The chronology is not straight forward: dt=",dt,"interval span=",Dt,"data points=",length(tim)))
+    tim.srt <- order(tim) 
+  } else tim.srt <- NULL
+  
 #print("Attributes:")
   attr(lon,"unit") <- eval(parse(text=paste("ncid$dim$'",cdfdims[ilon],"'$units",sep="")))
   attr(lat,"unit") <- eval(parse(text=paste("ncid$dim$'",cdfdims[ilat],"'$units",sep="")))
@@ -138,11 +146,12 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   if ( sum(dtim<=0) > 0) {
     print(paste("Warning! Test of chonological order finds",sum(dtim<=0),"jump(s)"))
     if (!silent) print(paste("median(dtim)=",median(dtim)))
+    nt <- length(tim)
+    tim.att <- attributes(tim)
+    dtims <- as.numeric(row.names(table(dtim)))
+
     if (force.chron) {
-      nt <- length(tim)
-      tim.att <- attributes(tim)
-      dtims <- as.numeric(row.names(table(dtim)))
-      if (length(dtims < 4)) {
+      if ( (length(dtims < 4)) & (is.null(tim.srt))) {
         if (!silent) print(paste("Force correction: assume tim[1] is correct,",
                                   median(dtim),"is correct time step, and length=",nt))
         tim <- seq(tim[1],tim[1]+(nt-1)*dtim[1],by=median(dtim))
@@ -150,7 +159,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
         dt <- readline("What is the correct time step? (0 leaves tim unchanged)")
         if (dt != 0) tim <- seq(tim[1],tim[1]+nt-1,by=dt)
       }
-    }
+    } 
     if (!silent) print(paste("length(tim)=",length(tim),"nt=",nt))
   }
 

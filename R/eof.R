@@ -330,7 +330,7 @@ dim.dat <- dim(dat)
 if (dim.dat[2] < dim.dat[1]) transposed <- TRUE else
                              transposed <- FALSE
 
-print(paste("transposed=",transposed,"LINPACK=",LINPACK,"dim(dat)=",dim.dat[1],"x",dim.dat[2]))
+#print(paste("transposed=",transposed,"LINPACK=",LINPACK,"dim(dat)=",dim.dat[1],"x",dim.dat[2]))
 
 if (LINPACK) {
   if (transposed) pca<-svd(dat.d2,LINPACK = TRUE) else
@@ -345,21 +345,30 @@ dim.v <- dim(pca$v); dim.u <- dim(pca$v); ; dim.x <- dim(dat.d2)
 
 #if ((dim.v[1] == dim.x[2]) & (dim.v[2] == dim.x[1])) {
 
-print(paste("time:",nt,"space:",ny*nx));print(dim(dat.d2)); print(dim(pca$v)); print(dim(pca$u))
+#print(paste("time:",nt,"space:",ny*nx)); print(dim(pca$v)); print(dim(pca$u))
 
 if (transposed) {
-  print("-------- TRANSPOSE V & U: (time dim > space dim) ----------")
-  pca.v <- pca$v
-  pca$v <- pca$u
-  pca$u <- pca.v   
+#  print("-------- TRANSPOSE V & U: (time dim > space dim) ----------")
+  if (!LINPACK) {
+    pca.v <- pca$v
+    pca$v <- pca$u
+    pca$u <- t(pca.v)
+  } else {
+    pca.v <- pca$v
+    pca$v <- pca$u
+    pca$u <- pca.v
+  }
 } else {
   d.v <- dim(pca$v); d.u <- dim(pca$u)
   if (d.v[1]!=d.u[1]) {
-    print("d.v[1]!=d.u[1]")
-    if (!LINPACK) pca$v <- t(pca$v) 
-    pca$u <- pca$u
+#    print("d.v[1]!=d.u[1]")
+    if (!LINPACK) {
+      pca$v <- t(pca$v)
+      pca$u <- pca$u
+#      print("dim(pca$v):"); print(dim(pca$v)); print("dim(pca$u):"); print(dim(pca$u))
+    }
   } else {
-    print("d.v[1]==d.u[1]")
+#    print("d.v[1]==d.u[1]")
     pca$v <- t(pca$v)
     pca$u <- pca$u
   }    
@@ -390,20 +399,20 @@ y.last <- 0
 for (i in 1:fields$n.fld) {
   i.fld <- seq(i.last+1,i.last+size[2,i]*size[3,i],by=1)
   i.last <- max(i.fld)
-#  print(i.last)
+  #print(i.last)
   EOF.1 <- EOF[,i.fld]
   dim(EOF.1)<-c(neofs,size[2,i],size[3,i])
-#  print(l.wght)
-#  print("dim(EOF.1):"); print(dim(EOF.1))
+  #print(l.wght)
+  #print("dim(EOF.1):"); print(dim(EOF.1))
   if (l.wght) for (ieof in 1:neofs) EOF.1[ieof,,]<-
              EOF.1[ieof,,]*stdv[i]/eval(parse(text=paste("Wght.",i,sep="")))
-#  print('eof.patt<-t(EOF.1[1,,])')
+  #print('eof.patt<-t(EOF.1[1,,])')
   eof.patt<-t(EOF.1[1,,])
   EOF[,i.fld] <- EOF.1
-#  print('lonx,latx,...')
+  #print('lonx,latx,...')
   lon.x <- lons[id.lons==id[i]]
   lat.x <- lats[id.lats==id[i]]
-#  print('plot settings..')
+  #print('plot settings..')
   my.col <- rgb(c(seq(0,1,length=20),rep(1,21)),
                 c(abs(sin((0:40)*pi/40))),
                 c(c(rep(1,21),seq(1,0,length=20))))

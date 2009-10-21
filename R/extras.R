@@ -266,24 +266,38 @@ adjustEOF <- function(x) {
 getgiss <- function(stnr=NULL,location=NULL,lon=NULL,lat=NULL,stations=NULL,silent=FALSE) {
   if (!silent) print("Retrieving the data from URL http://www.giss.nasa.gov/")
   if (!silent) print("Please be patient")
+
   if (is.null(stations)) {
     if (!silent) print("Looking up station meta-data on the station on URL")
-    stations<- read.fwf("http://www.giss.nasa.gov/data/update/gistemp/station_list.txt",
-               width=c(9,20,18,17,5,4,2,2,4,3,5),skip=1,as.is=TRUE,comment.char = "%",header=FALSE,
-               col.names=c("number","location","Country","fill1","lat","lon",
-                           "type","brighness","fill2","Contry code","Brightness index"))
+  stations <- read.fwf("http://data.giss.nasa.gov/gistemp/station_data/v2.temperature.inv.txt",
+                          skip=38,widths=c(11,32,6,6,4,3,1,4,2,2,2,2,1,2,16,1),
+                          col.names=c("number","Name","lat","lon","alt","TEle","type","Pop","Tp","V","Lo",
+                                     "Co","A","ds","Vege","bi"),comment.char = "%")
+#iccWMO_#... Name                              Lat     Lon Elev TEleP<Pop>Tp VLoCoAds<-----Vege----->bi
+#10160355000 SKIKDA                          36.93    6.95    7   18U  107HIxxCO 1x-9WARM DECIDUOUS  C
+#           .                               .      .      .    .   ..    . . . . .. .               ..
+#          11                              32      6      6    4   31    4 2 2 2 21 2              161
+
+    # Old version...
+#    stations<- read.fwf("http://www.giss.nasa.gov/data/update/gistemp/station_list.txt",
+#               width=c(9,20,18,17,5,4,2,2,4,3,5),skip=1,as.is=TRUE,comment.char = "%",header=FALSE,
+#               col.names=c("number","location","Country","fill1","lat","lon",
+#                           "type","brighness","fill2","Contry code","Brightness index"))
+    
     stations$lon <- as.numeric(stations$lon)/10
     stations$lat <- as.numeric(stations$lat)/10
+    stations$Country <- substr(stations$number,1,3)
+    
     stations$type[stations$type=="R"] <- "Rural"
     stations$type[stations$type=="S"] <- "Surburbian"
     stations$type[stations$type=="U"] <- "Urban"
     stations$type <- as.factor(stations$type)
-    ivalcont <- !is.element(stations$Country,"                  ")
-    valcont <- seq(1,length(stations$Country),by=1)[ivalcont]
-    for (i in 1:sum(ivalcont)) {
-      imatchcont <- is.element(stations$Contry.code,stations$Contry.code[valcont[i]])
-      stations$Country[imatchcont] <- stations$Country[valcont[i]]
-    }
+#    ivalcont <- !is.element(stations$Country,"                  ")
+#    valcont <- seq(1,length(stations$Country),by=1)[ivalcont]
+#    for (i in 1:sum(ivalcont)) {
+#      imatchcont <- is.element(stations$Contry.code,stations$Contry.code[valcont[i]])
+#      stations$Country[imatchcont] <- stations$Country[valcont[i]]
+#    }
   }
 
   if (!silent) print("Got the station meta-data!")
@@ -295,11 +309,14 @@ getgiss <- function(stnr=NULL,location=NULL,lon=NULL,lat=NULL,stations=NULL,sile
                  " country=",stations$Country[locmatch]))
   }
   if (is.null(stnr) & !is.null(location)) {
-     locmatch <- is.element(substr(lower.case(stations$location),2,nchar(location)+1),
-                    lower.case(location))
+     print(location)
+#     locmatch <- is.element(lower.case(substr(stations$Name,1,nchar(location))),
+#                            lower.case(location))
+     locmatch <- grep(lower.case(location),lower.case(stations$Name))
+     print(locmatch)
      if (sum(locmatch)>0) {
        stnr <- stations$number[locmatch]
-       print(paste("Found",stations$location[locmatch],"stnr=",stnr," lon=",
+       print(paste("Found",stations$Name[locmatch],"stnr=",stnr," lon=",
                    stations$lon[locmatch]," lat=",stations$lat[locmatch],
                    "  type=",as.character(stations$type[locmatch]),
                    " country=",stations$Country[locmatch]))
@@ -308,6 +325,7 @@ getgiss <- function(stnr=NULL,location=NULL,lon=NULL,lat=NULL,stations=NULL,sile
        print(substr(lower.case(stations$location),2,nchar(location)+1))
      }
      if (length(stnr)>1) {
+       if (!silent) {print(stations$location[locmatch]); print(stnr)}
        i <- as.numeric(readline(paste("Which of these ( 1 -",length(stnr),")? ")))
        stnr <- stnr[i]
      }
@@ -321,7 +339,7 @@ getgiss <- function(stnr=NULL,location=NULL,lon=NULL,lat=NULL,stations=NULL,sile
      if (sum(distmatch,na.rm=TRUE)>0) {
        stnr <- stations$number[distmatch]
        locmatch <- distmatch
-       print(paste("Found",stations$location[locmatch],"stnr=",stnr," lon=",
+       print(paste("Found",stations$Name[locmatch],"stnr=",stnr," lon=",
                    stations$lon[locmatch]," lat=",stations$lat[locmatch],
                    "  type=",as.character(stations$type[locmatch]),
                    " country=",stations$Country[locmatch]))
@@ -332,19 +350,25 @@ getgiss <- function(stnr=NULL,location=NULL,lon=NULL,lat=NULL,stations=NULL,sile
     contcode<- stations$Contry.code[is.element(stations$number,stnr)]
     lat<- stations$lat[is.element(stations$number,stnr)]
     lon<- stations$lon[is.element(stations$number,stnr)]
-    location<- stations$location[is.element(stations$number,stnr)]
+    alt<- as.numeric(as.character(stations$alt[is.element(stations$number,stnr)]))
+    location<- as.character(stations$Name[is.element(stations$number,stnr)])
     country<- stations$Country[is.element(stations$number,stnr)]
     type<- stations$type[is.element(stations$number,stnr)]
     if (nchar(stnr)==8) stnr <- paste("0",stnr,sep="")
-    fname<-paste("http://www.giss.nasa.gov/data/update/gistemp/TMPDIR/tmp.",
-                 contcode,stnr,".1.1/",contcode,stnr,".1.1.txt",sep="")
+    #http://data.giss.nasa.gov/work/gistemp/STATIONS//tmp.645024390010.1.1/station.txt
+#    fname<-paste("http://www.giss.nasa.gov/data/update/gistemp/TMPDIR/tmp.",
+#                 contcode,stnr,".1.1/",contcode,stnr,".1.1.txt",sep="")
+    system(paste("firefox 'http://data.giss.nasa.gov/cgi-bin/gistemp/gistemp_station.py?id=",
+                  contcode,stnr,"0&data_set=1&num_neighbors=1'",sep=""))
+    fname<-paste("http://data.giss.nasa.gov/work/gistemp/STATIONS/tmp.",
+                 contcode,stnr,"0.1.1/station.txt",sep="")
     if (!silent) print(fname)
     data<-read.table(fname,header=TRUE)
     yy <- data[,1]
     data[abs(data) > 99] <- NA
 
     t2m <- station.obj(x=as.matrix(data[,2:13]),yy=yy,
-                       ele=101,station=stnr,lat=lat,lon=lon,alt=NA,unit="deg C",
+                       ele=101,station=stnr,lat=lat,lon=lon,alt=alt,unit="deg C",
                        location=location,wmo.no=NA,country=country,obs.name="Temperature",
                        ref="Hansen, J. et al. 1999. J.Geophys.Res. 104, 30997-31022")
     t2m$type <- as.character(type)

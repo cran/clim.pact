@@ -1,4 +1,4 @@
-grd.box.ts <- function(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
+grd.box.ts <- function(x,lon,lat,lev=NULL,what="abs",greenwich=TRUE,mon=NULL,
                        col="grey10",lwd=1,lty=1,pch=".",add=FALSE,
                        filter=NULL,type="l",main=NULL,sub=NULL,xlab=NULL,ylab=NULL,
                        xlim=NULL,ylim=NULL) {
@@ -8,12 +8,16 @@ grd.box.ts <- function(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
   
   if ((class(x)[1]!="field") & (class(x)[2]!="monthly.field.object") &
       (class(x)[2]!="daily.field.object") ) stop("Need a field.object")
-  
+
+  n.dims <- length(dim(x$dat))
+  if ( (n.dims==4) & (is.null(lev)) )  stop("For 4D objects, the level must be given")
   if (greenwich) {
     x$lon[x$lon > 180] <- x$lon[x$lon > 180]-360
     x.srt <- order(x$lon)
     x$lon <- x$lon[x.srt]
-    x$dat <- x$dat[,,x.srt]
+    #print(n.dims); print(dim(x$dat)); print(length(x.srt))
+    if (n.dims==3) x$dat <- x$dat[,,x.srt] else
+    if (n.dims==4) x$dat <- x$dat[,,,x.srt]
   }
   daysayear <- 365.25
   cmon<-c('Jan','Feb','Mar','Apr','May','Jun',
@@ -22,7 +26,8 @@ grd.box.ts <- function(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
   date <- " "
   if (!is.null(mon)) {
     im <- x$mm== mon
-    x$dat <- x$dat[im,,]
+    if (n.dims==3) x$dat <- x$dat[im,,] else
+    if (n.dims==4) x$dat <- x$dat[im,,,]
     x$yy <- x$yy[im]
     x$mm <- x$mm[im]
     x$dd <- x$dd[im]
@@ -33,20 +38,33 @@ grd.box.ts <- function(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
   dy <- x$lat[2] - x$lat[1]
   x.keep <- (x$lon - 3*dx <= lon) & (x$lon + 3*dx >= lon)
   y.keep <- (x$lat - 3*dy <= lat) & (x$lat + 3*dx >= lat)
+  n.dims <- length(dim(x$dat))
+  if (n.dims==4) {
+      if (length(x$lev)>1) {
+        dz <- x$lev[2] - x$lev[1]
+        z.keep <- (1:length(x$lev))[(x$lev >= lev)][1] 
+        x$lev <- x$lev[z.keep]
+      } else if (length(x$lev)==1){
+        z.keep <- 1
+        x$lev <- x$lev[z.keep]
+        #print(dim(x$dat))
+      }  
+  }
   x$lon <- x$lon[x.keep]
   x$lat <- x$lat[y.keep]
-  x$dat <- x$dat[,y.keep,x.keep]
+  if (n.dims==3) x$dat <- x$dat[,y.keep,x.keep] else
+  if (n.dims==4) x$dat <- x$dat[,z.keep,y.keep,x.keep]
   if (sum(!is.finite(x$dat))>0) x$dat[!is.finite(x$dat)] <- 0
   lat.x<-rep(x$lat,length(x$lon))
   lon.x<-sort(rep(x$lon,length(x$lat)))
   nt <- length(x$yy)
   y <- rep(NA,nt)
   for (it in 1:nt) {
-    Z.in<-as.matrix(x$dat[it,,])
+    if (n.dims==3) Z.in<-as.matrix(x$dat[it,,]) else
+      if (n.dims==4) Z.in<-as.matrix(x$dat[it,z.keep,,])
     Z.out<-interp(lat.x,lon.x,Z.in,lat,lon)
     y[it] <- Z.out$z
   }
-
 #  print("time unit")
   
 if (!is.null(attributes(x$tim)$unit)) {

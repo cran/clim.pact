@@ -1,4 +1,4 @@
-getnarp <- function(stnr=NULL,location=NULL,lon=NULL,lat=NULL,stations=NULL,silent=FALSE,ele=101) {
+getnarp <- function(stnr=NULL,location=NULL,lon=NULL,lat=NULL,stations=NULL,silent=TRUE,ele=101) {
 	  	
 
 narp.names <- c("Torshavn","Strond Kr.st.","Upernavik","Ilulissat Airport","Nuuk","Narsarsuaq",
@@ -59,6 +59,9 @@ unit<-switch(as.character(ele[1]),
        print(substr(lower.case(stations$location),2,nchar(location)+1))
      }
      if (length(stnr)>1) {
+       print(paste("Found dublicates:",narp.names[locmatch],"stnr=",stnr," lon=",
+                   narp.lons[locmatch]," lat=",narp.lats[locmatch],
+                   " country=",narp.countries[locmatch]))
        i <- as.numeric(readline(paste("Which of these ( 1 -",length(stnr),")? ")))
        stnr <- stnr[i]
      } 
@@ -74,6 +77,9 @@ unit<-switch(as.character(ele[1]),
        print(substr(lower.case(stations$location),2,nchar(location)+1))
      }
      if (length(stnr)>1) {
+       print(paste("Found dublicates:",narp.names[locmatch],"stnr=",stnr," lon=",
+                   narp.lons[locmatch]," lat=",narp.lats[locmatch],
+                   " country=",narp.countries[locmatch]))
        i <- as.numeric(readline(paste("Which of these ( 1 -",length(stnr),")? ")))
        stnr <- stnr[i]
      } 

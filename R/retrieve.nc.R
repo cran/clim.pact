@@ -403,7 +403,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
  
   dat <- matrix(nrow=nt,ncol=ny*(nx.e+nx.w))
   if (nd==3) dim(dat) <- c(nt,ny,nx.e+nx.w) else
-  if (nd==4) dim(dat) <- c(nt,ny,nx.e+nx.w,nz)
+  if (nd==4) dim(dat) <- c(nt,nz,ny,nx.e+nx.w)
   if (!silent) {
     print("dim dat:"); print(dim( dat )); print(c(nx.e,nx.w,ny,nz,nt)); print(x.rng);
     if (eastern.hemisphere) print(dim(data.e))
@@ -424,12 +424,15 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
      }
   } else if (nd==4) {
     if (!silent) print("4D:")
+    dat4 <- dat + NA; dim(dat4) <- c(nt,nz,ny,nx)
     for (i in 1:nt) {
        if (eastern.hemisphere & western.hemisphere)
-         dat[i,,,] <- t(rbind(matrix(data.w[,,,i],nx.w,ny),matrix(data[,,,i],nx.e,ny,nz))) else
-       if (eastern.hemisphere) dat[i,,,] <- t(matrix(data.e[,,,i],nx.e,ny,nz)) else
-       if (western.hemisphere) dat[i,,,] <- t(matrix(data.w[,,,i],nx.w,ny,nz))
+         dat[i,,,] <- rbind(data.w[,,,i],data[,,,i]) else
+         if (eastern.hemisphere) dat[i,,,] <- data.e[,,,i] else
+         if (western.hemisphere) dat[i,,,] <- data.w[,,,i]
+       for (iz in 1:nz) dat4[i,iz,,] <- t(dat[i,,,iz])
        }
+    dat <- dat4; rm(dat4); print(dim(dat))
    }     
     #print("East and west combined!")
   if (eastern.hemisphere) rm(data.e); if (western.hemisphere) rm(data.w)
@@ -468,12 +471,12 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   lon <- lon[x.srt]
   if (nd==3) dat <- dat[,,x.srt] else {
      dat <- dat[,,x.srt,]
-     dim(dat) <- c(length(tim),length(lat),length(lon),length(lev))
+     dim(dat) <- c(length(tim),length(lev),length(lat),length(lon))
   }
   if (lat[length(lat)] < lat[1]) {
     if (nd==3) dat <- dat[,y.srt,] else {
-      dat <- dat[,y.srt,,]
-      dim(dat) <- c(length(tim),length(lat),length(lon),length(lev))
+      dat <- dat[,,,y.srt]
+      dim(dat) <- c(length(tim),length(lev),length(lat),length(lon))
     }
   }
   

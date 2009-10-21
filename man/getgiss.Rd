@@ -22,7 +22,7 @@ the NARP data.
 getgiss(stnr=NULL,location=NULL,lon=NULL,lat=NULL,stations=NULL,
         silent=FALSE)
 getnarp(stnr=NULL,location=NULL,lon=NULL,lat=NULL,stations=NULL,
-        silent=FALSE,ele=101)
+        silent=TRUE,ele=101)
 }
 
 \arguments{

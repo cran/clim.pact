@@ -5,15 +5,17 @@
   \code{\link{retrieve.nc}}. Uses a bilinear interpolation scheme
   (\code{link{interp}}) from the \code{akima} package.}
 \usage{
-grd.box.ts(x,lon,lat,what="abs",greenwich=TRUE,mon=NULL,
+grd.box.ts(x,lon,lat,lev=NULL,what="abs",greenwich=TRUE,mon=NULL,
                        col="grey10",lwd=1,lty=1,pch=".",add=FALSE,
-                       filter=NULL,type="l",main=NULL,sub=NULL,xlab=NULL,
-                       ylab=NULL,xlim=NULL,ylim=NULL)
+                       filter=NULL,type="l",main=NULL,sub=NULL,xlab=NULL,ylab=NULL,
+                       xlim=NULL,ylim=NULL)
+
 }
 \arguments{
     \item{x}{A field object.}
     \item{lon}{Longitude to plot.}
     \item{lat}{Latitude to plot.}
+    \item{lev}{Vertical level to plot.}
     \item{what}{What to draw: "ano"-> anomalies, "cli"-> climatological
       values, "abs" -> absolute values.}
     \item{greenwich}{Maps centre on the Greenwich meridian.}

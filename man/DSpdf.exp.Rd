@@ -57,6 +57,7 @@ empiricalRanking(x)
 \value{A field object.}
 \author{R.E. Benestad}
 \examples{
+\dontrun{
 data(exp.law1)
 data(oslo.dm)
 a<-DSpdf.exp(oslo.dm,dT=3,dP=1)
@@ -64,5 +65,6 @@ F1<- list(x=a$x,P=a$Fx.obs)
 F2<- list(x=a$x,P=a$Fx.chg) 
 y<-CDFtransfer(Y=oslo.dm$precip,CDF.2=F2,CDF.1=F1,plot=TRUE)
 plot(oslo.dm$precip,y)
+}
 }
 \keyword{hplot}

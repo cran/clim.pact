@@ -136,7 +136,7 @@ print(dim(a.m)); print(dim(X1))
                 " actual correlation=",round(cor(u.k[i1,1],v.k[i2,1]),2)))
   }
 
-  rm(a.m, b.m, main, R, u.k, v.k, x1, x2, sub)  
+  rm(a.m, b.m, main, R, u.k, v.k, x1, x2, sub); gc(reset=TRUE)  
   if (plot) plotCCA(cca)
   invisible(cca)
 }
@@ -432,7 +432,7 @@ testCCA <- function(method="CCA",reconstr=FALSE,mode=1,test=TRUE,LINPACK=TRUE,SV
     eof.slp$PC <- matrix(rep(0,n.pc*nt),nt,n.pc)
     eof.slp$id.t <- rep("test",nt)
   } else nt <- length(eof.slp$tim)
-  eof1 <- eof.slp; eof2 <- eof.slp; rm(eof.slp)
+  eof1 <- eof.slp; eof2 <- eof.slp; rm(eof.slp); gc(reset=TRUE)
   eof1$PC <- eof1$PC[,1:n.pc]; eof1$EOF <- eof1$EOF[1:n.pc,]; eof1$W <- eof1$W[1:n.pc]
   eof2$PC <- eof2$PC[,1:n.pc]; eof2$EOF <- eof2$EOF[1:n.pc,]; eof2$W <- eof2$W[1:n.pc]
   eof1$dW <- eof1$dW[1:n.pc]; eof2$dW <- eof2$dW[1:n.pc]

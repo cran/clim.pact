@@ -23,8 +23,8 @@
     \item{lats}{Latitude coordinates to be rotated.}
     \item{lon.0}{Longitude coordinate of point corresponding to new 'north'pole.}
     \item{lat.0}{Latitude coordinate of point corresponding to new 'north'pole.}
-    \item{method}{}
-    \item{test}{}
+    \item{method}{Method to use for rotation, e.g. "Cayley-Klein"}
+    \item{test}{Flag for testing the function.}
  }
 \value{list containing \code{phi} and \code{theta}, the new spherical coordinates.}
 \author{R.E. Benestad}

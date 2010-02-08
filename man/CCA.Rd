@@ -69,8 +69,8 @@ check.repeat(x)
     \item{data.set}{Strings (eg, "narp","nordklim",or "nacd") if data
       has been installed, or list of station objects (and nothing else)}.
     \item{ele}{element code - see \code{\link{getnordklim}}.}
-    \item{obj.type}{}
-    \item{silent}{}
+    \item{obj.type}{Object type, e.g "monthly.field.object"}
+    \item{silent}{FALG - verbose or not.}
     \item{intrp.method}{Method fro gridding the data.}
     \item{interpolation.option}{Either "simple","distance", or
       "test". In current version, it's only "simple" which seems to work.}

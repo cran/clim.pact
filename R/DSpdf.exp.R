@@ -45,7 +45,7 @@ lagField <- function(fields,lag=1) {
 
 DSpdf.exp <- function(obs=NULL,dT=0,dP=0,plot=TRUE,year=NULL,month=NULL,quadratic=TRUE) {
   data(exp.law1,envir = environment())
-  data(addland,envir = environment())
+  data(addland1,envir = environment())
   dist <- min(distAB(obs$lon,obs$lat,lon.cont,lat.cont),na.rm=TRUE)/1000
   
   slope <- data.frame(slope=exp.par$slope,temp=exp.par$mt2m,lon=exp.par$lons,

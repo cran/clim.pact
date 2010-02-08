@@ -11,10 +11,12 @@ daily2monthly.field(field,min.days.month=20,method="colMeans",na.rm=TRUE)
   \item{x}{A field object.}
   \item{period}{Period to use as climatology 
     NULL -> the entire series as reference clim.}
-  \item{field}{}
-  \item{min.days.month}{}
-  \item{method}{}
-  \item{na.rm}{}
+  \item{field}{A field object.}
+  \item{min.days.month}{Minimum days per month with valid data allowed
+    for estimating the monthly mean}
+  \item{method}{Method for estimatning the monthly valus:
+    e.g. "colMeans" or "colsums"}
+  \item{na.rm}{Remove invalid data.}
  }
 \value{A field object.}
 \author{R.E. Benestad}

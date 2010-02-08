@@ -429,7 +429,7 @@ datestr2num <- function(datestr,vec=TRUE) {
       mm0 <- as.numeric(substr(datestr,6,7))
       dd0 <- as.numeric(substr(datestr,9,10))
       if (mm0 > 12) {
-         a <- mm0; mm0 <- mm0; dd0 <- a; rm(a) }
+         a <- mm0; mm0 <- mm0; dd0 <- a; rm(a); gc(reset=TRUE) }
     }
     if (dsh[1]==3 & dsh[2]==6) {
       yy0 <- as.numeric(substr(datestr,7,10))

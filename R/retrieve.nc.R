@@ -401,9 +401,13 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
 
   nt <- length(tim); ny <- length(lat); nx <- length(lon)
  
-  dat <- matrix(nrow=nt,ncol=ny*(nx.e+nx.w))
-  if (nd==3) dim(dat) <- c(nt,ny,nx.e+nx.w) else
-  if (nd==4) dim(dat) <- c(nt,nz,ny,nx.e+nx.w)
+  if (nd==3) {
+    dat <- matrix(nrow=nt,ncol=ny*(nx.e+nx.w))
+    dim(dat) <- c(nt,ny,nx.e+nx.w)
+  } else if (nd==4) {
+    dat <- matrix(nrow=nt,ncol=nz*ny*(nx.e+nx.w))
+    dim(dat) <- c(nt,nz,ny,nx.e+nx.w)
+  }
   if (!silent) {
     print("dim dat:"); print(dim( dat )); print(c(nx.e,nx.w,ny,nz,nt)); print(x.rng);
     if (eastern.hemisphere) print(dim(data.e))
@@ -430,12 +434,14 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
          dat[i,,,] <- rbind(data.w[,,,i],data[,,,i]) else
          if (eastern.hemisphere) dat[i,,,] <- data.e[,,,i] else
          if (western.hemisphere) dat[i,,,] <- data.w[,,,i]
-       for (iz in 1:nz) dat4[i,iz,,] <- t(dat[i,,,iz])
+       for (iz in 1:nz) dat4[i,iz,,] <- t(dat[i,iz,,])
        }
-    dat <- dat4; rm(dat4); print(dim(dat))
+    dat <- dat4; rm(dat4); gc(reset=TRUE); print(dim(dat))
    }     
     #print("East and west combined!")
-  if (eastern.hemisphere) rm(data.e); if (western.hemisphere) rm(data.w)
+  if (eastern.hemisphere) rm(data.e)
+  if (western.hemisphere) rm(data.w)
+  gc(reset=TRUE)
   
   close.ncdf(ncid)
 #  print("dim(dat):"); print(dim(dat)); print(c(length(tim),length(lat),length(lon),length(lev)))
@@ -470,12 +476,12 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   y.srt <- order(lat)
   lon <- lon[x.srt]
   if (nd==3) dat <- dat[,,x.srt] else {
-     dat <- dat[,,x.srt,]
+     dat <- dat[,,,x.srt]
      dim(dat) <- c(length(tim),length(lev),length(lat),length(lon))
   }
   if (lat[length(lat)] < lat[1]) {
     if (nd==3) dat <- dat[,y.srt,] else {
-      dat <- dat[,,,y.srt]
+      dat <- dat[,,y.srt,]
       dim(dat) <- c(length(tim),length(lev),length(lat),length(lon))
     }
   }
@@ -483,7 +489,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   lat <- lat[y.srt]
   
   if ((max(mm) > 12) & (max(dd) <= 12)) {
-    mm2 <- mm; mm <- dd; dd <- mm2; rm(mm2)
+    mm2 <- mm; mm <- dd; dd <- mm2; rm(mm2); gc(reset=TRUE)
   }
   if (!silent) print(paste("First & last records:",yy[1],mm[1],dd[1],
                      "&",yy[length(yy)],mm[length(mm)],dd[length(dd)]))

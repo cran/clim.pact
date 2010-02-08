@@ -17,7 +17,7 @@ combineEOFs <- function(eof.1,eof.2) {
     for (ii in 1:d2[1]) {
       eof2[ii,] <- interp(lonxy,latxy,EOF2[ii,],eof1$lon,eof1$lat)
     }
-    EOF2 <- eof2; rm(eof2)
+    EOF2 <- eof2; rm(eof2); gc(reset=TRUE)
   }
   EOF <- rbind(EOF1,EOF2)
   #print(dim(EOF))

@@ -7,7 +7,7 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
   if (class(x)[1]=="eof") {
     X <- plotEOF(x,plot=FALSE)
     x <- X
-    rm(X)
+    rm(X); gc(reset=TRUE)
   }
   
 #  if (options()$device[1]=="none") plot=FALSE

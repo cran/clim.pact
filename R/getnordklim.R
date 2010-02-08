@@ -154,8 +154,10 @@ if ((sum(in.app)==0) & !(silent)) {
   lon<-meta$Lon.deg + meta$Lon.min/60
   meta$N.S<-strip(meta$N.S)
   meta$E.W<-strip(meta$E.W)
-  lat[(meta$N.S=="S") | (meta$N.S==" S")]<-lat[(meta$N.S=="S") | (meta$N.S==" S")]*-1
-  lon[(meta$E.W=="W") | (meta$E.W==" W")]<-lon[(meta$E.W=="W") | (meta$E.W==" W")]*-1
+  lat[(meta$N.S=="S") | (meta$N.S==" S")]<-lat[(meta$N.S=="S") |
+         (meta$N.S==" S")]*-1
+  lon[(meta$E.W=="W") | (meta$E.W==" W")]<-lon[(meta$E.W=="W") |
+         (meta$E.W==" W")]*-1
 
   xy<-COn0E65N(lon,lat)
 

@@ -56,7 +56,7 @@ stereogr<- function(map.obj,NH=TRUE,lat.0=0,inv.col=FALSE,levels=NULL,sym=TRUE,d
   contour(x.grd,y.grd,map,add=TRUE)
 # test:   points(x[good],y[good],pch="+",col="red")
 
-  data(addland,envir = environment())
+  data(addland1,envir = environment())
   if (!NH) lat.cont <- -lat.cont
   ok <- is.finite(lon.cont) & is.finite(lat.cont)  & (lat.cont>lat.0)
   lat.cont <- abs(lat.cont)

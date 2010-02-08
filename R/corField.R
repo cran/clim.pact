@@ -66,7 +66,7 @@ if (is.null(mon)) mon <- 1:12
   x$dat <- dat[ok,,]; x$yy <- yy[ok]; x$mm <- mm[ok]; x$dd <- dd[ok];
   x$tim <- tim[ok]; x$id.t <- id.t[ok]                                              # REB 12.01.2006
   nyears <- sum(ok)
-  rm(dat,yy,mm,dd,tim,id.t)                                                         # REB 12.01.2006
+  rm(dat,yy,mm,dd,tim,id.t); gc(reset=TRUE)                                         # REB 12.01.2006
 
 # REB before 12.01.2006:  if (class(y)[1]=="station") y.ts <- as.vector(t(y$val)) else
   if (class(y)[1]=="station") {

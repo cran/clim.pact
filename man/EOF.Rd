@@ -61,7 +61,8 @@ lagField(fields,lag=1)
     \item{lsave}{'TRUE' dumps the results to file.}
     \item{LINPACK}{'TRUE': svd; 'FALSE':La.svd}
     \item{silent}{'TRUE': quiet mode}
-    \item{lag}{}
+    \item{lag}{Lag in months or days (using the time unit) introduced to
+    the field. Used with \code{\link{mixFields}} to estimate esxtnded EOFs.}
 }
 \value{File containing an 'eof.c' object:
   \tabular{ll}{

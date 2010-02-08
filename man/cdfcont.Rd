@@ -3,7 +3,8 @@
 \title{netCDF names and dimensions.}
 \description{Obtains the variable names and dimension names from a
   netCDF file. This routine provides some of the information returned by
-  \code{\link[netCDF]{names.netCDF}}, however this function does not depend on
+  the old \code{netCDF}-package function  \code{names.netCDF},
+  however this function does not depend on
   the \code{netCDF} package. If it doesn't work, make sure to set the
   path to include the location of \code{ncdump} and \code{ncgen} (two
   netCDF executables, usually under a netcdf direcory). Alternatively,

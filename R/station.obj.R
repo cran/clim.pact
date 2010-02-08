@@ -49,7 +49,7 @@ station.obj <- function(x,yy,obs.name,unit,ele=NULL,mm=NULL,
     }
     x <- x.2D
     yy <- yrs
-    rm(x.2D,yrs)
+    rm(x.2D,yrs); gc(reset=TRUE)
   }
 
 #  print("Make list")

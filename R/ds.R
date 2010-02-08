@@ -335,7 +335,7 @@ scen.gcm <- eval(parse(text=scen.gcm.str))
 calibrate.str <- paste(calibrate.str,"yy=as.vector(yy.cal),mm=as.vector(mm.cal),dd=as.vector(dd.cal))",sep="")
 #print("Calibration:")
 #print(calibrate.str); print(c(length(y),NA,dim(X.cal)))
-if (exists("calibrate")) rm(calibrate)
+if (exists("calibrate")) {rm(calibrate); gc(reset=TRUE)}
 calibrate <- eval(parse(text=calibrate.str))
 
 #print(summary(calibrate))

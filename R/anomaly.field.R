@@ -69,8 +69,10 @@ daily2monthly.field <- function(field,min.days.month=20,method="colMeans",na.rm=
     for (im in 1:12) {
       this.month.year <-  is.element(field$mm,im) & is.element(field$yy,years[iy])
       if (sum(this.month.year,na.rm=TRUE) > min.days.month) {
-        if (!na.rm) val[iy,im] <- eval(parse(text=paste(method,"(x[this.month.year,])",sep=""))) else 
-            val[(iy-1)*12+im,,] <- eval(parse(text=paste(method,"(x[this.month.year,],na.rm=TRUE)",sep="")))         
+        if (!na.rm) val[iy,im] <-
+              eval(parse(text=paste(method,"(x[this.month.year,])",sep=""))) else 
+            val[(iy-1)*12+im,] <-
+              eval(parse(text=paste(method,"(x[this.month.year,],na.rm=TRUE)",sep="")))         
       } else print(paste(im,years[iy],"number of days=",sum(this.month.year,na.rm=TRUE)))
     }
   }

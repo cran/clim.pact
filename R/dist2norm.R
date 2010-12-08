@@ -61,12 +61,15 @@ norm2dist <- function(x,plot=FALSE,exclude=NULL,
   }
   for (i in 1:length(x$xT)) {
     if (is.finite(x$xT[i]))
-      y.i <- approx(x$q.i,x$cdf.i$y,x$xT[i])$y
-      x$x[i] <- approx(x$edf.i,x$cdf.i$x,y.i)$y
-      if ((mod(i,round(length(x$x)/10))==0) & (plot)){
-        lines(rep(x$xT[i],2),c(0,y.i),col="blue",lty=2)
-        lines(c(x$x[i],x$xT[i]),rep(y.i,2),col="blue",lty=2)
-        arrows(x$x[i],y.i,x$x[i],0,col="blue",lty=2,length=0.05)
+      print(approx(x=x$q.i,y=x$cdf.i,xout=x$xT[i]))$y
+      Y.i <- approx(x=x$q.i,y=x$cdf.i,xout=x$xT[i])$y
+      if (is.finite(Y.i)) {
+        x$x[i] <- approx(x=x$edf.i$x,y=x$cdf.i,xout=Y.i)$y
+        if ((mod(i,round(length(x$x)/10))==0) & (plot)){
+          lines(rep(x$xT[i],2),c(0,Y.i),col="blue",lty=2)
+          lines(c(x$x[i],x$xT[i]),rep(Y.i,2),col="blue",lty=2)
+          arrows(x$x[i],Y.i,x$x[i],0,col="blue",lty=2,length=0.05)
+        }
       }
   }
   norm2dist <- x$x

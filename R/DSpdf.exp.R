@@ -17,7 +17,7 @@ ExtEOF <- function(fields,lag=1,mon=NULL,lon=NULL,lat=NULL) {
 
 
 lagField <- function(fields,lag=1) {
-  if (class(fields)[2]=="monthly.field.object") {
+  if ( (class(fields)[2]=="monthly.field.object") | (class(fields)[3]=="monthly.field.object")) {
     fields$mm <- fields$mm - lag
 
     zeros <- fields$mm < 0  
@@ -33,7 +33,7 @@ lagField <- function(fields,lag=1) {
       fields$yy[thirteens] <- fields$yy[thirteens] + 1
     }
     
-  } else if (class(fields)[2]=="daily.field.object") {
+  } else if ((class(fields)[2]=="daily.field.object") | (class(fields)[3]=="daily.field.object")) {
     jday <- julday(fields$mm,fields$dd,fields$yy) 
     jday <- jday - lag
     newdates <- caldat(jday)

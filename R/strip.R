@@ -10,28 +10,32 @@ strip<-function(in.str) {
   if (is.factor(in.str)) { lfac <- TRUE }
   in.str<-as.character(in.str)
   
-# Leading spaces
+  strip <- in.str
   
-  while (instring(" ",in.str)[1]==1) in.str <- substr(in.str,2,nchar(in.str))  
-
-#  print(in.str)
-  out.str<-in.str
-
 # Go through list of a string array and remove the remainder of the string
 # starting at the first space character...
   
-  for (is in 1:length(in.str)) {
-    c.str<-paste(unlist(strsplit(in.str[is],"")),sep="")
+  for (i in 1:length(strip)) {
+    
+# Leading spaces
+
+    while (instring(" ",in.str[i])[1]==1) in.str[i] <- substr(in.str[i],2,nchar(in.str[i]))  
+
+#  print(in.str)
+    out.str<-in.str[i]
+
+    c.str<-paste(unlist(strsplit(in.str[i],"")),sep="")
 #    print(c.str)
     ispc<-pmatch(" ",c.str)
 #    print(ispc)
     if (!is.na(ispc) & (ispc > 1)) {
-      out.str[is]<-substr(in.str[is],1,ispc-1)
+      out.str<-substr(in.str[i],1,ispc-1)
     } 
+  
+    if (lfac) {
+      out.str<-factor(out.str)
+    }
+    strip[i]<-out.str
   }
-  if (lfac) {
-    out.str<-factor(out.str)
-  }
-  strip<-out.str
   strip
 }

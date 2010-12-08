@@ -142,39 +142,75 @@ res.rng <- range(result$Jan$step.wise$residual,result$Feb$step.wise$residual,
                  result$May$step.wise$residual,result$Jun$step.wise$residual,
                  result$Jul$step.wise$residual,result$Aug$step.wise$residual,
                  result$Sep$step.wise$residual,result$Oct$step.wise$residual,
-                 result$Nov$step.wise$residual,result$Dec$step.wise$residual, na.rm=TRUE)
+                 result$Nov$step.wise$residual,result$Dec$step.wise$residual,
+                 na.rm=TRUE)
 if (sum(is.element(figs,2))>0) {newFig()
 
 par(cex.main=0.7)                                
-plot(c(0,length(result$Jan$yy.o)),res.rng,     
-     type="n", main=paste("Residuals ",result$Jan$v.name," anomalies at ",result$Jan$location,
-                          "     (",round(result$Jan$lat.loc,2),"N/",round(result$Jan$lon.loc,2),"E)",sep=""),
+plot(range(result$Jan$yy.o,na.rm=TRUE),res.rng,     
+     type="n", main=paste("Residuals ",result$Jan$v.name," anomalies at ",
+                 result$Jan$location,
+                          "     (",round(result$Jan$lat.loc,2),"N/",
+                 round(result$Jan$lon.loc,2),"E)",sep=""),
      sub=subtitle,xlab="Time",ylab=result$Jan$unit)
 grid()
-points(result$Jan$step.wise$residual,col="black",pch=20,cex=0.5)
-points(result$Feb$step.wise$residual,col="black",pch=20,cex=0.5)
-points(result$Mar$step.wise$residual,col="black",pch=20,cex=0.5)
-points(result$Apr$step.wise$residual,col="black",pch=20,cex=0.5)
-points(result$May$step.wise$residual,col="black",pch=20,cex=0.5)
-points(result$Jun$step.wise$residual,col="black",pch=20,cex=0.5)
-points(result$Jul$step.wise$residual,col="black",pch=20,cex=0.5)
-points(result$Aug$step.wise$residual,col="black",pch=20,cex=0.5)
-points(result$Sep$step.wise$residual,col="black",pch=20,cex=0.5)
-points(result$Oct$step.wise$residual,col="black",pch=20,cex=0.5)
-points(result$Nov$step.wise$residual,col="black",pch=20,cex=0.5)
-points(result$Dec$step.wise$residual,col="black",pch=20,cex=0.5)
-lines(result$Jan$step.wise$residual,col="black")
-lines(result$Feb$step.wise$residual,col="grey40")
-lines(result$Mar$step.wise$residual,col="red")
-lines(result$Apr$step.wise$residual,col="darkred")
-lines(result$May$step.wise$residual,col="blue")
-lines(result$Jun$step.wise$residual,col="darkblue")
-lines(result$Jul$step.wise$residual,col="green")
-lines(result$Aug$step.wise$residual,col="darkgreen")
-lines(result$Sep$step.wise$residual,col="magenta")
-lines(result$Oct$step.wise$residual,col="cyan")
-lines(result$Nov$step.wise$residual,col="wheat")
-lines(result$Dec$step.wise$residual,col="brown")
+points(result$Jan$yy.o[is.finite(result$Jan$y.o)],
+       result$Jan$step.wise$residual,col="black",pch=1,cex=0.5)
+points(result$Feb$yy.o[is.finite(result$Feb$y.o)],
+       result$Feb$step.wise$residual,col="black",pch=2,cex=0.5)
+points(result$Mar$yy.o[is.finite(result$Mar$y.o)],
+       result$Mar$step.wise$residual,col="black",pch=3,cex=0.5)
+points(result$Apr$yy.o[is.finite(result$Apr$y.o)],
+       result$Apr$step.wise$residual,col="black",pch=4,cex=0.5)
+points(result$May$yy.o[is.finite(result$May$y.o)],
+       result$May$step.wise$residual,col="black",pch=5,cex=0.5)
+points(result$Jun$yy.o[is.finite(result$Jun$y.o)],
+       result$Jun$step.wise$residual,col="black",pch=6,cex=0.5)
+points(result$Jul$yy.o[is.finite(result$Jul$y.o)],
+       result$Jul$step.wise$residual,col="black",pch=7,cex=0.5)
+points(result$Aug$yy.o[is.finite(result$Aug$y.o)],
+       result$Aug$step.wise$residual,col="black",pch=8,cex=0.5)
+points(result$Sep$yy.o[is.finite(result$Sep$y.o)],
+       result$Sep$step.wise$residual,col="black",pch=9,cex=0.5)
+points(result$Oct$yy.o[is.finite(result$Oct$y.o)],
+       result$Oct$step.wise$residual,col="black",pch=10,cex=0.5)
+points(result$Nov$yy.o[is.finite(result$Nov$y.o)],
+       result$Nov$step.wise$residual,col="black",pch=11,cex=0.5)
+points(result$Dec$yy.o[is.finite(result$Dec$y.o)],
+       result$Dec$step.wise$residual,col="black",pch=20,cex=0.5)
+lines(result$Jan$yy.o[is.finite(result$Jan$y.o)],
+      result$Jan$step.wise$residual,col="black")
+lines(result$Feb$yy.o[is.finite(result$Feb$y.o)],
+      result$Feb$step.wise$residual,col="grey40")
+lines(result$Mar$yy.o[is.finite(result$Mar$y.o)],
+      result$Mar$step.wise$residual,col="red")
+lines(result$Apr$yy.o[is.finite(result$Apr$y.o)],
+      result$Apr$step.wise$residual,col="darkred")
+lines(result$May$yy.o[is.finite(result$May$y.o)],
+      result$May$step.wise$residual,col="blue")
+lines(result$Jun$yy.o[is.finite(result$Jun$y.o)],
+      result$Jun$step.wise$residual,col="darkblue")
+lines(result$Jul$yy.o[is.finite(result$Jul$y.o)],
+      result$Jul$step.wise$residual,col="green")
+lines(result$Aug$yy.o[is.finite(result$Aug$y.o)],
+      result$Aug$step.wise$residual,col="darkgreen")
+lines(result$Sep$yy.o[is.finite(result$Sep$y.o)],
+      result$Sep$step.wise$residual,col="magenta")
+lines(result$Oct$yy.o[is.finite(result$Oct$y.o)],
+      result$Oct$step.wise$residual,col="cyan")
+lines(result$Nov$yy.o[is.finite(result$Nov$y.o)],
+      result$Nov$step.wise$residual,col="wheat")
+lines(result$Dec$yy.o[is.finite(result$Dec$y.o)],
+       result$Dec$step.wise$residual,col="brown")
+ print("HERE8")                               
+legend(min(result$Jan$yy.o),max(res.rng),
+       c("Jan","Feb","Mar","Apr","May","Jun",
+         "Jul","Aug","Sep","Oct","Nov","Dec"),
+       lty=1,ncol=4,cex=0.7,bg="grey95",
+       pch=c(1:11,20),
+       col=c("black","grey40","red","darkred","blue","darkblue",
+             "green","darkgreen","magenta","cyan","wheat","brown"))
+                                
 dev.copy2eps(file=paste(outdir,"/plotDSobj_2.eps",sep="")) 
 }
 
@@ -276,7 +312,28 @@ points(7,max(rates+err),pch=21); text(8,max(rates+err),"not sign.")
 }
 }
 
-
+RMSE <- function(field.obs,field.gcm) {
+  d1 <- dim(field.obs$dat)
+  d2 <- dim(field.gcm$dat)
+  #print(d1); print(d2)
+  if ( (d1[1] != d2[1]) | (d1[2] != d2[2]) | (d1[3] != d2[3]) ) {
+    stop("RMSE requires fields of equal length and spatial dimensions")
+  }
+  dim(field.obs$dat) <- c(d1[1],d1[2]*d1[3])
+  dim(field.gcm$dat) <- c(d2[1],d2[2]*d2[3])
+  rmse <- matrix(rep(NA,d1[2]*d1[3]), d1[2],d1[3])
+  for (i in 1:(d1[2]*d1[3])) {
+    rmse[i] <- sqrt(sum(field.obs$dat[,i]^2 - field.gcm$dat[,i]^2))/d1[1]
+  }
+  dim(rmse) <- c(d1[2],d1[3])
+  rmse <- t(rmse)
+  attr(rmse,"Longitudes") <- field.obs$lon
+  attr(rmse,"Latitudes") <- field.obs$lat
+  attr(rmse,"Dates") <- field.obs$yy*10000 + field.obs$mm*100 + field.obs$dd
+  attr(rmse,"Data_source") <- c(field.obs$filename,field.gcm$filename)
+  attr(rmse,"Variable") <- c(field.obs$v.name,field.gcm$v.name)
+  invisible(rmse)
+}
 
 objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
                   mon=NULL,direc="dsgraphicsoutput/",cal.id=NULL,
@@ -284,28 +341,61 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
                   method="lm",leps=FALSE,param="t2m",failure.action=NULL,
                   plot.res=FALSE,plot.rate=FALSE,xtr.args="",opt.dom=TRUE,
                   swsm="step",predm="predict",lsave=FALSE,rmac=TRUE,
-                  silent=FALSE,qualitycontrol=TRUE,LINPACK=TRUE,wOBS=0.25) {
+                  silent=FALSE,qualitycontrol=TRUE,LINPACK=TRUE,wOBS=0.25,
+                  fastregrid=FALSE,neofs=20) {
 
   cmon<-c("Jan","Feb","Mar","Apr","May","Jun",
           "Jul","Aug","Sep","Oct","Nov","Dec")
   #if (options()$device[1] == "none") {plot <- FALSE; plot.res<- FALSE; plot.rate<- FALSE}
 
   dims <- dim(field.obs$dat); ny <- dims[2]; nx <- dims[3]
-#  print(dims)
+  print(dims)
   wy <- 2*pi*seq(0,ny-1,by=1)/(ny-1)
-  x.mod<-matrix(rep(NA,ny*nx),ny,nx)
-  x.mod[,1]<-cos(wy);   x.mod[,2]<-sin(wy)
-  x.mod[,3]<-cos(2*wy); x.mod[,4]<-sin(2*wy)
-  x.mod[,5]<-cos(3*wy); x.mod[,6]<-sin(3*wy)
-  x.mod[,7]<-cos(4*wy); x.mod[,8]<-sin(4*wy)
-  wx <- 2*pi*seq(0,nx-1,by=1)/(nx-1)
-  y.mod<-matrix(rep(NA,ny*nx),ny,nx)
-  y.mod[1,]<-cos(wx);   y.mod[2,]<-sin(wx)
-  y.mod[3,]<-cos(2*wx); y.mod[4,]<-sin(2*wx)
-  y.mod[5,]<-cos(3*wx); y.mod[6,]<-sin(3*wx)
-  y.mod[7,]<-cos(4*wx); y.mod[8,]<-sin(4*wx)
-  if (is.null(mon)) mon  <-  1:12
+  x.mod<-matrix(rep(0,ny*nx),ny,nx)
 
+  # Peel away the data not used for calibration to save time:
+  if (!silent) {
+    print("Peel away the data not used for calibration to save time:")
+    print(range(station$yy))
+    print(range(field.obs$yy))      
+  }
+  if (sum(is.element(field.obs$yy,station$yy)) < 20) stop("objDS: too poor time-overlap")
+    
+  field.obs <- catFields(field.obs,interval.1=range(station$yy),silent=silent,
+                         fastregrid=fastregrid,neofs=neofs)
+  
+  # Large-scale spatial structures: x-direction (REB, 12.11.2010)
+  omega <- 1
+  for (i in seq(1,nx,by=2)) {
+    x.mod[,i]<- cos(omega*wy)
+    if (i+1 <= nx) x.mod[,i+1]<-sin(omega*wy)
+    omega <- omega+1
+  }
+# Old lines (REB, 12.11.2010)    
+#  x.mod[,1]<-cos(wx);   y.mod[,2]<-sin(wx)
+#  x.mod[,3]<-cos(2*wy); x.mod[,4]<-sin(2*wy)
+#  x.mod[,5]<-cos(3*wy); x.mod[,6]<-sin(3*wy)
+#  x.mod[,7]<-cos(4*wy); x.mod[,8]<-sin(4*wy)
+  
+  wx <- 2*pi*seq(0,nx-1,by=1)/(nx-1)
+  y.mod<-matrix(rep(0,ny*nx),ny,nx)
+
+# Old lines (REB, 12.11.2010)      
+#  y.mod[1,]<-cos(wx);   y.mod[2,]<-sin(wx)
+#  y.mod[3,]<-cos(2*wx); y.mod[4,]<-sin(2*wx)
+#  y.mod[5,]<-cos(3*wx); y.mod[6,]<-sin(3*wx)
+#  y.mod[7,]<-cos(4*wx); y.mod[8,]<-sin(4*wx)
+    
+  # Large-scale spatial structures: y-direction (REB, 12.11.2010)
+  omega <- 1
+  for (i in seq(1,ny,by=2)) {
+    y.mod[i,]<- cos(omega*wx)
+    if (i+1 <= ny) y.mod[i+1,]<-sin(omega*wx)
+    omega <- omega+1
+  }
+
+  if (is.null(mon)) mon  <-  1:12
+  
   if ( (direc!="./") &  !file.exists(direc) ) {
   if (!silent) print(paste("Create new directory (1):",direc))
   dir.create( direc )
@@ -342,16 +432,22 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     lonx <- 0.5*(field.obs$lon[2:nx]+field.obs$lon[1:(nx-1)])
     iy <- min( (1:ny)[station$lat <= field.obs$lat], na.rm=TRUE)
     ix <- min( (1:nx)[station$lon <= field.obs$lon], na.rm=TRUE)
+
+    # Identify the large-scale structures in x and y profiles by fitting the 
+    # first 4 harmonics.
     yprof <- as.vector(cormap$map[ix,]); yprof[is.na(yprof)] <- 0
     xprof <- as.vector(cormap$map[,iy]); xprof[is.na(xprof)] <- 0
+    
     largescale <- data.frame(y=yprof, X=x.mod)      
     y.fit<-lm(y ~ X.1 + X.2 + X.3 + X.4 + X.5 + X.6 + X.7 + X.8,data=largescale)
     largescale <- data.frame(y=xprof, X=t(y.mod))
     lsX <- data.frame(X=x.mod);  lsY <- data.frame(X=t(y.mod));
     x.fit<-lm(y ~ X.1 + X.2 + X.3 + X.4 + X.5 + X.6 + X.7 + X.8,data=largescale)
     yhat <- predict(y.fit,newdata=lsX); xhat <- predict(x.fit,newdata=lsY);
+    
     yzero <- yhat[2:ny]*yhat[1:(ny-1)]; xzero <- xhat[2:nx]*xhat[1:(nx-1)]
     lonx <- lonx[xzero < 0]; latx <- latx[yzero < 0]
+    
     #print("TEST: new x.rng/y.rng:")
     x.rng <- c(max(c(min(field.obs$lon),max(lonx[lonx < station$lon])), na.rm=TRUE),
                min(c(max(field.obs$lon),min(lonx[lonx > station$lon])), na.rm=TRUE))
@@ -362,6 +458,47 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     if (x.rng[2] < station$lon+20) x.rng[2] <- station$lon+20
     if (y.rng[1] > station$lat-15) y.rng[1] <- station$lat-15
     if (y.rng[2] < station$lat+15) y.rng[2] <- station$lat+15
+
+    # Compare seasonal cycle in the GCM and re-analysis  - REB 24.09.2010
+    # See Walsh et al. 2008, J.Clim. "Global Climate Model Performance over Alaska and Greenland", vol 21, p. 6156
+    # doi:10.1175/2008JCLI2163.1
+    print("evaluate seasonal cycle:")
+    field.obs.clim <- field.obs
+    field.obs.clim$dat <- field.obs.clim$dat - anomaly.field(field.obs.clim)$dat
+    field.gcm.clim <- field.gcm
+    field.gcm.clim$dat <- field.gcm.clim$dat - anomaly.field(field.gcm.clim)$dat
+    #print(summary(field.gcm.clim))
+    print("catFields - climatology for obs - only 1st year")
+    field.obs.clim<- catFields(field.obs.clim,interval.1=rep(min(field.obs.clim$yy)+1,2),
+                               lat=y.rng,lon=x.rng)  
+    print("catFields - climatology for GCM - only 1st year")
+    field.gcm.clim<- catFields(field.gcm.clim,interval.1=rep(min(field.gcm.clim$yy)+1,2),
+                             lat=field.obs.clim$lat,lon=field.obs.clim$lon)  
+    #print("estimate mean field")
+    dims <- dim(field.gcm.clim$dat)
+    #print(dims)
+    dim(field.gcm.clim$dat) <- c(dims[1],dims[2]*dims[3])
+    dim(field.obs.clim$dat) <- c(dims[1],dims[2]*dims[3])
+    meanfield.gcm <- colMeans(field.gcm.clim$dat)
+    meanfield.obs <- colMeans(field.obs.clim$dat)
+    #print("estimate annual variation")
+    field.gcm.clim$dat <- field.gcm.clim$dat - meanfield.gcm
+    field.obs.clim$dat <- field.obs.clim$dat - meanfield.obs
+    dim(meanfield.gcm) <- c(dims[2],dims[3])
+    dim(meanfield.obs) <- c(dims[2],dims[3])
+    
+    #print(length(meanfield.gcm))
+
+    #print("estimate bias")
+    ac.bias <- meanfield.gcm - meanfield.obs
+    #print("estimate var")
+    ac.var <-  mean(apply(field.gcm.clim$dat,2,sd),na.rm=TRUE)/
+               mean(apply(field.obs.clim$dat,2,sd),na.rm=TRUE)
+    #print("estimate rmse")
+    dim(field.gcm.clim$dat) <- c(dims[1],dims[2],dims[3])
+    dim(field.obs.clim$dat) <- c(dims[1],dims[2],dims[3])    
+    ac.rmse <- mean(RMSE(field.gcm.clim,field.obs.clim))
+    
     #print(x.rng); print(y.rng)
     if (plot) {
       #print("HERE1"); print(dev.cur()); print(direc); print(options()$device)
@@ -396,8 +533,13 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
 #    print(c(length(field.gcm$yy),length(field.gcm$mm),length(field.gcm$id.t),NA,dim(field.gcm$dat)))
 #    print(summary(field.gcm))
 
-    if (opt.dom) field.2 <- catFields(field.obs,field.gcm,lon=x.rng,lat=y.rng,mon=imon,silent=silent) else 
-                 field.2 <- catFields(field.obs,field.gcm,mon=imon,silent=silent)
+    if (opt.dom) field.2 <- catFields(field.obs,field.gcm,
+                                      lon=x.rng,lat=y.rng,
+                                      mon=imon,silent=silent,
+                                      fastregrid=fastregrid,neofs=neofs) else 
+                 field.2 <- catFields(field.obs,field.gcm,
+                                      mon=imon,silent=silent,
+                                      fastregrid=fastregrid,neofs=neofs)
 #    print(field.gcm$lon); print(field.gcm$lat); print(summary(c(field.gcm$dat))); field.gcm$dat[!is.finite(field.gcm$dat)] <- 0
 #    map(meanField(field.obs)); print("OK1"); map(meanField(field.gcm)); stop("...HERE...") 
     #print(c(length(field.2$yy),length(field.2$mm),length(field.2$id.t),NA,dim(field.2$dat)))
@@ -435,7 +577,8 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     ds$x.rng <- x.rng; ds$y.rng <- y.rng
 
     if (!silent) print("Grading for spatial pattern")
-    field.x <- catFields(field.obs,lon=field.2$lon,lat=field.2$lat,mon=imon)
+    field.x <- catFields(field.obs,lon=field.2$lon,lat=field.2$lat,mon=imon,
+                         fastregrid=fastregrid,neofs=neofs)
     dims <- dim(field.x$dat)
     if ( (length(dims)==3) & (dims[2]>1) & (dims[3]>1) ) {
       cormap <- corField(field.x,station,mon=imon,main="",plot=FALSE)
@@ -492,7 +635,8 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
          if (station$lat > y.rng[1]+10) y.rng[1] <- y.rng[1]+(station$lat - y.rng[1] - 10)/3
          if (station$lat < y.rng[2]+10) y.rng[2] <- y.rng[2]-(y.rng[2] - station$lat - 10)/3
        }
-       field.2 <- catFields(field.obs,field.gcm,lon=x.rng,lat=y.rng,mon=ii)
+       field.2 <- catFields(field.obs,field.gcm,lon=x.rng,lat=y.rng,mon=ii,
+                            fastregrid=fastregrid,neofs=neofs)
        if (!is.null(wOBS)) {                                    #REB 21.03.05
          if (!silent) print("Weight down GCM:")
          t.wgt <- wOBS*length(field.obs$id.t)/length(field.gcm$id.t)
@@ -549,6 +693,9 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
    ref=paste("clim.pact >= v2.1-4 > objDS (Benestad, 2004, Eos, vol 85, #42, Oct 19, p.417):",
                                 field.2$filename))
    result$station <- station.series
+   result$ac.bias <- ac.bias
+   result$ac.var <- ac.var
+   result$ac.rmse <- ac.rmse
 
 #print("objDS - HERE... plot?")
   if (plot) {

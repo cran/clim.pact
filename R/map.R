@@ -42,7 +42,7 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
     nc2 <- ceiling(length(levels)/2)
   }
 
-  main <- x$description
+  if (is.null(main)) main <- x$description
   if (is.null(main)) main <- paste(attributes(x$dat)$"long_name")
 
   if (is.null(x$tim)) if (length(x$tim) > 1) {
@@ -57,9 +57,10 @@ map <- function(x,y=NULL,col="black",lwd=1,lty=1,sym=TRUE,
                         sub <- paste(x$date,": ",x$tim,sep="")
   } else {
     if (is.null(x$tim)) sub <- paste(x$date[1],"-", x$date[length(x$date)]) else
-                        sub <- paste(x$date[1]," - ", x$date[length(x$date)],": ",x$tim,sep="")
+                        sub <- paste(x$date[1]," - ",
+                                     x$date[length(x$date)],": ",x$tim,sep="")
   }
-  } else if (!is.null(date)) sub <- x$date
+  } 
 
   if (is.null(xlim)) xlim <- range(x$lon[is.finite(x$lon)]) 
   if (is.null(ylim)) ylim <- range(x$lat[is.finite(x$lat)])

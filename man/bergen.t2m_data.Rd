@@ -30,5 +30,6 @@
   The Norwegian Meteorological Institute, P.O. Box 43, 0313
 Oslo, Norway (http://www.met.no).}
 \examples{
+data(bergen.t2m)
 }
 \keyword{datasets}

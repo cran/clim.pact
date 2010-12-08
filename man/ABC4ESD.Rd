@@ -17,5 +17,6 @@ ABC4ESD(browser="firefox",url="http://rcg.gvc.gu.se/edu/esd.pdf")
    978-981-281-912-3 \url{http://www.worldscibooks.com/environsci/6908.html}}
 \author{R.E. Benestad}
 \examples{
+\dontrun{ABC4ESD()}
 }
-\keyword{}
+\keyword{methods}

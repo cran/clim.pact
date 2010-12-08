@@ -1,4 +1,9 @@
 instring <- function(c,target,case.match=TRUE) {
+  if (length(target)>1) {
+    print("WARNING. instring [clim.pact] uses only first element of")
+    print(target)
+    target <- target[1]
+  }
   l <- nchar(target)
   if (!case.match) {
     c <- lower.case(c)
@@ -12,7 +17,13 @@ instring <- function(c,target,case.match=TRUE) {
     pos <- 0
     for (i in 1:l) {
       tst <- substr(target,i,i)
-     if (tst==c) pos <- c(pos,i)
+      if (length(tst)>1) {
+        print(paste("instring [clim.pact] - something unexpected happened: tst=",tst))
+        print(paste("tst should be be one element, not have length=",length(tst)))
+        print(paste("target= '",target,"' c= '",c,"' case.match=", case.match,sep=""))
+        stop()
+      }
+      if (tst==c) pos <- c(pos,i)
      }
     if (length(pos) > 1) pos <- pos[-1]
   } else { 

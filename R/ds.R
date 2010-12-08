@@ -56,7 +56,7 @@ dat$val[dat$val < -99] <-NA
 
 if (rmac) {
    #print("TEST: remove the annual cycle with anomaly.station")
-   dat <- anomaly.station(dat)
+   dat <- anomaly.station(dat,period=NULL)  # REB 23.11.2010
 }
 
 if (class(preds)[2]=="daily.field.object") {
@@ -223,10 +223,12 @@ if (is.null(cal.id)) cal.id<- preds$id.t[1]
 #print(sum(preds$id.t==cal.id & !is.na(preds$PC[,1])))
 #print(range(preds$yy[preds$id.t==cal.id & !is.na(preds$PC[,1])]))
 
-X.cal<-  preds$PC[preds$id.t==cal.id & !is.na(preds$PC[,1]),]
-yy.cal<- preds$yy[preds$id.t==cal.id & !is.na(preds$PC[,1])]
-mm.cal<- preds$mm[preds$id.t==cal.id & !is.na(preds$PC[,1])]
-dd.cal<- preds$dd[preds$id.t==cal.id & !is.na(preds$PC[,1])]
+iselection <- is.element(preds$id.t,cal.id) & !is.na(preds$PC[,1])
+X.cal<-  preds$PC[iselection,]
+yy.cal<- preds$yy[iselection]
+mm.cal<- preds$mm[iselection]
+dd.cal<- preds$dd[iselection]
+id.t.cal <- preds$id.t[iselection]
 
 if (!silent) print("------------Match times---------------- ")
 #REB 09.03.05
@@ -279,6 +281,7 @@ if (!silent) print(summary(yy.cal))
 
 y.o<-y.o[i1] ; mm.o<-mm.o[i1]; yy.o<-yy.o[i1]; dd.o<-dd.o[i1]; y <- y.o
 X.cal<-X.cal[i2,]; mm.cal<-mm.cal[i2]; yy.cal<-yy.cal[i2]; dd.cal<-dd.cal[i2]
+id.t.cal <- id.t.cal[i2]
 #print(paste(">---4: length y.o=",length(y.o),"length(y)=",length(y)))
 
 
@@ -302,7 +305,7 @@ if (ldetrnd) {
   if (!silent) print("de-trend:")
   for (i in 1:length(preds$var.eof)) {
     trnd<-seq(-1,1,length=length(X.cal[,i]))
-    dtrnd<-lm(X.cal[,i] ~trnd)
+    dtrnd<-lm(X.cal[,i] ~ trnd)
     X.cal[,i]<-dtrnd$residual   
   }
   trnd<-seq(-1,1,length=length(y))
@@ -310,7 +313,7 @@ if (ldetrnd) {
   y[!valid.cal] <- NA
   y[valid.cal]<-dtrnd$residual
 }
-
+#print(dim(X.cal)); print(length(y))
 # Assign calibration and prediction data:
 n.eofs<- min(c(length(preds$var.eof),length(i.eofs)))    
 scen.gcm.str <- "data.frame("
@@ -327,18 +330,23 @@ for (ipre in 1:n.eofs) {
   } else calibrate.str <- paste(calibrate.str,"X",ipre,"=X.cal[,",ipre,
                            "]* preds$W[",ipre,"],",sep="")
 }
-scen.gcm.str <- paste(scen.gcm.str,"yy=as.vector(yy.gcm),mm=as.vector(mm.gcm),dd=as.vector(dd.gcm))",sep="")
+scen.gcm.str <- paste(scen.gcm.str,
+                      "yy=as.vector(yy.gcm),mm=as.vector(mm.gcm),",
+                      "dd=as.vector(dd.gcm))",sep="")
 #print("GCM:")
 #print(scen.gcm.str)
+#print(c(length(y),length(yy.cal),length(mm.cal),length(dd.cal),length(id.t.cal)))
 scen.gcm <- eval(parse(text=scen.gcm.str))
 
-calibrate.str <- paste(calibrate.str,"yy=as.vector(yy.cal),mm=as.vector(mm.cal),dd=as.vector(dd.cal))",sep="")
+calibrate.str <- paste(calibrate.str,
+                "yy=as.vector(yy.cal),mm=as.vector(mm.cal),",
+                "dd=as.vector(dd.cal),id.t=id.t.cal)",sep="")     # REB 22.11.2010
 #print("Calibration:")
 #print(calibrate.str); print(c(length(y),NA,dim(X.cal)))
 if (exists("calibrate")) {rm(calibrate); gc(reset=TRUE)}
 calibrate <- eval(parse(text=calibrate.str))
 
-#print(summary(calibrate))
+print(summary(calibrate))
 # Due to a bug in step, 'attatch' cannot be used, so it's done
 # in a more complicated way.
 #attach(calibrate)
@@ -354,16 +362,22 @@ for (i.eof in 1:n.eofs) {
   } else {
     eval(parse(text=
                paste("X",i.eofs[i.eof]," <- calibrate$X",i.eofs[i.eof],sep="")))
-    valid.cal2 <- valid.cal2 & is.finite(eval(parse(text=paste("calibrate$X",i.eofs[i.eof],sep="")))) &
-                  is.finite(y)
+    valid.cal2 <- valid.cal2 &
+               is.finite(eval(parse(text=paste("calibrate$X",i.eofs[i.eof],sep="")))) &
+               is.finite(y)
   }
 }
+
+
 
 i.eofs <- i.eofs[is.finite(i.eofs)]; n.eofs <- length(i.eofs)
 
 for (i.eof in 1:n.eofs) {  
   exprn <- paste(exprn," + X",i.eofs[i.eof],sep="")
 }
+
+if (length(cal.id)>1) exprn <- paste(exprn," + id.t",sep="")  # REB 22.11.2010
+
 if (method!="anm") exprn <- paste(exprn,xtr.args,",data=calibrate)",sep="") else 
 if (method!="glm") exprn <- paste(exprn,",","data=calibrate",xtr.args,")",sep="")
 

@@ -30,5 +30,8 @@
   The Norwegian Meteorological Institute, P.O. Box 43, 0313
 Oslo, Norway (http://www.met.no).}
 \examples{
+data(oslo.t2m)
+data(DNMI.t2m)
+corField(DNMI.t2m,oslo.t2m,mon=7)
 }
 \keyword{datasets}

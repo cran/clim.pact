@@ -147,8 +147,8 @@ daily2monthly.station <- function(obs,param="t2m",min.days.month=20,method="mean
                         station=obs$station,lat=obs$lat,lon=obs$lon,alt=obs$alt,
                         location=obs$location,wmo.no=obs$wmo.no,
                         start=obs$start,yy0=obs$yy0,country=obs$station,
-                        ref=paste(obs$ref,"+daily2monthly.station. method=",method,
-                          "na.rm=",na.rm))
+                        ref=paste(obs$ref,"+daily2monthly.station. method=",
+                          method,"na.rm=",na.rm))
   invisible(Obs)
 }
 

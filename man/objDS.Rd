@@ -3,6 +3,7 @@
 \alias{climate diagnostics}
 \alias{objDS}
 \alias{plotDSobj}
+\alias{RMSE}
 \alias{downscaling}
 \title{Objective downscaling of monthly means}
 \description{'Objective' downscaling based on \code{\link{DS}}. The
@@ -16,6 +17,8 @@ Version 2.1-5: smallest spatial domain for objDS is set to +- 10deg N
 and E of the station location in order to avoid problems with dimensions 
 if one only contains one data point (the domain becomes a line instead
 of a rectangle).
+
+\code{RMSE} estimates the root-mean-square-error between two field objects.
 }
 \usage{
 objDS(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
@@ -24,9 +27,11 @@ objDS(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
           method="lm",leps=FALSE,param="t2m",failure.action=NULL,
           plot.res=FALSE,plot.rate=FALSE,xtr.args="",opt.dom=TRUE,
           swsm="step",predm="predict",lsave=FALSE,rmac=TRUE,
-          silent=FALSE,qualitycontrol=TRUE,LINPACK=TRUE,wOBS=0.25)
+          silent=FALSE,qualitycontrol=TRUE,LINPACK=TRUE,wOBS=0.25,
+          fastregrid=FALSE,neofs=20)
 
 plotDSobj(result,outdir="dsgraphicsoutput/",figs=c(1,2,3,4),main="")
+RMSE(field.obs,field.gcm) 
 }
 
 \arguments{
@@ -80,6 +85,9 @@ plotDSobj(result,outdir="dsgraphicsoutput/",figs=c(1,2,3,4),main="")
     \item{figs}{Figs to plot: 1 - time series, 2 - time series of 
     residuals, 3 - distribution of residuals, 4 - rates of change.}
     \item{main}{title of plot}
+    \item{fastregrid}{Option in catFields - use \code{\link{fastRegrid}}}
+    \item{neofs}{Number of EOF-modes to retain, determining the degree
+  of details to be retained.}
 }
 
 \value{An 'objDS' object -  a list of objects:

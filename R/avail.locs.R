@@ -8,11 +8,13 @@ avail.locs <- function(ele=101) {
 #  source("strip.R")
 
   nacd.meta<-read.table('data/appendix.2')
+  nacd <- length(nacd.meta$V5[is.element(nacd.meta$V14,ele)])
+  
   if (!file.exists('data/nordklim_station_catalogue_v1_0.prn')) {
     print('Your need to obtain the data first - URL http://www.smhi.se/hfa_coord/nordklim/nkds.htm')
     print('Then save the data in ASCI-format with column widths')
     print('Catalogue: c(2,30,12,11,11,4,3,2,4,3,2,9,rep(6,23))')
-    error()
+    stop()
   }
   nordklim.meta<-read.fwf( 'data/nordklim_station_catalogue_v1_0.prn',
                  skip=1,as.is=TRUE,fill=TRUE,
@@ -25,7 +27,6 @@ avail.locs <- function(ele=101) {
                               "ele113","ele113E","ele121","ele121E","ele122","ele122E",
                               "ele123","ele123E","ele401","ele401E","ele601","ele601E",
                               "ele602","ele602E","ele701","ele701E","ele801","ele801E"))
-  nacd <- length(nacd.meta$V5[is.element(nacd.meta$V14,ele)])
   narp <- getnarp()
   nnarp <- length(narp$lon)
   iele <- eval(parse(text=paste("!is.na(nordklim.meta$ele",ele,")",sep="")))
@@ -49,5 +50,5 @@ avail.locs <- function(ele=101) {
                    country=factor(strip(abbreviate(con.list))),
                    nacd=nacd,nnordklim=nnordklim,
                    ident=c(rep("NACD",nacd),rep("NORDKLIM",nnordklim),rep("NARP",nnarp))) 
-  avail.locs
+  invisible(avail.locs)
 }

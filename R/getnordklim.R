@@ -9,6 +9,9 @@
 # 'ele.c' determines the element (default=T2m).
 #
 # R.E. Benestad
+# http://www.smhi.se/hfa_coord/nordklim/param.php
+# http://www.smhi.se/hfa_coord/nordklim/old/report08_2001.pdf
+# http://www.smhi.se/hfa_coord/nordklim/data/Nordklim_data_set_v1_0_2002.xls
 
 getnordklim <- function(location=NULL,ele.c='101',
                         ascii=FALSE,silent=FALSE,direc="data") {
@@ -119,7 +122,7 @@ val[val <= -99.9] <- NA
 #in.app<-is.element(locations,location)
 test.char <- min(c(nchar(location),4))
 Location <- location
-in.app <- rep(F,length(meta$location))
+in.app <- rep(FALSE,length(meta$location))
 while ( (sum(in.app)!=1) & (test.char <= nchar(Location)) ) {
   location<-upper.case(substr(Location,1,test.char))
   locations <- upper.case(substr(as.character(meta$location),1,test.char))

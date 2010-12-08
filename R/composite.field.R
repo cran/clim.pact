@@ -76,7 +76,8 @@ if (class(y)[1]=="station") {
         plus  <- vec1[i.plus]
         minus  <- vec1[i.minus]
         map[j,i] <- mean(plus,na.rm=TRUE) - mean(minus,na.rm=TRUE)
-        if ((length(plus) > 0) & (length(minus) > 0)) p.val[j,i] <- t.test(plus,minus)$p.value
+        if ((length(plus) > 0) & (length(minus) > 0))
+          p.val[j,i] <- t.test(plus,minus)$p.value
       } 
     }
   }
@@ -86,7 +87,7 @@ if (class(y)[1]=="station") {
   my.col <- rgb(c(seq(0,1,length=20),rep(1,21)),
                 c(abs(sin((0:40)*pi/40))),
                 c(c(rep(1,21),seq(1,0,length=20))))
-  if (lsig.mask) map[p.val > 0.05] <- NA
+  if (lsig.mask) map[p.val > sig.lev] <- NA
   if (sum(is.finite(map))==0) stop('No region with significance')
   if ( (is.null(main)) & (class(y)[1]=="station") ) {
     main <- paste(descr,attributes(x$dat)$"long_name",

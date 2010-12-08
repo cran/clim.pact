@@ -10,6 +10,6 @@ EOF2field <- function(eof,anomalies=FALSE) {
                        yy=eof$yy,mm=eof$mm,dd=eof$dd,n.fld=eof$n.fld,
                        id.lon=eof$id.lon,id.lat=eof$id.lat,
                        attributes=eof$attributes)
-  class(retrieve.nc) <- c("field",class(eof)[-1])
+  class(retrieve.nc) <- c(class(eof)[-(1)])
   invisible(retrieve.nc)
 }

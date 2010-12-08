@@ -50,7 +50,6 @@ satellite(map,lon.0=0,lat.0=0,pal="rainbow",nlevs=21,breaks=NULL,
     \item{nlevs}{number of levels for contour/shading levels}
     \item{breaks}{break points for contour/shading levels}
  }
-\value{}
 \author{R.E. Benestad}
 \examples{
 \dontrun{

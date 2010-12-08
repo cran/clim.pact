@@ -32,7 +32,8 @@ distAB <- function(lon,lat,lons,lats,a=6.378e06) {
 #    print(r1)
 #    print("MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM: distAB")
 #  }
-  dist <- a* angle
+  dist <- rep(NA,length(lons))
+  dist[good] <- a* angle
   dist
 }
                    

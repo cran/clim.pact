@@ -1,10 +1,20 @@
-\name{koebenhavn.t2m}
-\alias{koebenhavn.t2m}
-\title{Monthly mean temperature in Copenhagen.}
-\description{A station record of monthly mean temperature Copenhagen.}
-\usage{data(koebenhavn.t2m)}
-\format{list of "monthly.station.record" class:
-    \tabular{ll}{
+\name{getClimateExplorer}
+\alias{getClimateExplorer}
+\title{Retrieve station record through the KNMI ClimateExplorer.}
+\description{Retrieve data through: URL \url{http://climexp.knmi.nl/}. Also see
+  \code{\link{getdnmi}}, \code{\link{getnordklim}}, and \code{\link{getnacd}}.
+}
+\usage{
+getClimateExplorer(location,URL="http://climexp.knmi.nl/data/",ele.c="t")
+}
+
+\arguments{
+  \item{location}{ClimateExplorer station number.}
+  \item{ele.c}{name of element [e.g. avail.elem(), or 't', 'p', 'l'].}
+  \item{URL}{URL for the data report.}
+ }
+\value{a <- list of "monthly.station.record" class:
+  \tabular{ll}{
     val \tab The monthly values (a 12-column matrix with one
     column for each year). \cr
     station \tab station number. \cr
@@ -24,12 +34,12 @@
     found \tab Flag: T - the data requested was found. \cr
     ref \tab Reference for the data set. \cr
   }}
-\source{The Nordklim data set: \url{http://www.smhi.se/hfa_coord/nordklim/}}
-\references{Tuomenvirta et al. (2001), "Nordklim data set 1.0", DNMI
-  KLIMA 08/01, pp. 26;
-  The Norwegian Meteorological Institute, P.O. Box 43, 0313
-Oslo, Norway (http://www.met.no).}
+\author{R.E. Benestad}
 \examples{
-data(koebenhavn.t2m)
+\dontrun{
+greenwich <- getClimateExplorer(3779.1)
+plotStation(greenwich,what="t")
+all.station.list <- getClimateExplorer()
 }
-\keyword{datasets}
+}
+\keyword{file}

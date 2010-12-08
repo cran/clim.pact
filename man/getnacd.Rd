@@ -1,14 +1,14 @@
 \name{getnacd}
 \alias{getnacd}
-\alias{nacd.meta}
 \alias{meta.nacd}
-\title{Retreave station record from the NACD set.}
+\title{Retrieve station record from the NACD set.}
 \description{Retrieve station record from the North Atlantic Climate
   Data (NACD) set: URL \url{http://www.dmi.dk/}. Also see
   \code{\link{getdnmi}} and \code{\link{getnordklim}}.
 }
 \usage{
 getnacd(location="prompt",ele.c='101',ascii=FALSE,silent=FALSE,direc="data")
+data(meta.nacd)
 }
 
 \arguments{
@@ -45,6 +45,7 @@ getnacd(location="prompt",ele.c='101',ascii=FALSE,silent=FALSE,direc="data")
 \dontrun{
 helsinki.rr <- getnacd("helsinki",ele=601)
 obs.t2m <- getnacd()
+data(meta.nacd,envir = env)
 }
 }
 \keyword{file}

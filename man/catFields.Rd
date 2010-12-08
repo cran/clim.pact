@@ -1,5 +1,7 @@
 \name{catFields}
 \alias{catFields}
+\alias{fastRegrid}
+\alias{testfastRegrid}
 \title{catFields}
 \description{Concatinates fields two different gridded sets of
   observation. The two fields must be stored on the same spatial grid,
@@ -33,11 +35,20 @@
   concatinated fields provides an analysis similar to the common EOH
   method described in Benestad (2001), "A comparison between two
   empirical downscaling strategies", \emph{Int. J. Climatology}, \bold{vol 21},
-  1645-1668, DOI 10.1002/joc.703. 
+  1645-1668, DOI 10.1002/joc.703.
+
+  \code{fastRegrid} is a quick way to re-grid field object, and uses
+  \code{\link{EOF}} to decompose the field into a small number of
+  spatial patterns (EOFs), which are then re-gridded, and subsequently
+  transformed back to a field object by calling \code{\link{EOF2field}}.
 }  
 \usage{
 catFields(field.1,field.2=NULL,lat=NULL,lon=NULL,plot.interp=FALSE,
-           interval.1=NULL,interval.2=NULL,mon=NULL,demean=TRUE,silent=FALSE) 
+           interval.1=NULL,interval.2=NULL,mon=NULL,demean=TRUE,silent=FALSE,
+                      fastregrid=FALSE,neofs=20)
+fastRegrid(field.1,lat=NULL,lon=NULL,mon=NULL,neofs=20,
+                      silent=TRUE,plot.interp=FALSE)
+testfastRegrid()
 }
 \arguments{
     \item{field.1}{A 'field.object'. }
@@ -56,6 +67,9 @@ catFields(field.1,field.2=NULL,lat=NULL,lon=NULL,plot.interp=FALSE,
       between these periods (see examples in \code{\link{eof.dc}} or
       \code{\link{eof.dmc}}).}
     \item{silent}{FALSE: verbose output.}
+    \item{fastregrid}{Option in catFields - use \code{fastRegrid}}
+    \item{neofs}{Number of EOF-modes to retain, determining the degree
+  of details to be retained.}
   }
 \value{A 'field.object'.}
 \author{R.E. Benestad}
@@ -82,6 +96,11 @@ xX <- mixFields(xX.1,xX.2,mon=1,
 print("EOF")
 eof.c <- eof(xX.1,mon=1)
 eof.mc <- eof(xX,mon=1)
+
+testfastRegrid()
+
+data(DNMI.slp)
+slp <- fastRegrid(DNMI.slp,lat=seq(30,80,by=1),lon=seq(-90,60,by=1),mon=1)
 }
 }
 \keyword{manip}

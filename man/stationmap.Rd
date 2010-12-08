@@ -20,7 +20,6 @@
   \item{x.rng}{Longitudes to include.}
   \item{y.rng}{Latitudes to include.}
   }
-\value{}
 \author{R.E. Benestad}
 \examples{
 \dontrun{

@@ -12,5 +12,7 @@
 \value{0 or 1}
 \author{R.E. Benestad}
 \examples{
+zero <- delta(1,2)
+one <- delta(2,2)
 }
 \keyword{manip}

@@ -29,7 +29,7 @@
     \item{ylim}{see \code{\link{plot}}}
     \item{newFig}{TRUE call \code{\link{newFig}} for new figure.}
   }
-\value{}
+\value{A \code{\link{map}} object.}
 \author{R.E. Benestad}
 \examples{
 library(clim.pact)

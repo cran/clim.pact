@@ -7,7 +7,7 @@
 
 
 retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO",
-                        l.scale=FALSE,greenwich=TRUE,silent=FALSE,
+                        l.scale=TRUE,greenwich=TRUE,silent=FALSE,
                         x.nam="lon",y.nam="lat",z.nam="lev",t.nam="tim",
                         x.rng=NULL,y.rng=NULL,z.rng=NULL,t.rng=NULL,
                         force.chron=TRUE,force365.25=FALSE,regular=TRUE,daysayear=365.25,
@@ -101,7 +101,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
     }
   }
 
-  # The coordinates/dimension data:
+   # The coordinates/dimension data:
   lon <- get.var.ncdf(ncid,cdfdims[ilon])
   lat <- get.var.ncdf(ncid,cdfdims[ilat])
   tim <- get.var.ncdf(ncid,cdfdims[itim])
@@ -219,8 +219,8 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
     #print(force365.25) 
 
     if (force365.25==-1) {
-      if (!silent) print("> > > > FORCING a '360-day' model year! < < < <")
-      juldays <- caldat(tim+julday(mm0,dd0,yy0));            # REB 20.1.2006
+      if (!silent) print("> > > > FORCING a '365-day' model year! < < < <")
+      juldays <- tim+julday(mm0,dd0,yy0);            # REB 20.1.2006
       yy <- caldat(juldays)$year
       mm <- caldat(juldays)$month
       dd <- caldat(juldays)$day
@@ -535,7 +535,10 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
     unit <- "hPa"
   }
   if (!silent) print(summary(as.vector(dat)))
-  if (!silent) print(paste("dimensions",nt,ny,nx))
+  if (!silent) {
+    if (nd==3) print(paste("dimensions",nt,ny,nx)) else
+               print(paste("dimensions",nt,nz,ny,nx))
+  }
   eos <- nchar(v.nam)
   if (instring("-",v.nam)> 0) {
     eos <- instring("-",v.nam)-1

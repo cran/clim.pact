@@ -1,4 +1,5 @@
-rotate <- function(lons,lats,lon.0=NULL,lat.0=NULL,method="Cayley-Klein",test=TRUE) {
+rotate <- function(lons,lats,lon.0=NULL,lat.0=NULL,method="Cayley-Klein",
+                   test=TRUE) {
 
 # lons.0 and lats.0 is the new central coordinate...
 
@@ -120,9 +121,10 @@ rotate <- function(lons,lats,lon.0=NULL,lat.0=NULL,method="Cayley-Klein",test=TR
        phi <-   asin( r[3,] )
        theta <- acos(r[1,]/cos(phi))
        phi <- 180*phi/pi; theta <- 180*theta/pi
-       theta[theta > 180] <- theta - 360
+       theta[theta > 180] <- theta[theta > 180] - 360
      
    if (test) {
+      newFig()
       print("test")
       plot(lons,lats,pch=".")
       points(theta,phi,pch=".",col="grey")
@@ -155,6 +157,6 @@ rotate <- function(lons,lats,lon.0=NULL,lat.0=NULL,method="Cayley-Klein",test=TR
 #    phi[i] <- acos(y[3])
 #    theta[i] <- acos(y[1]/sin(phi[i]))
 #   }
-  result <- list(phi=180*phi/pi,theta=180*theta/pi,)
+  result <- list(lons=180*phi/pi,lats=180*theta/pi)
   result
 }

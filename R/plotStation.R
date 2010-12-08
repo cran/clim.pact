@@ -3,10 +3,12 @@
 #-------------------------------------------------------------------
 # PLot data from NORDKLIM stations.
 
-plotStation <- function(obs,l.anom=TRUE,mon=NULL,
-                        leps=FALSE,out.dir="output",what="b",trend=TRUE,std.lev=TRUE, 
+plotStation <- function(obs,l.anom=TRUE,mon=NULL,leps=FALSE,
+                        out.dir="output",what="b",trend=TRUE,std.lev=TRUE, 
                         type="b",pch=21,col="grey30",lwd=1,lty=1,add=FALSE,
-                        main=NULL,sub=NULL,xlab=NULL,ylab=NULL,normal.period=NULL,method="rowMeans") {
+                        main=NULL,sub=NULL,xlab=NULL,ylab=NULL,
+                        normal.period=NULL,method="rowMeans",
+                        ylim=NULL,xlim=NULL) {
 #print(method)
 
 if (sum(is.element(c("b","t","d","n"),what))==0) stop("Argumet 'what' must be 'b','t', 'n', or 'd'!")
@@ -29,7 +31,7 @@ if (class(obs)[2]=="daily.station.record") {
       newFig()
       plot(obs$yy + obs$mm/12 + obs$dd/365.25, obs$t2m,pch=20,cex=0.5,
            main=main,sub="met.no Klima DataVareHus",
-           xlab="Time",ylab="Temperature (deg C)")
+           xlab="Time",ylab="Temperature (deg C)",xlim=xlim,ylim=ylim)
       grid()
     }
     lines(obs$yy + obs$mm/12 + obs$dd/365.25,obs$t2m,lty=3,col=col,type="b",pch=pch,cex=0.5)
@@ -39,7 +41,7 @@ if (class(obs)[2]=="daily.station.record") {
     newFig()
     plot(obs$yy + obs$mm/12 + obs$dd/365.25, obs$precip,pch=20,cex=0.5,
          main=main,sub="met.no Klima DataVareHus",
-         xlab="Time",ylab="Precipitation (mm)")
+         xlab="Time",ylab="Precipitation (mm)",xlim=xlim,ylim=ylim)
     grid()
     lines(obs$yy + obs$mm/12 + obs$dd/365.25, obs$precip,lty=3,col="grey")
   }
@@ -165,7 +167,8 @@ if (!is.null(mon)) {
         newFig()
         par(cex.sub=0.8)
         plot(yymm,value,type=type,lwd=lwd,col=col,pch=pch,lty=lty,
-                     main=main,sub=sub.tit,xlab="Time",ylab=obs$unit,cex=0.6)
+                     main=main,sub=sub.tit,xlab="Time",
+             ylab=obs$unit,cex=0.6,xlim=xlim,ylim=ylim)
       } else {
         if (type!="p") lines(yymm,value,lwd=lwd,col=col,lty=lty) 
         if ((type=="p") | (type=="b")) points(yymm,value,col=col,pch=pch,cex=0.6) 
@@ -230,7 +233,7 @@ if (!is.null(mon)) {
     par(ps=14,cex.sub=0.8)
     plot(yymm,value,type=type,lwd=3,
          main=main,
-         sub=sub.tit,xlab="Time",ylab=obs$unit)
+         sub=sub.tit,xlab="Time",ylab=obs$unit,xlim=xlim,ylim=ylim)
     if (trend) lines(yymm[!is.na(y)],pre.p.fit,col="red")
     lines(c(min(yymm),max(yymm)),rep(mean(value,na.rm=TRUE)+
                                  1.96*sd(value,na.rm=TRUE),2),

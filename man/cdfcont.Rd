@@ -29,5 +29,6 @@
 
 \author{R.E. Benestad}
 \examples{
+\dontrun{ncinfo <- cdfcont("test.nc")}
 }
 \keyword{file}

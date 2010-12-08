@@ -14,7 +14,6 @@
   \item{scal}{scaling factor: 'NULL' -> automatic setting}
   \item{precision}{Precision for "byte", "char", "short", "long", "float", and "double". "int" may be used as a synonym for "long" and "real" may be used as a synonym for "float" in the CDL notation}
  }
-\value{}
 \author{R.E. Benestad}
 \examples{
 \dontrun{

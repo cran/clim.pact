@@ -19,7 +19,6 @@
     \item{sub}{subtitle}
     \item{plot}{if false, only return a map object of chosen EOF.}
     }
-\value{}
 \author{R.E. Benestad}
 \examples{
 \dontrun{

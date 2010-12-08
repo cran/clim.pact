@@ -20,7 +20,6 @@
   \item{lwd}{Line width of scenario time series.}
   \item{lty}{Line style of scenario time series.}
  }
-\value{}
 \author{R.E. Benestad}
 \examples{
 \dontrun{

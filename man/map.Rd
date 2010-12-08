@@ -29,5 +29,8 @@
 \value{A map object}
 \author{R.E. Benestad}
 \examples{
+data(DNMI.slp)
+slpmap <- mapField(DNMI.slp,what="abs")
+map(slpmap,sym=FALSE)
 }
 \keyword{hplot}

@@ -36,7 +36,7 @@ function that eliminates repeated years in the station objects.
 \usage{
 CCA(x1,x2,SVD=TRUE,plot=TRUE,main="CCA",sub="",
     test=FALSE,i.eofs=1:8,LINPACK=TRUE)
-plotCCA(cca)
+plotCCA(cca,icca=1)
 testCCA(method="CCA",reconstr=FALSE,mode=1,test=TRUE,
         LINPACK=TRUE,SVD=TRUE,n.pc=4,synthetic=TRUE)
 Psi(cca)
@@ -49,6 +49,7 @@ check.repeat(x)
 }
 \arguments{
     \item{cca}{A CCA object.}
+    \item{icca}{Choice of which CCA-pattern to plot.}
     \item{x1}{A field or an eof object.}
     \item{x2}{A field or an eof object.}
     \item{SVD}{Flag: determine which approach to use: SVD or eigenfunction-based alogithm.}

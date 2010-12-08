@@ -5,10 +5,8 @@
   \code{\link{x11}}(), \code{windows()}, \code{\link{pdf}}(),
   \code{\link{postscript}}(),etc.}
 \usage{newFig()}
-\arguments{
-}
-\value{}
 \author{R.E. Benestad}
 \examples{
+newFig()
 }
 \keyword{device}

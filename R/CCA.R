@@ -2,7 +2,8 @@ CCA <- function(x1,x2,SVD=TRUE,plot=TRUE,main="CCA",sub="",test=FALSE,i.eofs=1:8
 
   i1 <- is.element(x1$yy*10000 + x1$mm*100 + x1$dd, x2$yy*10000 + x2$mm*100 + x2$dd)
   i2 <- is.element(x2$yy*10000 + x2$mm*100 + x2$dd, x1$yy*10000 + x1$mm*100 + x1$dd)
-
+  if ( (sum(i1) < 2* length(i.eofs)) | (sum(i2) < 2* length(i.eofs)) )
+    stop(paste("Too few matching dates: ",sum(i1),sum(i2)))
   if ( (class(x1)[1]=="field") & (class(x2)[1]=="field") |
        (class(x1)[1]=="monthly.field.object") & (class(x2)[1]=="monthly.field.object") ) {
     print("classical CCA")
@@ -117,7 +118,6 @@ print(dim(a.m)); print(dim(X1))
     dim(a.m) <- d.1; dim(b.m) <- d.2
  } #endif (eof)
 
-  sub <- paste("r=",round(R[1],2),sub)
   cca <- list(a.m = a.m, b.m =b.m, u.k= u.k, v.k = v.k, r=R,
               x1=x1,x2=x2, main=main, sub=sub, i1=i1, i2=i2)
   if (test) {
@@ -141,15 +141,16 @@ print(dim(a.m)); print(dim(X1))
   invisible(cca)
 }
 
-plotCCA <- function(cca) {
+plotCCA <- function(cca,icca=1) {
     attach(cca)
+    sub <- paste("r=",round(r[icca],2),sub)
     #print(dim(t(a.m[1,,]))); print(c(length(x1$lon),length(x1$lat)))
-    image(x1$lon,x1$lat,t(a.m[1,,]),col = cm.colors(21),
+    image(x1$lon,x1$lat,t(a.m[icca,,]),col = cm.colors(21),
         main=main, sub=sub,xlim=range(c(x1$lon,x2$lon)),
         ylim=range(c(x1$lat,x2$lat)))    
     addland()
-    contour(x1$lon,x1$lat,t(a.m[1,,]),lwd=2,col="darkblue",add=TRUE)
-    contour(x2$lon,x2$lat,t(b.m[1,,]),lwd=1,add=TRUE,col="darkred")
+    contour(x1$lon,x1$lat,t(a.m[icca,,]),lwd=2,col="darkblue",add=TRUE)
+    contour(x2$lon,x2$lat,t(b.m[icca,,]),lwd=1,add=TRUE,col="darkred")
     legend(min(c(x1$lon,x2$lon)),max(c(x1$lat,x2$lat)),c(x1$v.name,x2$v.name),
            col=c("darkblue","darkred"),
            lwd=c(1,2),bg="grey95")
@@ -182,8 +183,28 @@ MVR <- function(x,y,plot=TRUE,main="Multivariate regression",sub="",test=FALSE,i
     if (SVD) {
       if (LINPACK) UWV <-svd(X) else 
                    UWV <-La.svd(X)
-      V <- UWV$v; D <- UWV$d
-    #print(c(dim(t(V)),NA,dim(diag(D^2)),NA,dim(V),NA,dim(t(X)),NA,dim(Y)))
+      V <- UWV$v; U <- UWV$u; D <- UWV$d
+      #print("c(dim(V),NA,dim(UWV$u)): "); print(c(dim(V),NA,dim(U)))  
+      if (dim(V)[2] != dim(V)[1]) {
+      #  Fix REB 09.03.2010 - bug when number of spatial points < number of temporal points
+      #  print("-------- TRANSPOSE V & U: (time dim > space dim) ----------")
+       print("V is not a square matrix (no. spatial pts < no. temporal pts)")
+       print("Need to swap and transpose SVD products to get correct dimensions")
+       if (!LINPACK) {
+           V <- UWV$v; U <- UWV$u
+        } else {
+           V <- t(UWV$v); U <- t(UWV$u)
+        }
+        #print("c(dim(V),NA,dim(U)): "); print(c(dim(V),NA,dim(U)))  
+        #print("c(dim(X)): "); print(c(dim(X)));
+        #print("c(dim(t(V)),NA,dim(diag(D^2)),NA,dim(V),NA,dim(t(X)),NA,dim(Y),NA,dim(UWV$u)): ")
+        #print(c(dim(t(V)),NA,dim(diag(D^2)),NA,dim(V),NA,dim(t(X)),NA,dim(Y),NA,dim(UWV$u)))
+       }
+      #print("dim(chol2inv(t(V) %*% diag(D^2) %*% V)):")
+      #print(dim(chol2inv(t(V) %*% diag(D^2) %*% V)))
+      #print("dim(t(X) %*% Y):")
+      #print(dim(t(X) %*% Y))
+      #print("HERE")
       psi <- chol2inv(t(V) %*% diag(D^2) %*% V) %*% t(X) %*% Y
     } else {
       psi <- solve(t(X) %*% X) %*% t(X) %*% Y # close to singular
@@ -248,7 +269,8 @@ MVR <- function(x,y,plot=TRUE,main="Multivariate regression",sub="",test=FALSE,i
 
 POP <- function(x,plot=TRUE,main="POP analysis",sub="",
                 test=FALSE,i.eofs=1:8,LINPACK=TRUE,mode=1) {
-# After von Storch & Zwiers (1999), Statistical Analysis in Climate Research, p. 338.
+# After von Storch & Zwiers (1999), Statistical Analysis in Climate Research, p. 338. and von Storch et al (1987), JGR vol 93. doi:10.1029/JD093iD09p11022 
+  
   n <- length(x$tim)
    if ( (class(x)[1]=="field") ) {
     dims <- dim(X$dat)
@@ -266,31 +288,31 @@ POP <- function(x,plot=TRUE,main="POP analysis",sub="",
     e <- eigen(A)
     # TEST e$vectors <- diag(rep(1,length(i.eofs))); print(e$vectors)
     maps <- t(abs(e$vectors) %*% x$EOF[i.eofs,])
-    pop.Im <-  t(Im(e$vectors) %*% x$EOF[i.eofs,])
-    pop.Re <-  t(Re(e$vectors) %*% x$EOF[i.eofs,])
     #print(dim(maps))
     dim(maps) <- c(length(x$lat),length(x$lon),length(e$values))   
-    dim(pop.Im) <- c(length(x$lat),length(x$lon),length(e$values))   
-    dim(pop.Re) <- c(length(x$lat),length(x$lon),length(e$values))   
  }
-  pop <- e
-  pop$maps <- maps
-  pop$pop.Im <- pop.Im
-  pop$pop.Re <- pop.Re
-  pop$lon <- x$lon; pop$lat <- x$lat
-  class(pop) <- c("POP",class(x))
-  if (plot) plotPOP(pop)
-  invisible(pop)
+ pop <- e
+ pop$maps <- maps
+ pop$lon <- x$lon; pop$lat <- x$lat
+ pop$decay <- -1/log(abs(e$values))
+ pop$period <- 2*pi/atan(Im(e$values)/Re(e$values))
+ class(pop) <- c("POP",class(x))
+ if (plot) plotPOP(pop)
+ invisible(pop)
 }
 
 plotPOP <- function(pop,mode=1,main="POP analysis",sub="") {
      if ( (class(pop)[1]!="POP") ) stop("Need a 'POP' object")
 
      newFig()
-     plot(pop$values,pch=20,col="grey50",main=main,sub=sub)
-     points(pop$values)
+     plot(pop$period,lwd=3,type="l",
+          main="POP: period and decay time",
+          ylim=range(pop$period[is.finite(pop$period)],
+                     pop$decay[is.finite(pop$decay)]),
+          ylab="Time",xlab="mode")
+     lines(pop$decay,lwd=3,col="red")
      grid()
-
+     
      if (sub=="") sub <- paste("Real=",round(Re(pop$values[mode]),2),
                                "Imaginary=",round(Im(pop$values[mode]),2))
      main <- paste(main," Mode=",mode)
@@ -298,19 +320,19 @@ plotPOP <- function(pop,mode=1,main="POP analysis",sub="") {
      image(pop$lon, pop$lat,t(pop$maps[,,mode]),main=main,sub=sub)
      grid()
      addland()
-     contour(pop$lon, pop$lat,t(pop$pop.Re[,,mode]),lwd=2,col="grey40",add=TRUE)
-     contour(pop$lon, pop$lat,t(pop$pop.Im[,,mode]),lty=2,add=TRUE)
 }
 
 
 SSA <- function(x,m,plot=TRUE,main="SSA analysis",sub="",
-                LINPACK=TRUE,param="t2m",anom=TRUE) {
+                LINPACK=TRUE,param="t2m",anom=TRUE,i.eof=1) {
 # After von Storch & Zwiers (1999), Statistical Analysis in Climate Research, p. 312.  
 
-  if (class(x)[1] != "station") stop('SSA: need a station object')
+  if ( (class(x)[1] != "station") & (class(x)[1] != "eof") )
+    stop('SSA: need a station object or EOF object')
   x.mean <- 0
 
-  if (class(x)[2] == "monthly.station.record") param <- "val"
+  if (class(x)[2] == "monthly.station.record") param <- "val" else
+  if (class(x)[1] == "eof") param <- "PC[,i.eof]"
 
   if (anom) x <- anomaly.station(x) else {
     expr <- paste("x$",param,sep="")
@@ -323,7 +345,7 @@ SSA <- function(x,m,plot=TRUE,main="SSA analysis",sub="",
     x$val <- c(t(x$val))
   } else if (class(x)[2] == "daily.station.record") {
     nt <- length(x$yy)
-  }
+  } else if (class(x)[1] == "eof") nt <- length(x$PC[,i.eof])
 
   Nm <- nt - m + 1
   X <- matrix(rep(NA,Nm*m),Nm,m)
@@ -398,16 +420,29 @@ plotSSA <- function(ssa,main="SSA analysis",sub="")  {
            xlab="Time",ylab="SSA loadings",lwd=3,col="grey70")
       grid()
     } else if (class(ssa)[3] == "daily.station.record") {
-      plot(ssa$x$yy[1:ssa$Nm] + ssa$x$mm[1:ssa$Nm]/12 + ssa$x$dd[1:ssa$Nm]/365, ssa$u[,1],
-           type="l",main=main,sub=sub,
+      plot(ssa$station$yy[1:ssa$Nm] + ssa$station$mm[1:ssa$Nm]/12 + ssa$station$dd[1:ssa$Nm]/365,
+           ssa$u[,1],type="l",main=main,sub=sub,
            xlab="Time",ylab="SSA loadings",lwd=3,col="grey70")
       grid()
-      plot(ssa$x$yy[1:ssa$Nm] + ssa$x$mm[1:ssa$Nm]/12 + ssa$x$dd[1:ssa$Nm]/365, ssa$u[,2],
-           type="l",main=main,sub=sub,
+      plot(ssa$station$yy[1:ssa$Nm] + ssa$station$mm[1:ssa$Nm]/12 + ssa$station$dd[1:ssa$Nm]/365,
+           ssa$u[,2],type="l",main=main,sub=sub,
            xlab="Time",ylab="SSA loadings",lwd=3,col="grey70")
       grid()
-      plot(ssa$x$yy[1:ssa$Nm] + ssa$x$mm[1:ssa$Nm]/12 + ssa$x$dd[1:ssa$Nm]/365, ssa$u[,3],
-           type="l",main=main,sub=sub,
+      plot(ssa$station$yy[1:ssa$Nm] + ssa$station$mm[1:ssa$Nm]/12 + ssa$station$dd[1:ssa$Nm]/365,
+           ssa$u[,3],type="l",main=main,sub=sub,
+           xlab="Time",ylab="SSA loadings",lwd=3,col="grey70")
+      grid()
+    } else {
+      plot(ssa$station$yy[1:ssa$Nm] + ssa$station$mm[1:ssa$Nm]/12 + ssa$station$dd[1:ssa$Nm]/365,
+           ssa$u[,1],type="l",main=main,sub=sub,
+           xlab="Time",ylab="SSA loadings",lwd=3,col="grey70")
+      grid()
+      plot(ssa$station$yy[1:ssa$Nm] + ssa$station$mm[1:ssa$Nm]/12 + ssa$station$dd[1:ssa$Nm]/365,
+           ssa$u[,2],type="l",main=main,sub=sub,
+           xlab="Time",ylab="SSA loadings",lwd=3,col="grey70")
+      grid()
+      plot(ssa$station$yy[1:ssa$Nm] + ssa$station$mm[1:ssa$Nm]/12 + ssa$station$dd[1:ssa$Nm]/365,
+           ssa$u[,3],type="l",main=main,sub=sub,
            xlab="Time",ylab="SSA loadings",lwd=3,col="grey70")
       grid()
     }
@@ -583,7 +618,7 @@ stations2field <- function(data.set=c("narp"),ele=101,obj.type="monthly.field.ob
        is <- is+1
       }
     }
-  } else {
+  } else if (is.list(data.set)) {
     print("Presumes that 'data.set' is a list of station objects")
     stations<- names(data.set)
     ns <- length(stations)
@@ -608,8 +643,9 @@ stations2field <- function(data.set=c("narp"),ele=101,obj.type="monthly.field.ob
         Dat[is,i1] <- y[i2]
         Lon[is] <- obs$lon
         Lat[is] <- obs$lat
-    }
-  }
+    } 
+  } else stop(paste("Need either a list of station objects or a vecor of text describing the dataset",
+                    "(narp,nordklim,nacd)"))
 
   i.val <- is.finite(Lon)
   Dat <- Dat[i.val,]
@@ -676,4 +712,78 @@ stations2field <- function(data.set=c("narp"),ele=101,obj.type="monthly.field.ob
                  filename=NULL,Lon.src=Lon,Lat.src=Lat)
   class(field) <- c("field",obj.type)
   invisible(field)
+}
+
+coherence <- function(x,y,dt=1,M=NULL,plot=TRUE) {
+# Based on:  
+# http://en.wikipedia.org/wiki/Wiener%E2%80%93Khinchin_theorem
+# Press et al. (1989) 'Numerical Recipes in Pascal', Cambridge, section 12.8
+#                     'Maximum Entropy (All Poles) Method'  
+# von Storch & Zwiers (1999) 'Statistical Analysis in climate Research',
+#                     Cambridge, section 11.4, eq 11.67, p. 235   
+# Test with two identical series the original equation gave uniform values: 1
+# The denominator was changed from
+#  ( Gamxx * Gamyy ) to sqrt( Gamxx * Gamyy )
+  
+if (length(y) != length(x)) stop("coh: x & y must have same length!")  
+
+if (is.null(M)) M <- length(x)/2
+t <- ( 1:length(x) )/dt
+
+Phixy <- ccf(x, y, lag.max = M, plot=FALSE,type = "covariance")
+Gamxy <- fft(Phixy$acf)
+
+Phixx <- ccf(x, x, lag.max = M, plot=FALSE,type = "covariance")
+Gamxx <- fft(Phixy$acf)
+
+Phiyy <- ccf(y, y, lag.max = M, plot=FALSE,type = "covariance")
+Gamyy <- fft(Phixy$acf)
+
+Axy <- abs(Gamxy)
+
+coh <- Axy^2/sqrt( Gamxx * Gamyy )
+
+attr(coh,'Reference') <- "von Storch & Zwiers (1999),  eq 11.67, p. 235"
+attr(coh,'Method') <- "coh in clim.pact"
+attr(coh,'Description') <- "Squared coherence"
+
+n <- ceiling(length(x)/2)
+tau <- n/(t-1)
+if (plot) {
+  ylim <- c(min(log(abs(coh)),na.rm=TRUE),max(log(abs(coh)),na.rm=TRUE)*1.1)
+  plot(tau[1:n],log(abs(coh[1:n])),type="l",lwd=2,ylim=ylim,
+       main="Coherence",xlab="Periodicity",ylab="Power",log="x",
+       sub="Maximum Entropy Method")
+  grid()
+  lines(range(1/t[1:n]),rep(0.5*ylim[2],2),col="red",lty=2)
+  lines(tau[1:n],
+        0.5*atan2(Re(coh[1:n]),Im(coh[1:n]))/pi * (ylim[2]-ylim[1]) + mean(ylim),
+        col="red")
+  axis(4,at=0.5*seq(-pi,pi,length=5)/pi * (ylim[2]-ylim[1]) + mean(ylim),
+       labels=180*seq(-pi,pi,length=5)/pi,col="red")
+  lines(tau[1:n],log(abs(coh[1:n])),lwd=2)
+}
+mtext("Phase (degrees)",4,col="red")
+}
+
+testcoherence <- function(x=NULL,y=NULL) {
+  default <- FALSE
+  if ( (is.null(x)) & (is.null(y)) ) { N <- 1000; default=TRUE } else
+  if (!is.null(x)) N <- length(x) else
+  if (!is.null(y)) N <- length(y)
+  if ( (!is.null(x)) & (!is.null(y)) & (length(x)!=length(y)) )
+    stop("testcoh: arguments x and y must have same length")
+  if (is.null(x)) x <- cos(pi * seq(0,6,length=N)) +
+                       0.5*cos(pi * seq(0,40,length=N)) +
+                       0.1*rnorm(N)
+  if (is.null(y)) y <- 0.2*sin(pi * seq(0,6,length=N)) +
+                       0.3*sin(pi * seq(0,40,length=N)) +
+                       0.6*sin(pi * seq(0,20,length=N)) +
+                       0.05*rnorm(N)
+  plot(x,type="l",main="Test data"); lines(y,col="red")
+  if (default) mtext("Common time scales= 167 & 25",1,col="grey")
+  newFig()
+  coherence(x,y) -> coh
+  if (default) mtext("Common time scales= 167 & 25",1,col="grey")
+  invisible(coh)
 }

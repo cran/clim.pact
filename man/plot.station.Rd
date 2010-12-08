@@ -11,7 +11,8 @@
                    out.dir="output",what="b",trend=TRUE,std.lev=TRUE,
                    type="b",pch=21,col="grey30",lwd=1,lty=1,add=FALSE,
                    main=NULL,sub=NULL,xlab=NULL,ylab=NULL,
-                   normal.period=NULL,method="rowMeans")}
+                   normal.period=NULL,method="rowMeans",
+                   ylim=NULL,xlim=NULL)}
 
 \arguments{
   \item{obs}{A climate station series. }
@@ -34,6 +35,8 @@
   \item{sub}{subtitle}
   \item{xlab}{x label}
   \item{ylab}{y label}
+  \item{xlim}{see \code{link{plot}}}
+  \item{ylim}{see \code{link{plot}}}
   \item{normal.period}{Normal period. NULL uses the entire data. Set to \code{c(1961,1990) for the last normal period.}}
   \item{method}{what to plot (e.g. rowMeans or rowSums)}
 }

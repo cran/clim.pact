@@ -5,6 +5,7 @@
 \alias{PCA}
 \alias{ExtEOF}
 \alias{lagField}
+\alias{EOF2field}
 \alias{principal component analysis}
 \title{Empirical Orthogonal Functions (EOFs).}
 \description{Computes EOFs (a type of principal component
@@ -33,8 +34,20 @@
   researchers \url{http://www.gfi.uib.no/~nilsg/kurs/notes/course.html}
   for a discussion on EOF analysis.
 
-  ExtEOF() computes extended EOFs.
-  lagField()
+  \code{ExtEOF()} computes extended EOFs.
+  
+  \code{lagField()} introduces a time lag in the field.
+
+  \code{EOF2field()} reconstructs a field from EOF products. It's a
+  useful rountine for filtering out small-scale structure noise if the
+  number of EOFs is low - thus including only the few most important
+  modes. The function is also useful in conjunction with
+  \code{\link{MVR}} to reconstruct the field objects if the regression
+  is erformed on EOF objects. The EOF2field function is used when
+  reading the gridded data DNMI.sst/DNMI.t2m/DNMI:slp, and is used to
+  decompress data stored compressed as EOF-products (note: some detail is lost
+  this way). 
+  
 }
 
 \usage{
@@ -44,6 +57,7 @@ EOF(fields,l.wght=TRUE,lc180e=FALSE,direc="data/",
               LINPACK=TRUE,silent=FALSE)
 ExtEOF(fields,lag=1,mon=NULL,lon=NULL,lat=NULL)
 lagField(fields,lag=1)
+EOF2field(eof,anomalies=FALSE)
 }
 \arguments{
     \item{fields}{A field object (eg from \link{retrieve.nc}).}
@@ -62,7 +76,10 @@ lagField(fields,lag=1)
     \item{LINPACK}{'TRUE': svd; 'FALSE':La.svd}
     \item{silent}{'TRUE': quiet mode}
     \item{lag}{Lag in months or days (using the time unit) introduced to
-    the field. Used with \code{\link{mixFields}} to estimate esxtnded EOFs.}
+    the field. Used with \code{\link{mixFields}} to estimate esxtnded
+    EOFs.}
+    \item{eof}{An 'EOF' object from \code{\link{EOF}}.}
+    \item{anomalies}{True if only anomalies are to be shown.}
 }
 \value{File containing an 'eof.c' object:
   \tabular{ll}{
@@ -120,8 +137,15 @@ xX.2 <- cat.fields(x.2,X.2,interval.1=c(1958,1998),interval.2=c(1958,2050))
 xX <- mix.fields(xX.1,xX.2,mon=1,
                  interval=c(1900,2050))
 print("EOF")
-eof.c <- eof(xX.1,mon=1)
-eof.mc <- eof(xX,mon=1)
+eof.c <- EOF(xX.1,mon=1)
+eof.mc <- EOF(xX,mon=1)
+
+print("Reconstruct the field from EOFs can filter out small-scale
+structure noise:")
+EOF2field(xX.1) -> xX.1.filtered
+
+load("data/ceof.Rdata")   # loads the object 'eof'
+field <- EOF2field(eof)
 }
 }
 \keyword{spatial}

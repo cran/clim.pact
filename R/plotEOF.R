@@ -83,8 +83,8 @@ for (i in 1:n.fld) {
   i.lat <- is.element(x$id.lat,id[i])
   lon.x <- x$lon[i.lon]
   lat.x <- x$lat[i.lat]
-  #print(lon.x); print(lat.x)
-  #print(c(size[,i],NA,length(lon.x),length(lat.x),NA,dim(eof.patt),id[i])); print("---")
+  print(lon.x); print(lat.x)
+  print(c(size[,i],NA,length(lon.x),length(lat.x),NA,dim(eof.patt),id[i])); print("---")
   if (plot) contour(lon.x,lat.x,eof.patt,
           nlevels=nlevs,add=TRUE,lwd=2,col=col.tab[i])
   if (length(grep("combined",class(x)))>0) {

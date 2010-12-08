@@ -11,6 +11,15 @@ Report 02/99 at \url{http://met.no/english/r_and_d_activities/publications/1999.
 
 For the expression \deqn{Ax = b}{Ax=b}, then the projection of b onto the columns space of A through
 \deqn{p= A(A^T A)^{-1}B^T b}{p= A * inv[t(A) * A] * t(B) * b}.
+
+Here \code{x} is called the predictor, \code{b} is the prediction of the
+equation, and the data - called the predictand - used for calibration is
+\code{y}.
+
+The predictor and predictand arguments can be both EOF-objects or field
+objects. The former requires much less memory.
+
+Also see \code{\link{CCA}}, \code{\link{EOF}} and \code{\link{EOF2field}}.
 }
 
 \usage{
@@ -18,8 +27,8 @@ MVR(x,y,plot=TRUE,main="Multivariate regression",sub="",test=FALSE,
     i.eofs=1:8,LINPACK=TRUE, SVD=TRUE)
 }
 \arguments{
-    \item{x}{A field or an eof object.}
-    \item{y}{A field or an eof object.}
+    \item{x}{A field or an eof object. The predictor}
+    \item{y}{A field or an eof object. The predictand}
     \item{plot}{Flag: plot the diagnostics.}
     \item{test}{Flag: test by reconstructing one series (leading EOF or a grid-box series).}
     \item{i.eofs}{Which EOFs to include (only when the input is given as eof objects).}
@@ -34,9 +43,28 @@ MVR(x,y,plot=TRUE,main="Multivariate regression",sub="",test=FALSE,
 \dontrun{
 data(DNMI.t2m)
 data(DNMI.slp)
+
+# MVR with fields
+DNMI.t2m.jan <- catFields(DNMI.t2m,mon=1)
+DNMI.slp.jan <- catFields(DNMI.slp,mon=1)
+mvr.field <- MVR(DNMI.t2m.jan,DNMI.slp.jan)
+
+# MVR with EOFs
 eof.1 <- EOF(DNMI.t2m,mon=1)
 eof.2 <- EOF(DNMI.slp,mon=1)
-mvr <- MVR(eof.1,eof.2)
+mvr.eof <- MVR(eof.1,eof.2)
+
+DNMI.t2m.jan <- catFields(DNMI.t2m,mon=1)
+DNMI.slp.jan <- catFields(DNMI.slp,mon=1)
+mvr.field.1 <- MVR(DNMI.t2m.jan,DNMI.slp.jan,LINPACK=FALSE)
+mvr.field.2 <- catFields(MVR(DNMI.t2m,DNMI.slp),mon=1)
+mvr.field.3 <- MVR(DNMI.t2m.jan,DNMI.slp.jan)
+EOF(mvr.field.3)-> eof3
+EOF(mvr.field.2)-> eof2
+EOF(mvr.field.1)-> eof1
+plotEOF(eof1)
+plotEOF(eof2)
+plotEOF(eof3)
 }
 }
 \keyword{manip}

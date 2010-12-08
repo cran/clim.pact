@@ -35,7 +35,6 @@
   \item{xlim}{see \code{\link{plot}}}
   \item{ylim}{see \code{\link{plot}}}
 }
-\value{}
 \author{R.E. Benestad}
 \examples{
 \dontrun{

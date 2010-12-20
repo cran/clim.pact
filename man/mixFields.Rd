@@ -27,7 +27,7 @@
   to compute mixed-common EOFs which subsecuently can be used as
   predictors in \code{\link{DS}} in order to downscale climate scenarios
   (Benestad et al. (2002), "Empirically downscaled temperature scenarios
-  for Svalbard", \emph{Atm. Sci. Lett.}, doi.10.1006/asle.2002.0051).
+  for Svalbard", \emph{Atm. Sci. Lett.}, doi:10.1006/asle.2002.0050).
 
   The functions \code{combineFields} and \code{combineEOFs} bundle
   together fields of different parameters, and allows downscaling of

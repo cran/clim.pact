@@ -238,12 +238,19 @@ yy.cal<- yy.cal[is.element(mm.cal,mon)]
 dd.cal<- dd.cal[is.element(mm.cal,mon)]
 mm.cal<- mm.cal[is.element(mm.cal,mon)]
 #print(c(length(y.o),length(yy.o),length(X.cal[,1]),length(yy.cal)))
+#print(cal.id); print(table(preds$id.t)); print(sum(!is.na(preds$PC[,1])))
 
-if (sum((preds$id.t!=cal.id) & !is.na(preds$PC[,1]))>0) {
-  X.gcm<-preds$PC[preds$id.t!=cal.id  & !is.na(preds$PC[,1]),]
-  yy.gcm<-as.vector(preds$yy[preds$id.t!=cal.id & !is.na(preds$PC[,1])])
-  mm.gcm<-as.vector(preds$mm[preds$id.t!=cal.id & !is.na(preds$PC[,1])])
-  dd.gcm<-as.vector(preds$dd[preds$id.t!=cal.id & !is.na(preds$PC[,1])])
+# REB 05.01.2011 changed next 5 lines:
+# from 'preds$id.t!=cal.id' to '!is.element(preds$id.t,cal.id)'
+okGCM <- !is.element(preds$id.t,cal.id) & !is.na(preds$PC[,1])
+#print(okGCM)
+if (sum(okGCM)>0) {
+  X.gcm<-preds$PC[okGCM,]
+  yy.gcm<-as.vector(preds$yy[okGCM])
+  mm.gcm<-as.vector(preds$mm[okGCM])
+  dd.gcm<-as.vector(preds$dd[okGCM])
+
+  #print("preds$PC");  print(summary(preds$PC)); print("X.gcm");  print(summary(X.gcm)); stop()
   
 #REB 09.03.05
 #print("The scenarios:")
@@ -333,8 +340,8 @@ for (ipre in 1:n.eofs) {
 scen.gcm.str <- paste(scen.gcm.str,
                       "yy=as.vector(yy.gcm),mm=as.vector(mm.gcm),",
                       "dd=as.vector(dd.gcm))",sep="")
-#print("GCM:")
-#print(scen.gcm.str)
+if (!silent) print("GCM predictor set-up:")
+if (!silent) print(scen.gcm.str)
 #print(c(length(y),length(yy.cal),length(mm.cal),length(dd.cal),length(id.t.cal)))
 scen.gcm <- eval(parse(text=scen.gcm.str))
 
@@ -346,7 +353,7 @@ calibrate.str <- paste(calibrate.str,
 if (exists("calibrate")) {rm(calibrate); gc(reset=TRUE)}
 calibrate <- eval(parse(text=calibrate.str))
 
-print(summary(calibrate))
+if (!silent) print(summary(calibrate))
 # Due to a bug in step, 'attatch' cannot be used, so it's done
 # in a more complicated way.
 #attach(calibrate)
@@ -395,7 +402,8 @@ if ((swsm!="none") & !is.null(swsm)) {
 }  else step.wise<-lm.mod
 step.wise$coefficients[!is.finite(step.wise$coefficients)] <- 0
 
-if (!silent) print(paste("          - - - - - length(step.wise$coefficients)=",length(step.wise$coefficients)))
+if (!silent) print(paste("          - - - - - length(step.wise$coefficients)=",
+                         length(step.wise$coefficients)))
 
 #print(paste(">---5: length y.o=",length(y.o),"length(yy.o)=",length(yy.o)))
 if (!silent) print("ANOVA from step-wise regression:")
@@ -487,11 +495,14 @@ if (method=="anm") {           # REB 18.03.2005
   analog$mm <- mm.o[analog$date.min]
   analog$dd <- dd.o[analog$date.min]
 } else {
-  pre.gcm <- eval(parse(text=paste(predm,"(step.wise,newdata=scen.gcm)",sep="")))
+  modeltext <- paste(predm,"(step.wise,newdata=scen.gcm)",sep="")
+  if (!silent) print(modeltext)
+  pre.gcm <- eval(parse(text=modeltext))
 }
 
 if (!silent) print("Downscaled anomalies:")
 if (!silent) print(summary(pre.gcm))
+if (!silent) print(summary(scen.gcm))
 
 detach(scen.gcm)
 if (!silent) print(summary(step.wise))
@@ -499,7 +510,8 @@ if (!silent) print(summary(step.wise))
 # A "fudge" to avoid problems when stepwise rejects all the predictors
 # (i.e. only returns an intercept)
 if (length(pre.gcm)==1) {
-  if (!silent) print(paste("ds: ,length(pre.gcm)=",length(pre.gcm),", c(length(yy.gcm)=",c(length(yy.gcm))))
+  if (!silent) print(paste("ds: ,length(pre.gcm)=",length(pre.gcm),
+                           ", c(length(yy.gcm)=",c(length(yy.gcm))))
   pre.gcm <- rep(pre.gcm,length(yy.gcm))
 }
 

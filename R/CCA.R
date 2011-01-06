@@ -1,11 +1,14 @@
 CCA <- function(x1,x2,SVD=TRUE,plot=TRUE,main="CCA",sub="",test=FALSE,i.eofs=1:8,LINPACK=TRUE) {
 
-  i1 <- is.element(x1$yy*10000 + x1$mm*100 + x1$dd, x2$yy*10000 + x2$mm*100 + x2$dd)
-  i2 <- is.element(x2$yy*10000 + x2$mm*100 + x2$dd, x1$yy*10000 + x1$mm*100 + x1$dd)
+  i1 <- is.element(x1$yy*10000 + x1$mm*100 + x1$dd,
+                   x2$yy*10000 + x2$mm*100 + x2$dd)
+  i2 <- is.element(x2$yy*10000 + x2$mm*100 + x2$dd,
+                   x1$yy*10000 + x1$mm*100 + x1$dd)
   if ( (sum(i1) < 2* length(i.eofs)) | (sum(i2) < 2* length(i.eofs)) )
     stop(paste("Too few matching dates: ",sum(i1),sum(i2)))
   if ( (class(x1)[1]=="field") & (class(x2)[1]=="field") |
-       (class(x1)[1]=="monthly.field.object") & (class(x2)[1]=="monthly.field.object") ) {
+       (class(x1)[1]=="monthly.field.object") &
+      (class(x2)[1]=="monthly.field.object") ) {
     print("classical CCA")
     X1 <- x1$dat[i1,,]; X2 <- x2$dat[i2,,]
     d.1 <-dim(X1); d.2 <- dim(X2)
@@ -57,8 +60,14 @@ print(dim(a.m)); print(dim(X1))
     C.11 <- cov(X1,X1)
     C.22 <- cov(X2,X2)
 
-    d.1 <-c(length(x1$W[i.eofs]),length(x1$lat),length(x1$lon))
-    d.2 <-c(length(x2$W[i.eofs]),length(x2$lat),length(x2$lon))
+    d.1 <-c(length(x1$W[i.eofs]),x1$size[2,1],x1$size[3,1])
+    d.2 <-c(length(x2$W[i.eofs]),x2$size[2,1],x2$size[3,1])
+
+    # If mixed-EOFs of Extended EOFs then only show the first field:
+    i.fld1 <- seq(1,sum(x1$size[2,1]*x1$size[3,1]),by=1)
+    i.fld2 <- seq(1,sum(x2$size[2,1]*x2$size[3,1]),by=1)
+    
+    print(c(d.2,NA,length(i.fld2),NA,dim(x2$EOF)))
     if (SVD) {
       sub <- paste(sub,"(BP CCA - after Bretherton et al. (1992))")
       print("This method gives somewhat strange results - do not trust it!")
@@ -69,8 +78,8 @@ print(dim(a.m)); print(dim(X1))
      if (LINPACK) M <-svd(C) else 
                   M <-La.svd(C)
       l.k <- M$u; r.k <- M$v; R <- M$d
-      a.m <- t( t(x1$EOF[i.eofs,]) %*% diag(x1$W[i.eofs]) %*% l.k )
-      b.m <- t( t(x2$EOF[i.eofs,]) %*% diag(x2$W[i.eofs]) %*% r.k )
+      a.m <- t( t(x1$EOF[i.eofs,i.fld1]) %*% diag(x1$W[i.eofs]) %*% l.k )
+      b.m <- t( t(x2$EOF[i.eofs,i.fld2]) %*% diag(x2$W[i.eofs]) %*% r.k )
       u.k <- x1$PC[,i.eofs] %*% l.k
       v.k <- x2$PC[,i.eofs] %*% r.k
 
@@ -86,8 +95,10 @@ print(dim(a.m)); print(dim(X1))
       #print(dim( t(x1$EOF[i.eofs,]) )); print(dim( x1$PC[,i.eofs]) )
       #print(dim( diag(x1$W[i.eofs]) )); print(dim( Re(t(x.m$vectors)) ))
 
-      a.m <- t( t(x1$EOF[i.eofs,]) %*% diag(x1$W[i.eofs]) %*% Re(t(x.m$vectors)) )
-      b.m <- t( t(x2$EOF[i.eofs,]) %*% diag(x2$W[i.eofs]) %*% Re(t(y.m$vectors)) )
+      a.m <- t( t(x1$EOF[i.eofs,i.fld1]) %*% diag(x1$W[i.eofs]) %*%
+               Re(t(x.m$vectors)) )
+      b.m <- t( t(x2$EOF[i.eofs,i.fld2]) %*% diag(x2$W[i.eofs]) %*%
+               Re(t(y.m$vectors)) )
       u.k <- x1$PC[,i.eofs] %*% Re(x.m$vectors)
       v.k <- x2$PC[,i.eofs] %*% Re(x.m$vectors)
       R <- sqrt(Re(x.m$values))
@@ -115,6 +126,7 @@ print(dim(a.m)); print(dim(X1))
       lines(X2.cca[,jy,jx],col="blue",lty=2)
       newFig()
      }
+    #print(d.2); print(dim(b.m))
     dim(a.m) <- d.1; dim(b.m) <- d.2
  } #endif (eof)
 
@@ -145,16 +157,43 @@ plotCCA <- function(cca,icca=1) {
     attach(cca)
     sub <- paste("r=",round(r[icca],2),sub)
     #print(dim(t(a.m[1,,]))); print(c(length(x1$lon),length(x1$lat)))
-    image(x1$lon,x1$lat,t(a.m[icca,,]),col = cm.colors(21),
+    i.fld <- seq(1,x1$size[2,1]*x1$size[3,1],by=1)
+    id <- row.names(table(x1$id.x))
+    i.lon <- is.element(x1$id.lon,id[1])
+    i.lat <- is.element(x1$id.lat,id[1])
+    lon.x <- x1$lon[i.lon]
+    lat.x <- x1$lat[i.lat]
+    d.a.m <- dim(a.m)
+    dim(a.m) <- c(d.a.m[1],d.a.m[2]*d.a.m[3])
+    A.M <- a.m[,i.fld]
+    dim(A.M) <- c(d.a.m[1],x1$size[2,1],x1$size[3,1])
+    image(lon.x,lat.x,t(A.M[icca,,]),col = cm.colors(21),
         main=main, sub=sub,xlim=range(c(x1$lon,x2$lon)),
         ylim=range(c(x1$lat,x2$lat)))    
     addland()
-    contour(x1$lon,x1$lat,t(a.m[icca,,]),lwd=2,col="darkblue",add=TRUE)
-    contour(x2$lon,x2$lat,t(b.m[icca,,]),lwd=1,add=TRUE,col="darkred")
+    contour(lon.x,lat.x,t(A.M[icca,,]),lwd=2,col="darkblue",add=TRUE)
+    dim(a.m) <- c(d.a.m[1],d.a.m[2],d.a.m[3])
+
+    i.last <- 0
+    id <- row.names(table(x2$id.x))
+    d.b.m <- dim(b.m)
+    dim(b.m) <- c(d.b.m[1],d.b.m[2]*d.b.m[3])
+    for (i in x2$n.fld) {
+       i.fld <- seq(i.last+1,i.last+x2$size[2,i]*x2$size[3,i],by=1)
+       i.last <- max(i.fld)
+       B.M <- b.m[,i.fld]
+       dim(B.M) <- c(d.b.m[1],x2$size[2,i],x2$size[3,i])
+       i.lon <- is.element(x2$id.lon,id[i])
+       i.lat <- is.element(x2$id.lat,id[i])
+       lon.x <- x2$lon[i.lon]
+       lat.x <- x2$lat[i.lat]
+       contour(lon.x,lat.x,t(B.M[icca,,]),lwd=1,add=TRUE,col="darkred")
+    }
     legend(min(c(x1$lon,x2$lon)),max(c(x1$lat,x2$lat)),c(x1$v.name,x2$v.name),
            col=c("darkblue","darkred"),
            lwd=c(1,2),bg="grey95")
-
+    dim(b.m) <- c(d.b.m[1],d.b.m[2],d.b.m[3])
+    
     newFig()
     plot(x1$yy+(x1$mm-1)/12+x1$dd/365.25,u.k[,1],type="l",col="blue",
          main=paste("CCA: correlation=",round(cor(u.k[i1,1],v.k[i2,1]),2)),
@@ -170,7 +209,8 @@ plotCCA <- function(cca,icca=1) {
 }
 
 
-MVR <- function(x,y,plot=TRUE,main="Multivariate regression",sub="",test=FALSE,i.eofs=1:8,LINPACK=TRUE,SVD=TRUE) {
+MVR <- function(x,y,plot=TRUE,main="Multivariate regression",
+                sub="",test=FALSE,i.eofs=1:8,LINPACK=TRUE,SVD=TRUE) {
 # y = x %psi + %xi
 
   ix <- is.element(x$yy*10000 + x$mm*100 + x$dd, y$yy*10000 + y$mm*100 + y$dd)
@@ -212,6 +252,7 @@ MVR <- function(x,y,plot=TRUE,main="Multivariate regression",sub="",test=FALSE,i
     Yhat <- X %*% psi
  #   Y <- t(Y); Yhat <- t(Yhat); dim(Y) <- ; dim(Yhat) <- c(126,11,31)
     mvr  <- y
+    mvr$size[1] <- x$size[1]
     dim(Yhat) <- c(d.y[1],d.y[2],d.y[3])
     mvr$dat <- Yhat
     mvr$psi <- psi
@@ -219,16 +260,21 @@ MVR <- function(x,y,plot=TRUE,main="Multivariate regression",sub="",test=FALSE,i
     d.x <- dim(x$EOF); if (length(d.x)>2) dim(x$EOF) <- c(d.x[1],d.x[2]*d.x[3])
     X <- x$PC[ix,]; Y <- y$PC[iy,]
     psi <- solve(t(X) %*% X) %*% t(X) %*% Y
-    Yhat <- X %*% psi
+    #print(dim(X))
+    #print(dim(psi))
+    Yhat <- x$PC %*% psi
+    #print(dim(Yhat))
     psi.map <- t(psi %*% diag(x$W) %*% x$EOF)
     dim(psi.map) <- c(x$size[2],x$size[3],d.x[1])
 
     map.x <- t(diag(x$W) %*% x$EOF)
     dim(map.x) <- c(x$size[2],x$size[3],d.x[1])
     mvr  <- y
+    mvr$size[1] <- x$size[1]
     mvr$PC <- Yhat
     mvr$psi <- psi
-    Psi <- list(lon=x$lon,lat=x$lat,map=t(psi.map[,,1]),v.name=paste('projected',y$v.name),
+    Psi <- list(lon=x$lon,lat=x$lat,map=t(psi.map[,,1]),
+                v.name=paste('projected',y$v.name),
                 tim=NULL,date=NULL,attributes=y$attributes)
     class(Psi) <- "map"
     attr(Psi,"descr") <- "MVR regression weights"
@@ -366,7 +412,7 @@ SSA <- function(x,m,plot=TRUE,main="SSA analysis",sub="",
   ssa$m<- m; ssa$Nm <- Nm; ssa$nt <- nt
   ssa$anom <- anom
   ssa$param <- x$param
-  ssa$station <- x
+  ssa$x <- x
   class(ssa) <- c("SSA",class(x))
   if (plot) plotSSA(ssa)
   invisible(ssa)
@@ -397,10 +443,10 @@ plotSSA <- function(ssa,main="SSA analysis",sub="")  {
            xlab="Time",ylab="SSA vector: mode 1",lwd=3,col="grey70")
     grid()
     plot(ssa$v[,2],type="l",main=main,sub=sub,
-           xlab="Time",ylab="SSA vector: mode 1",lwd=3,col="grey70")
+           xlab="Time",ylab="SSA vector: mode 2",lwd=3,col="grey70")
     grid()
     plot(ssa$v[,3],type="l",main=main,sub=sub,
-           xlab="Time",ylab="SSA vector: mode 1",lwd=3,col="grey70")
+           xlab="Time",ylab="SSA vector: mode 3",lwd=3,col="grey70")
     grid()
 
 
@@ -409,39 +455,41 @@ plotSSA <- function(ssa,main="SSA analysis",sub="")  {
     if (class(ssa)[3] == "monthly.station.record") {
       yy <- sort(rep(ssa$x$yy,12)); yy <- yy[1:ssa$Nm]
       mm <- rep(1:12,nt); mm <- mm[1:ssa$Nm]
-      #print(dim(ssa$v)); print(dim(ssa$u)); print(length(yy)); print(length(mm));
+      #print(rbind(yy,mm))
+      #print(dim(ssa$v)); print(dim(ssa$u)); print(length(yy));
+      #print(length(mm));  print(ssa$Nm); print(nt); print(length(ssa$x$yy))
       plot(yy + (mm-0.5)/12, ssa$u[,1],type="l",main=main,sub=sub,
            xlab="Time",ylab="SSA loadings",lwd=3,col="grey70")
       grid()
-      plot(yy + (mm-0.5)/12, ssa$u[,2],type="l",main=main,syb=sub,
+      plot(yy + (mm-0.5)/12, ssa$u[,2],type="l",main=main,sub=sub,
            xlab="Time",ylab="SSA loadings",lwd=3,col="grey70")
       grid()
       plot(yy + (mm-0.5)/12, ssa$u[,3],type="l",main=main,sub=sub,
            xlab="Time",ylab="SSA loadings",lwd=3,col="grey70")
       grid()
     } else if (class(ssa)[3] == "daily.station.record") {
-      plot(ssa$station$yy[1:ssa$Nm] + ssa$station$mm[1:ssa$Nm]/12 + ssa$station$dd[1:ssa$Nm]/365,
+      plot(ssa$x$yy[1:ssa$Nm] + ssa$x$mm[1:ssa$Nm]/12 + ssa$x$dd[1:ssa$Nm]/365,
            ssa$u[,1],type="l",main=main,sub=sub,
            xlab="Time",ylab="SSA loadings",lwd=3,col="grey70")
       grid()
-      plot(ssa$station$yy[1:ssa$Nm] + ssa$station$mm[1:ssa$Nm]/12 + ssa$station$dd[1:ssa$Nm]/365,
+      plot(ssa$x$yy[1:ssa$Nm] + ssa$x$mm[1:ssa$Nm]/12 + ssa$x$dd[1:ssa$Nm]/365,
            ssa$u[,2],type="l",main=main,sub=sub,
            xlab="Time",ylab="SSA loadings",lwd=3,col="grey70")
       grid()
-      plot(ssa$station$yy[1:ssa$Nm] + ssa$station$mm[1:ssa$Nm]/12 + ssa$station$dd[1:ssa$Nm]/365,
+      plot(ssa$x$yy[1:ssa$Nm] + ssa$x$mm[1:ssa$Nm]/12 + ssa$x$dd[1:ssa$Nm]/365,
            ssa$u[,3],type="l",main=main,sub=sub,
            xlab="Time",ylab="SSA loadings",lwd=3,col="grey70")
       grid()
     } else {
-      plot(ssa$station$yy[1:ssa$Nm] + ssa$station$mm[1:ssa$Nm]/12 + ssa$station$dd[1:ssa$Nm]/365,
+      plot(ssa$x$yy[1:ssa$Nm] + ssa$x$mm[1:ssa$Nm]/12 + ssa$x$dd[1:ssa$Nm]/365,
            ssa$u[,1],type="l",main=main,sub=sub,
            xlab="Time",ylab="SSA loadings",lwd=3,col="grey70")
       grid()
-      plot(ssa$station$yy[1:ssa$Nm] + ssa$station$mm[1:ssa$Nm]/12 + ssa$station$dd[1:ssa$Nm]/365,
+      plot(ssa$x$yy[1:ssa$Nm] + ssa$x$mm[1:ssa$Nm]/12 + ssa$x$dd[1:ssa$Nm]/365,
            ssa$u[,2],type="l",main=main,sub=sub,
            xlab="Time",ylab="SSA loadings",lwd=3,col="grey70")
       grid()
-      plot(ssa$station$yy[1:ssa$Nm] + ssa$station$mm[1:ssa$Nm]/12 + ssa$station$dd[1:ssa$Nm]/365,
+      plot(ssa$x$yy[1:ssa$Nm] + ssa$x$mm[1:ssa$Nm]/12 + ssa$x$dd[1:ssa$Nm]/365,
            ssa$u[,3],type="l",main=main,sub=sub,
            xlab="Time",ylab="SSA loadings",lwd=3,col="grey70")
       grid()
@@ -729,7 +777,10 @@ if (length(y) != length(x)) stop("coh: x & y must have same length!")
 
 if (is.null(M)) M <- length(x)/2
 t <- ( 1:length(x) )/dt
-
+n <- seq(-M,M,length=length(x)+1)  # Press et al (1989): eq.12.1.5
+n <- c(sort(n[n>=0]),sort(n[n<0]))
+#print(n)
+fn <- n/(M * dt)
 Phixy <- ccf(x, y, lag.max = M, plot=FALSE,type = "covariance")
 Gamxy <- fft(Phixy$acf)
 
@@ -748,20 +799,23 @@ attr(coh,'Method') <- "coh in clim.pact"
 attr(coh,'Description') <- "Squared coherence"
 
 n <- ceiling(length(x)/2)
-tau <- n/(t-1)
+tau <- 1/fn
+
+plus <- tau>0
 if (plot) {
   ylim <- c(min(log(abs(coh)),na.rm=TRUE),max(log(abs(coh)),na.rm=TRUE)*1.1)
-  plot(tau[1:n],log(abs(coh[1:n])),type="l",lwd=2,ylim=ylim,
+  plot(tau[plus],log(abs(coh[plus])),type="l",lwd=2,ylim=ylim,
        main="Coherence",xlab="Periodicity",ylab="Power",log="x",
        sub="Maximum Entropy Method")
   grid()
-  lines(range(1/t[1:n]),rep(0.5*ylim[2],2),col="red",lty=2)
-  lines(tau[1:n],
-        0.5*atan2(Re(coh[1:n]),Im(coh[1:n]))/pi * (ylim[2]-ylim[1]) + mean(ylim),
+  lines(range(1/t[plus]),rep(0.5*ylim[2],2),col="red",lty=2)
+  lines(tau[plus],
+        0.5*atan2(Im(coh[plus]),Re(coh[plus]))/pi *
+        (ylim[2]-ylim[1]) + mean(ylim),
         col="red")
   axis(4,at=0.5*seq(-pi,pi,length=5)/pi * (ylim[2]-ylim[1]) + mean(ylim),
        labels=180*seq(-pi,pi,length=5)/pi,col="red")
-  lines(tau[1:n],log(abs(coh[1:n])),lwd=2)
+  lines(tau[plus],log(abs(coh[plus])),lwd=2)
 }
 mtext("Phase (degrees)",4,col="red")
 }

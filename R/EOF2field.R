@@ -1,5 +1,6 @@
 EOF2field <- function(eof,anomalies=FALSE) {
   x <-t(eof$EOF) %*% diag(eof$W) %*% t(eof$PC); x <- t(x)
+  #print(dim(x)); print(eof$size)
   dim(x) <- eof$size
   if ((!anomalies) & !is.null(eof$clim)) { 
     clim <- t(matrix(eof$clim,eof$size[3],eof$size[2]))

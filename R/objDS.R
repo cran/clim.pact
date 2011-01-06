@@ -202,7 +202,7 @@ lines(result$Nov$yy.o[is.finite(result$Nov$y.o)],
       result$Nov$step.wise$residual,col="wheat")
 lines(result$Dec$yy.o[is.finite(result$Dec$y.o)],
        result$Dec$step.wise$residual,col="brown")
- print("HERE8")                               
+#print("HERE8")                               
 legend(min(result$Jan$yy.o),max(res.rng),
        c("Jan","Feb","Mar","Apr","May","Jun",
          "Jul","Aug","Sep","Oct","Nov","Dec"),
@@ -517,20 +517,22 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
       lines(field.obs$lon,as.numeric(xhat),col="red",lwd=2)
       lines(rep(x.rng[1],2),range(cormap$map,na.rm=TRUE),lty=2,col="red")
       lines(rep(x.rng[2],2),range(cormap$map,na.rm=TRUE),lty=2,col="red")
-      if (plot) {
-        #print("HERE2"); print(dev.cur()); print(direc); print(options()$device)
-        dev.copy2eps(file=paste(direc,"objDS_",cmon[imon],"_1.eps",sep=""))
-        #dev2bitmap(file=paste(direc,"objDS_",cmon[imon],"_1.jpg",sep=""),type="jpeg",width=2.37,height=2.37,res=300)
-      }
+      #print("HERE2"); print(dev.cur()); print(direc); print(options()$device)
+      dev.copy2eps(file=paste(direc,"objDS_",cmon[imon],"_1.eps",sep=""))
+      #dev2bitmap(file=paste(direc,"objDS_",cmon[imon],"_1.jpg",sep=""),type="jpeg",
+      #           width=2.37,height=2.37,res=300)
     }
 #    print("catFields:")
 #    print(">>> Check REB 11.02.2004!")
-    if (!silent) print(paste("Extracted region:",x.rng[1],"-",x.rng[2],"E/ ",y.rng[1],"-",y.rng[2],"N"))
+    if (!silent) print(paste("Extracted region:",x.rng[1],"-",x.rng[2],"E/ ",
+                             y.rng[1],"-",y.rng[2],"N"))
 #    print(c(sum(!is.finite(field.obs$dat)),sum(!is.finite(field.gcm$dat))))
 #    print(summary(field.obs$lon)); print(summary(field.obs$lat))
 #    print(summary(field.gcm$lon)); print(summary(field.gcm$lat))
-#    print(c(length(field.obs$yy),length(field.obs$mm),length(field.obs$id.t),NA,dim(field.obs$dat)))
-#    print(c(length(field.gcm$yy),length(field.gcm$mm),length(field.gcm$id.t),NA,dim(field.gcm$dat)))
+#    print(c(length(field.obs$yy),length(field.obs$mm),length(field.obs$id.t),NA,
+    #        dim(field.obs$dat)))
+#    print(c(length(field.gcm$yy),length(field.gcm$mm),length(field.gcm$id.t),NA,
+    #        dim(field.gcm$dat)))
 #    print(summary(field.gcm))
 
     if (opt.dom) field.2 <- catFields(field.obs,field.gcm,

@@ -38,7 +38,8 @@ cca <- CCA(eof.1,eof.2)
 # Testing routine:
 testCCA()
 
-
+data(oslo.dm)
+testcoherence(oslo.dm$t2m,oslo.dm$t2m)
 }
 }
 \keyword{manip}

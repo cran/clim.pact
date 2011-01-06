@@ -150,16 +150,16 @@ CDFtransfer <-  function(Y,CDF.2,CDF.1=NULL,method="empiricalRanking",
   if (is.null(CDF.1)) {
     if (!silent) print("Using the emprical distribution function")
     cline <- paste(method,"(Y)",sep="")
-    print(cline)
+    if (!silent) print(cline)
     CDF.1 <- eval(parse(text=cline))
-    print(summary(CDF.1))
+    if (!silent) print(summary(CDF.1))
   }
 
   minmax <- range(Y,na.rm=TRUE)
-  print("minmax:"); print(minmax)
+  if (!silent) {print("minmax:"); print(minmax)}
   F1 <- spline(x=CDF.1$x,y=CDF.1$P,n=100)
   F2 <- spline(x=CDF.2$x,y=CDF.2$P,n=100)
-  print(summary(CDF.1$P)); print(summary(F1$x))
+  if (!silent) {print(summary(CDF.1$P)); print(summary(F1$x))}
   
   x1 <- round(seq(minmax[1],minmax[2],length=1000),4)       #  range of values in Y
   x2 <- rep(NA,length(x1)); prob.1 <- x2; prob.2 <- prob.1  #  new range of values corresponding to same Pr(X < x)
@@ -178,8 +178,9 @@ CDFtransfer <-  function(Y,CDF.2,CDF.1=NULL,method="empiricalRanking",
     x2.mn.mx <- c(x2.mn,x2mx)
     if ( (sum(i1)>0) & (sum(i2)>0) ) x2[i] <- mean(x2.mn.mx[is.finite(x2.mn.mx)]) else {
                                      x2[i] <- minmax[2]
-      print(paste("CDFtransfer",i,"x1=",x1[i],"x2.mn=",x2.mn,"x2.mx=",x2mx,"x2=",x2[i],"i1:",sum(i1),
-                  "i2:",sum(i2),"Pr=",prob.1[i],prob.2[i]))
+      if (!silent) print(paste("CDFtransfer",i,"x1=",x1[i],"x2.mn=",x2.mn,"x2.mx=",
+                               x2mx,"x2=",x2[i],"i1:",sum(i1),"i2:",sum(i2),"Pr=",
+                               prob.1[i],prob.2[i]))
     }
   }
   X <- spline(x=x1,y=x2,n=1000,method = "natural")
@@ -204,18 +205,20 @@ CDFtransfer <-  function(Y,CDF.2,CDF.1=NULL,method="empiricalRanking",
 
   if (plot) {
     q <- (1:length(Y.new))[is.element(Y.new,c(quantile(Y.new,seq(0.1,0.9,by=0.1),na.rm=TRUE)))]
-    print("Quantiles for Y.new:")
-    print(q)
+    if (!silent) print("Quantiles for Y.new:")
+    if (!silent) print(q)
     for (iii in q) {
-      lines(c(0,Y.new[iii]),rep(Y[iii],2),col="blue",lty=2); points(Y.new[iii],Y[iii],pch=">",col="blue")
-      lines(rep(Y.new[iii],2),c(Y[iii],0),col="blue",lty=3); points(Y.new[iii],0,pch=19,col="blue",cex=0.5)
+      lines(c(0,Y.new[iii]),rep(Y[iii],2),col="blue",lty=2)
+      points(Y.new[iii],Y[iii],pch=">",col="blue")
+      lines(rep(Y.new[iii],2),c(Y[iii],0),col="blue",lty=3)
+      points(Y.new[iii],0,pch=19,col="blue",cex=0.5)
     }
   }
   if (station) {
     obs$precip <- Y.new
     Y.new <- obs
   }
-  print(length(Y.new))
+  if (!silent) print(length(Y.new))
   invisible(Y.new)
 }
 

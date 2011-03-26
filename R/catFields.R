@@ -226,7 +226,12 @@ catFields <- function(field.1,field.2=NULL,lat=NULL,lon=NULL,
   }
 
 #  print(c(l.one,l.different,l.newgrid))
-  
+
+  if (nt.2==0) {
+    print("catFields: nt.2=0!")
+    print(dim(field.2$dat))
+    return(NULL)
+  }
   if (!l.one & (l.different | l.newgrid)) {
     if (!fastregrid) {
       if (!silent) print("Interpolate 2nd field - please be patient")

@@ -6,7 +6,8 @@
 
 plotDS <- function(ds.obj,leps=FALSE,plot.ts=TRUE,plot.map=TRUE, plot.res=FALSE,
                    plot.rate=FALSE,add=FALSE,col="darkred",lwd=2,lty=1,
-                   direc="output/",main=NULL,sub=NULL,xlab=NULL,ylab=NULL,newplot=TRUE) {
+                   direc="output",main=NULL,sub=NULL,xlab=NULL,ylab=NULL,
+                   newplot=TRUE) {
 
 if (class(ds.obj)!="ds") stop("Need a 'ds' object!")
 attach(ds.obj)

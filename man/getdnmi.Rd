@@ -6,14 +6,14 @@
   \url{http://www.met.no}. Also see \code{\link{getnacd}} and
   \code{\link{getnordklim}}.
 }
-\usage{getdnmi(location,ele.c='101',silent = FALSE,direc="data/stations/")}
+\usage{getdnmi(location,ele.c='101',silent = FALSE,direc="data/")}
 
 \arguments{
   \item{location}{name of climate station location.}
   \item{ele.c}{name of element [e.g. avail.elem(), or 't2m', 'rr',
     'slp'].}
   \item{silent}{TRUE: no printing}
-  \item{direc}{name of directory in which the data are stored.}
+  \item{direc}{Defunct argument.}
  }
 \value{a list of "monthly.station.record" class:
   \tabular{ll}{

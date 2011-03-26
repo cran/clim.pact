@@ -1,11 +1,17 @@
-plotDSobj <- function(result,outdir="dsgraphicsoutput/",figs=c(1,2,3,4),main="") {
+plotDSobj <- function(result,outdir="dsgraphicsoutput",figs=c(1,2,3,4),main="") {
 
 if (class(result)!="objDS") {
   stop("The argument is not an 'objDS' object!")
 }
 
+wd0 <- getwd()
+setwd(outdir)
+
+
+
 months<-c("Jan","Feb","Mar","Apr","May","Jun",
           "Jul","Aug","Sep","Oct","Nov","Dec")
+
 
 for (mon in months) {
    var.n <- paste("result$",mon,"$pre.gcm",sep="")
@@ -15,6 +21,7 @@ for (mon in months) {
    var.n <- paste("result$",mon,"$y.o",sep="")
    eval(parse(text=paste(var.n,"<-",var.n," - mean(",var.n,",na.rm=TRUE)",sep="")))
 }
+
 
 # Plotting and diagnostics:
 
@@ -42,6 +49,7 @@ for (mon in months) {
   yymm.gcm <-  as.vector(t(yymm.all.gcm))
   ibad <- c(1,diff(yymm.gcm)) < 0
   yymm.gcm[ibad] <- NA
+
 
   ds.all.cal <-cbind(
            result$Jan$pre.y,result$Feb$pre.y,result$Mar$pre.y,
@@ -82,6 +90,7 @@ for (mon in months) {
            result$Oct$yy.o + (result$Oct$mm.o - 0.5)/12,
            result$Nov$yy.o + (result$Nov$mm.o - 0.5)/12,
            result$Dec$yy.o + (result$Dec$mm.o - 0.5)/12)
+
   y.obs <- as.vector(t(obs.all))
   yymm.obs <-  as.vector(t(yymm.all.obs))
 
@@ -112,6 +121,7 @@ if (ele==101) {
 plot(range(yymm.obs,yymm.gcm,na.rm=TRUE),
      range(y.obs,y.gcm,y.cal,na.rm=TRUE),type="n",
      main=main,sub=subtitle,xlab="Time",ylab=result$Jan$unit)
+                                
 #plot(range(yymm.obs,yymm.gcm,na.rm=TRUE),
 #     range(y.obs,y.gcm,y.cal,na.rm=TRUE),type="n",
 #     main=paste("Downscaled ",result$Jan$v.name," anomalies at ",result$Jan$location,
@@ -133,7 +143,7 @@ legend(min(yymm.obs,yymm.gcm,na.rm=TRUE),
        col=c("black","grey30","grey50"),
        pch=c(20,26,26),lty=c(3,2,1),lwd=c(1,2,1),bg="grey95",cex=0.7)
 #if (lower.case(options()$device[1])=="x11") 
-       dev.copy2eps(file=paste(outdir,"/plotDSobj_1.eps",sep=""))
+       dev.copy2eps(file="plotDSobj_1.eps")
 }
 # Residuals:
 
@@ -144,6 +154,7 @@ res.rng <- range(result$Jan$step.wise$residual,result$Feb$step.wise$residual,
                  result$Sep$step.wise$residual,result$Oct$step.wise$residual,
                  result$Nov$step.wise$residual,result$Dec$step.wise$residual,
                  na.rm=TRUE)
+
 if (sum(is.element(figs,2))>0) {newFig()
 
 par(cex.main=0.7)                                
@@ -211,7 +222,7 @@ legend(min(result$Jan$yy.o),max(res.rng),
        col=c("black","grey40","red","darkred","blue","darkblue",
              "green","darkgreen","magenta","cyan","wheat","brown"))
                                 
-dev.copy2eps(file=paste(outdir,"/plotDSobj_2.eps",sep="")) 
+dev.copy2eps(file="plotDSobj_2.eps") 
 }
 
 if (sum(is.element(figs,3))>0) { newFig()
@@ -232,8 +243,10 @@ h.dec<-hist(result$Dec$step.wise$residual,breaks=brks)$density
 brks <- hist(result$Dec$step.wise$residual,breaks=brks)$mids
 plot(range(brks),range(c(h.jan,h.feb,h.mar,h.apr,h.may,h.jun,
      h.jul,h.aug,h.sep,h.oct,h.nov,h.dec)),type="n",
-     main=paste("Residuals ",result$Jan$v.name," anomalies at ",result$Jan$location,
-                          "     (",round(result$Jan$lat.loc,2),"N/",round(result$Jan$lon.loc,2),"E)",sep=""),
+     main=paste("Residuals ",result$Jan$v.name," anomalies at ",
+       result$Jan$location,
+                          "     (",round(result$Jan$lat.loc,2),"N/",
+       round(result$Jan$lon.loc,2),"E)",sep=""),
      sub=subtitle,ylab="Density",xlab=result$Jan$unit)
 grid()
 lines(brks,h.jan,col="black")
@@ -249,13 +262,14 @@ lines(brks,h.oct,col="cyan")
 lines(brks,h.nov,col="wheat")
 lines(brks,h.dec,col="brown")
 #if (lower.case(options()$device[1])=="x11") 
-     dev.copy2eps(file=paste(outdir,"/plotDSobj_3.eps",sep="")) 
+     dev.copy2eps(file="plotDSobj_3.eps") 
 }
 
 rates <- c(result$Jan$rate.ds,result$Feb$rate.ds,result$Mar$rate.ds,
            result$Apr$rate.ds,result$May$rate.ds,result$Jun$rate.ds,
            result$Jul$rate.ds,result$Aug$rate.ds,result$Sep$rate.ds,
            result$Oct$rate.ds,result$Nov$rate.ds,result$Dec$rate.ds)
+
 err <- c(result$Jan$rate.err,result$Feb$rate.err,result$Mar$rate.err,
            result$Apr$rate.err,result$May$rate.err,result$Jun$rate.err,
            result$Jul$rate.err,result$Aug$rate.err,result$Sep$rate.err,
@@ -264,7 +278,8 @@ r2 <- c(result$Jan$fit.r2,result$Feb$fit.r2,result$Mar$fit.r2,
            result$Apr$fit.r2,result$May$fit.r2,result$Jun$fit.r2,
            result$Jul$fit.r2,result$Aug$fit.r2,result$Sep$fit.r2,
            result$Oct$fit.r2,result$Nov$fit.r2,result$Dec$fit.r2)
-p.val <- as.numeric(c(result$Jan$gcm.trnd.p,result$Feb$gcm.trnd.p,result$Mar$gcm.trnd.p,
+p.val <- as.numeric(c(result$Jan$gcm.trnd.p,result$Feb$gcm.trnd.p,
+                      result$Mar$gcm.trnd.p,
            result$Apr$gcm.trnd.p,result$May$gcm.trnd.p,result$Jun$gcm.trnd.p,
            result$Jul$gcm.trnd.p,result$Aug$gcm.trnd.p,result$Sep$gcm.trnd.p,
            result$Oct$gcm.trnd.p,result$Nov$gcm.trnd.p,result$Dec$gcm.trnd.p))
@@ -272,17 +287,22 @@ p.val <- as.numeric(c(result$Jan$gcm.trnd.p,result$Feb$gcm.trnd.p,result$Mar$gcm
 if (sum(is.element(figs,4))>0) {newFig()
 par(col.axis="white",cex.main=0.8)
 plot(c(0,25),range(c(rates+err,rates-err),na.rm=TRUE),type="n",
-     main=paste("Linear trend rates ",result$Jan$v.name," derived ",result$Jan$location,
-                          "     (",round(result$Jan$lat.loc,2),"N/",round(result$Jan$lon.loc,2),"E)",sep=""),
+     main=paste("Linear trend rates ",result$Jan$v.name," derived ",
+       result$Jan$location,
+                          "     (",round(result$Jan$lat.loc,2),"N/",
+       round(result$Jan$lon.loc,2),"E)",sep=""),
      sub=" ",ylab=paste(result$Jan$unit,"/ decade"),xlab="Month")
 par(col.axis="black",ps=10,las=3)
 axis(1, 1:24, rep(months,2))
 axis(2)
 grid()
 
-transposed <- c(result$Jan$transposed,result$Feb$transposed,result$Mar$transposed,result$Apr$transposed,
-                result$May$transposed,result$Jun$transposed,result$Jul$transposed,result$Aug$transposed,
-                result$Sep$transposed,result$Oct$transposed,result$Nov$transposed,result$Dec$transposed)
+transposed <- c(result$Jan$transposed,result$Feb$transposed,
+                result$Mar$transposed,result$Apr$transposed,
+                result$May$transposed,result$Jun$transposed,
+                result$Jul$transposed,result$Aug$transposed,
+                result$Sep$transposed,result$Oct$transposed,
+                result$Nov$transposed,result$Dec$transposed)
                                 
 scl <- diff(range(c(rates+err,rates-err),na.rm=TRUE))/10
 polygon(c(1:24,reverse(1:24)),c(rep(rates+err,2),reverse(rep(rates-err,2))),
@@ -292,15 +312,17 @@ lines(0:24+0.5,c(r2[1],rep(r2,2))/10*scl+min(rates-err,na.rm=TRUE),
 lines(rep(rates,2),lwd=2)
 points((1:24)[rep(p.val < 5,2)],rep(rates[p.val < 5],2),pch=20,cex=1.5)
 points((1:24)[rep(p.val >= 5,2)],rep(rates[p.val >= 5],2),pch=21,cex=1.5)
-if (sum(transposed)>0) text((1:24)[transposed],rep(rates[transposed],2),rep("T",sum(transposed)),cex=0.4,col="yellow")
+if (sum(transposed)>0) text((1:24)[transposed],rep(rates[transposed],2),
+                            rep("T",sum(transposed)),cex=0.4,col="yellow")
                                 
-text((1:24)+0.33,rep(rates+0.01*diff(range(c(rates+err,rates-err),na.rm=TRUE)),2),rep(rates,2),
-       pos=3,cex=0.8,col="grey45")
+text((1:24)+0.33,rep(rates+0.01*diff(range(c(rates+err,rates-err),na.rm=TRUE)),
+                     2),rep(rates,2),pos=3,cex=0.8,col="grey45")
 
 for (i in 0:10) {
   lines(c(23.8,24),rep(i*scl + min(rates-err,na.rm=TRUE),2),col="steelblue")
-  lines(c(0,24),rep(i*scl +    min(rates-err,na.rm=TRUE),2),lty=3,col="steelblue")
-  text(23.5,i*scl +            min(rates-err,na.rm=TRUE),paste(i*10,'%',sep=""),
+  lines(c(0,24),rep(i*scl +    min(rates-err,na.rm=TRUE),2),lty=3,
+        col="steelblue")
+  text(23.5,i*scl + min(rates-err,na.rm=TRUE),paste(i*10,'%',sep=""),
         cex=0.8,col="steelblue")
   }
 mtext("R-squared (%) from calibration regression",side=4,col="steelblue",cex=0.80)
@@ -308,8 +330,10 @@ points(1,max(rates+err),pch=20); text(3,max(rates+err),"5% sign.level")
 points(7,max(rates+err),pch=21); text(8,max(rates+err),"not sign.")
 
 #if (lower.case(options()$device[1])=="x11") 
-      dev.copy2eps(file=paste(outdir,"/plotDSobj_4.eps",sep="")) 
+      dev.copy2eps(file="plotDSobj_4.eps")
+                                
 }
+setwd(wd0)
 }
 
 RMSE <- function(field.obs,field.gcm) {
@@ -336,7 +360,7 @@ RMSE <- function(field.obs,field.gcm) {
 }
 
 objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
-                  mon=NULL,direc="dsgraphicsoutput/",cal.id=NULL,
+                  mon=NULL,direc="dsgraphicsoutput",cal.id=NULL,
                   ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
                   method="lm",leps=FALSE,param="t2m",failure.action=NULL,
                   plot.res=FALSE,plot.rate=FALSE,xtr.args="",opt.dom=TRUE,
@@ -360,9 +384,11 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     print(range(field.obs$yy))      
   }
   if (sum(is.element(field.obs$yy,station$yy)) < 20) stop("objDS: too poor time-overlap")
-    
+
+  print("catFields(field.obs) - select station interval")
   field.obs <- catFields(field.obs,interval.1=range(station$yy),silent=silent,
                          fastregrid=fastregrid,neofs=neofs)
+  if (is.null(field.obs)) return(NULL) # REB 15.03.2011
   
   # Large-scale spatial structures: x-direction (REB, 12.11.2010)
   omega <- 1
@@ -399,7 +425,11 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
   if ( (direc!="./") &  !file.exists(direc) ) {
   if (!silent) print(paste("Create new directory (1):",direc))
   dir.create( direc )
-}
+  }
+
+  wd0 <- getwd()
+  setwd( direc )
+  
   result <- list(station=station)
   if (!silent) print(paste("objDS: field.obs$v.name=",field.obs$v.name))
   if (is.null(positive) &
@@ -470,35 +500,36 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     #print(summary(field.gcm.clim))
     print("catFields - climatology for obs - only 1st year")
     field.obs.clim<- catFields(field.obs.clim,interval.1=rep(min(field.obs.clim$yy)+1,2),
-                               lat=y.rng,lon=x.rng)  
+                               lat=y.rng,lon=x.rng)
     print("catFields - climatology for GCM - only 1st year")
     field.gcm.clim<- catFields(field.gcm.clim,interval.1=rep(min(field.gcm.clim$yy)+1,2),
-                             lat=field.obs.clim$lat,lon=field.obs.clim$lon)  
-    #print("estimate mean field")
-    dims <- dim(field.gcm.clim$dat)
-    #print(dims)
-    dim(field.gcm.clim$dat) <- c(dims[1],dims[2]*dims[3])
-    dim(field.obs.clim$dat) <- c(dims[1],dims[2]*dims[3])
-    meanfield.gcm <- colMeans(field.gcm.clim$dat)
-    meanfield.obs <- colMeans(field.obs.clim$dat)
-    #print("estimate annual variation")
-    field.gcm.clim$dat <- field.gcm.clim$dat - meanfield.gcm
-    field.obs.clim$dat <- field.obs.clim$dat - meanfield.obs
-    dim(meanfield.gcm) <- c(dims[2],dims[3])
-    dim(meanfield.obs) <- c(dims[2],dims[3])
+                             lat=field.obs.clim$lat,lon=field.obs.clim$lon)
+    if (!is.null(field.obs.clim) & !is.null(field.gcm.clim)) { # REB 15.03.2011
+      #print("estimate mean field")
+      dims <- dim(field.gcm.clim$dat)
+      #print(dims)
+      dim(field.gcm.clim$dat) <- c(dims[1],dims[2]*dims[3])
+      dim(field.obs.clim$dat) <- c(dims[1],dims[2]*dims[3])
+      meanfield.gcm <- colMeans(field.gcm.clim$dat)
+      meanfield.obs <- colMeans(field.obs.clim$dat)
+      #print("estimate annual variation")
+      field.gcm.clim$dat <- field.gcm.clim$dat - meanfield.gcm
+      field.obs.clim$dat <- field.obs.clim$dat - meanfield.obs
+      dim(meanfield.gcm) <- c(dims[2],dims[3])
+      dim(meanfield.obs) <- c(dims[2],dims[3])
     
-    #print(length(meanfield.gcm))
+      #print(length(meanfield.gcm))
 
-    #print("estimate bias")
-    ac.bias <- meanfield.gcm - meanfield.obs
-    #print("estimate var")
-    ac.var <-  mean(apply(field.gcm.clim$dat,2,sd),na.rm=TRUE)/
-               mean(apply(field.obs.clim$dat,2,sd),na.rm=TRUE)
-    #print("estimate rmse")
-    dim(field.gcm.clim$dat) <- c(dims[1],dims[2],dims[3])
-    dim(field.obs.clim$dat) <- c(dims[1],dims[2],dims[3])    
-    ac.rmse <- mean(RMSE(field.gcm.clim,field.obs.clim))
-    
+      #print("estimate bias")
+      ac.bias <- meanfield.gcm - meanfield.obs
+      #print("estimate var")
+      ac.var <-  mean(apply(field.gcm.clim$dat,2,sd),na.rm=TRUE)/
+                 mean(apply(field.obs.clim$dat,2,sd),na.rm=TRUE)
+      #print("estimate rmse")
+      dim(field.gcm.clim$dat) <- c(dims[1],dims[2],dims[3])
+      dim(field.obs.clim$dat) <- c(dims[1],dims[2],dims[3])    
+      ac.rmse <- mean(RMSE(field.gcm.clim,field.obs.clim))
+    } else {ac.rmse <- NA; ac.var <- NA; ac.bias <- NA} # REB 15.03.2011
     #print(x.rng); print(y.rng)
     if (plot) {
       #print("HERE1"); print(dev.cur()); print(direc); print(options()$device)
@@ -522,19 +553,21 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
       #dev2bitmap(file=paste(direc,"objDS_",cmon[imon],"_1.jpg",sep=""),type="jpeg",
       #           width=2.37,height=2.37,res=300)
     }
-#    print("catFields:")
-#    print(">>> Check REB 11.02.2004!")
+    #print("catFields:")
+    #print(">>> Check REB 11.02.2004!")
     if (!silent) print(paste("Extracted region:",x.rng[1],"-",x.rng[2],"E/ ",
-                             y.rng[1],"-",y.rng[2],"N"))
-#    print(c(sum(!is.finite(field.obs$dat)),sum(!is.finite(field.gcm$dat))))
-#    print(summary(field.obs$lon)); print(summary(field.obs$lat))
-#    print(summary(field.gcm$lon)); print(summary(field.gcm$lat))
-#    print(c(length(field.obs$yy),length(field.obs$mm),length(field.obs$id.t),NA,
-    #        dim(field.obs$dat)))
-#    print(c(length(field.gcm$yy),length(field.gcm$mm),length(field.gcm$id.t),NA,
-    #        dim(field.gcm$dat)))
-#    print(summary(field.gcm))
-
+                             y.rng[1],"-",y.rng[2],"N month=",imon))
+    #print(c(sum(!is.finite(field.obs$dat)),sum(!is.finite(field.gcm$dat))))
+    #print(summary(field.obs$lon)); print(summary(field.obs$lat))
+    #print(summary(field.gcm$lon)); print(summary(field.gcm$lat))
+    #print(paste("N obs yrs=",length(field.obs$yy),"month=",length(field.obs$mm),"id.t=",length(field.obs$id.t),
+    #             "N gcm yrs=",length(field.gcm$yy),"month=",length(field.gcm$mm),"id.t=",length(field.gcm$id.t)))
+    #print(c(NA,dim(field.obs$dat),NA,dim(field.gcm$dat)))
+    #print(summary(field.obs))
+    #print(summary(field.gcm))
+    #print(table(field.obs$mm)); print(table(field.obs$yy))
+    #print(table(field.gcm$mm)); print(table(field.gcm$yy))
+    #print(paste("catFields: field2 from field.obs and field.gcm - before EOF",opt.dom))
     if (opt.dom) field.2 <- catFields(field.obs,field.gcm,
                                       lon=x.rng,lat=y.rng,
                                       mon=imon,silent=silent,
@@ -542,6 +575,8 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
                  field.2 <- catFields(field.obs,field.gcm,
                                       mon=imon,silent=silent,
                                       fastregrid=fastregrid,neofs=neofs)
+    if (is.null(field.2)) return(NULL) # REB 15.03.2011
+    
 #    print(field.gcm$lon); print(field.gcm$lat); print(summary(c(field.gcm$dat))); field.gcm$dat[!is.finite(field.gcm$dat)] <- 0
 #    map(meanField(field.obs)); print("OK1"); map(meanField(field.gcm)); stop("...HERE...") 
     #print(c(length(field.2$yy),length(field.2$mm),length(field.2$id.t),NA,dim(field.2$dat)))
@@ -551,7 +586,16 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
       i.gcm <- is.element(field.2$id.t,field.gcm$id.t[1])
       field.2$dat[i.gcm,,] <- field.2$dat[i.gcm,,]*t.wgt
     }
-    if (!silent) print("EOF:")
+    if (!silent) {
+      print("EOF:")
+      #print(summary(field.2))
+      #print(dim(field.2$dat))
+      #print(table(field.2$id.x))
+      #print(table(field.2$id.t))
+      #print(table(field.2$id.lon))
+      #print(table(field.2$id.lat))
+      #print(table(field.2$attributes))
+    }
     eof <- EOF(field.2,silent=silent,plot=plot,lsave=FALSE,LINPACK=LINPACK)
     if (!is.null(wOBS)) {                                    #REB 21.03.05XS
       if (!silent) print("Weight up GCM:")
@@ -579,6 +623,7 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
     ds$x.rng <- x.rng; ds$y.rng <- y.rng
 
     if (!silent) print("Grading for spatial pattern")
+    print("catFields: field.obs, no field.2")
     field.x <- catFields(field.obs,lon=field.2$lon,lat=field.2$lat,mon=imon,
                          fastregrid=fastregrid,neofs=neofs)
     dims <- dim(field.x$dat)
@@ -637,9 +682,10 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
          if (station$lat > y.rng[1]+10) y.rng[1] <- y.rng[1]+(station$lat - y.rng[1] - 10)/3
          if (station$lat < y.rng[2]+10) y.rng[2] <- y.rng[2]-(y.rng[2] - station$lat - 10)/3
        }
+       print("catFields(field.obs,field.gcm) - before EOF")
        field.2 <- catFields(field.obs,field.gcm,lon=x.rng,lat=y.rng,mon=ii,
                             fastregrid=fastregrid,neofs=neofs)
-       if (!is.null(wOBS)) {                                    #REB 21.03.05
+       if (!is.null(wOBS) & !is.null(field.2)) {                 #REB 21.03.05/15.03.2011
          if (!silent) print("Weight down GCM:")
          t.wgt <- wOBS*length(field.obs$id.t)/length(field.gcm$id.t)
          i.gcm <- is.element(field.2$id.t,field.gcm$id.t[1])
@@ -703,6 +749,8 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
   if (plot) {
     plotDSobj(result,outdir=direc)
   }
-#print("exit objDS")
+#print("exit objDS")'
+  setwd(wd0)
+
   invisible(result)
 }

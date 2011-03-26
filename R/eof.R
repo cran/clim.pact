@@ -351,7 +351,10 @@ if (transposed) {
 #  print("-------- TRANSPOSE V & U: (time dim > space dim) ----------")
   if (!LINPACK) {
     pca.v <- pca$v
-    pca$v <- pca$u
+# The problem is that the function La.svd returns the transpose of V and not V.
+# Guido Fioravanti  
+    pca$v <- pca$u       # No? REB 09.03.2011
+#    pca$v <- t(pca$u)   # No? REB 09.03.2011
     pca$u <- t(pca.v)
   } else {
     pca.v <- pca$v

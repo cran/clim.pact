@@ -13,7 +13,7 @@
 # rasmus.benestad@met.no
 #------------------------------------------------------------------------
 
-DS <- function(dat,preds,mon=NULL,direc="output/",cal.id=NULL,
+DS <- function(dat,preds,mon=NULL,direc="output",cal.id=NULL,
                ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
                method="lm",plot=TRUE,leps=FALSE,param="t2m",
                plot.res=FALSE,plot.rate=FALSE,xtr.args="",
@@ -128,7 +128,7 @@ if (is.null(attr(preds$tim,"unit"))) {
 eos <- instring(" ",dat$location)[1]-1
 if ((is.null(eos)) | (eos <= 0)) eos <- nchar(dat$location)
 preds.id <- substr(preds.id,1,nchar(preds.id)-1)
-fname<-paste(direc,"ds_",preds.id,"_",region,"_",
+fname<-paste("ds_",preds.id,"_",region,"_",
              substr(dat$location,1,eos),"_",dat$ele,"_",preds$c.mon,'_',
              substr(attr(preds$tim,"unit"),1,3),"_",method,
              ex.tag,".Rdata",sep="")
@@ -698,16 +698,19 @@ list.expr <- paste(list.expr,
          "pred.name=pred.name,sce.name=sce.name,preds.name=preds$f.name)",sep="")       
 #print(list.expr)
 ds<-eval(parse(text=list.expr))
-if (!silent) print(paste("File name:",fname))
+if (!silent) print(paste("File name:",fname,"in",direc))
 if (method=="anm") ds$analog <- analog
 ds$transformed <- preds$transformed
 class(ds) <- "ds"
+wd0 <- getwd()
+setwd(direc)
 if (lsave) save(file=fname,ds,ascii=FALSE) 
 #print("Plotting...")
 #print(preds$region)
 if (plot) {
    ds.map <- plotDS(ds,leps)
    ds$map <- ds.map
-} 
+}
+setwd(wd0)
 invisible(ds)
 }

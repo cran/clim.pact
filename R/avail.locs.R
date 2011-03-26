@@ -7,7 +7,7 @@ avail.locs <- function(ele=101) {
 
 #  source("strip.R")
 
-  nacd.meta<-read.table('data/appendix.2')
+  nacd.meta<-read.table('data/appendix.2',fileEncoding="latin1")
   nacd <- length(nacd.meta$V5[is.element(nacd.meta$V14,ele)])
   
   if (!file.exists('data/nordklim_station_catalogue_v1_0.prn')) {
@@ -16,17 +16,17 @@ avail.locs <- function(ele=101) {
     print('Catalogue: c(2,30,12,11,11,4,3,2,4,3,2,9,rep(6,23))')
     stop()
   }
-  nordklim.meta<-read.fwf( 'data/nordklim_station_catalogue_v1_0.prn',
-                 skip=1,as.is=TRUE,fill=TRUE,
-                 width=c(2,30,12,11,11,4,3,2,4,3,2,
-                         9,rep(6,23)),
-                  col.names=c("i","location","height","country",
+  col.names <- c("i","location","height","country",
                               "number","Lat.deg","Lat.min","N.S",
                               "Lon.deg","Lon.min","E.W",
                               "ele101","ele101E","ele111","ele111E","ele112","ele112E",
                               "ele113","ele113E","ele121","ele121E","ele122","ele122E",
                               "ele123","ele123E","ele401","ele401E","ele601","ele601E",
-                              "ele602","ele602E","ele701","ele701E","ele801","ele801E"))
+                              "ele602","ele602E","ele701","ele701E","ele801","ele801E")
+  nordklim.meta<-read.fwf( 'data/nordklim_station_catalogue_v1_0.prn',
+                 skip=1,as.is=TRUE,fill=TRUE,
+                 width=c(2,30,12,11,11,4,3,2,4,3,2,9,rep(6,23)),
+                  col.names=col.names,fileEncoding="latin1")
   narp <- getnarp()
   nnarp <- length(narp$lon)
   iele <- eval(parse(text=paste("!is.na(nordklim.meta$ele",ele,")",sep="")))

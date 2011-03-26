@@ -11,7 +11,7 @@
 # R.E. Benestad
 
 getdnmi <- function(location,ele.c='101',silent = FALSE,
-                    direc="data/stations/") {
+                    direc="data/") {
 
 if (!silent) print(paste("GETDNMI:",location,ele.c))
 row<-switch(as.character(ele.c),
@@ -61,7 +61,8 @@ if (file.exists(paste(direc,f.name,sep=""))) {
 
   obs<-read.table(paste(direc,f.name,sep=""))
 #  dnmi.meta <- read.table(paste(direc,"dnmi.meta",sep=""))
-  dnmi.meta <- read.table("data/dvh.station.list",header=TRUE,as.is=TRUE)
+#  dnmi.meta <- read.table("data/dvh.station.list",header=TRUE,as.is=TRUE)
+  data(dvh.station.list)
   station<-obs$V1[1]
 #  alt<- dnmi.meta$alt[dnmi.meta$dnmi.no==station]
 #  lon<- dnmi.meta$lon[dnmi.meta$dnmi.no==station]

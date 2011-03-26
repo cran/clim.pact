@@ -570,7 +570,7 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
      if (!silent) print("Problems detected in date-timeunit Quality Control")
      tim <- 1:length(tim)-1; t.unit <- "month"
      attr(tim,'unit') <- "months"
-     mm <- mod(mm0 + tim - 1,12)+1
+     mm <- mod(mm0 + tim - 1,12)
      yy <- yy0 + floor((tim+mm0-1)/12)
      dd <- rep(15,length(tim))
      obj.type <- "monthly.field.object"

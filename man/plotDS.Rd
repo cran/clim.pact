@@ -4,7 +4,8 @@
 \description{Plots the results from \code{\link{DS}}.}
 \usage{plotDS(ds.obj,leps=FALSE,plot.ts=TRUE,plot.map=TRUE,plot.res=FALSE,
 plot.rate=FALSE,add=FALSE,col="darkred",lwd=2,lty=1,
-                   direc="output/",main=NULL,sub=NULL,xlab=NULL,ylab=NULL,newplot=TRUE)}
+                   direc="output",main=NULL,sub=NULL,xlab=NULL,ylab=NULL,
+newplot=TRUE)}
 \arguments{
     \item{ds.obj}{A \code{\link{DS}} object.} 
     \item{leps}{'TRUE' produces EPS files.}

@@ -22,7 +22,7 @@ of a rectangle).
 }
 \usage{
 objDS(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
-          mon=NULL,direc="dsgraphicsoutput/",cal.id=NULL,
+          mon=NULL,direc="dsgraphicsoutput",cal.id=NULL,
           ldetrnd=TRUE,i.eofs=seq(1,8,by=1),ex.tag="",
           method="lm",leps=FALSE,param="t2m",failure.action=NULL,
           plot.res=FALSE,plot.rate=FALSE,xtr.args="",opt.dom=TRUE,
@@ -30,7 +30,7 @@ objDS(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
           silent=FALSE,qualitycontrol=TRUE,LINPACK=TRUE,wOBS=0.25,
           fastregrid=FALSE,neofs=20)
 
-plotDSobj(result,outdir="dsgraphicsoutput/",figs=c(1,2,3,4),main="")
+plotDSobj(result,outdir="dsgraphicsoutput",figs=c(1,2,3,4),main="")
 RMSE(field.obs,field.gcm) 
 }
 

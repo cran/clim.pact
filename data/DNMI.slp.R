@@ -1,5 +1,5 @@
 
-load("eof_DNMI_slp.Rdata")
+load("eof_DNMI_slp.rda")
 
   xxx <-t(eof$EOF) %*% diag(eof$W) %*% t(eof$PC); xxx <- t(xxx)
   dim(xxx) <- eof$size

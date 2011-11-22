@@ -53,7 +53,7 @@
 \usage{
 EOF(fields,l.wght=TRUE,lc180e=FALSE,direc="data/",
               lon=NULL,lat=NULL,l.stndrd=TRUE,las=1,
-              mon=NULL,plot=TRUE,neofs=20,l.rm.ac=TRUE,lsave=TRUE,
+              mon=NULL,plot=TRUE,neofs=20,l.rm.ac=TRUE,lsave=FALSE,
               LINPACK=TRUE,silent=FALSE)
 ExtEOF(fields,lag=1,mon=NULL,lon=NULL,lat=NULL)
 lagField(fields,lag=1)

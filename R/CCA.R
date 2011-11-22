@@ -319,13 +319,15 @@ POP <- function(x,plot=TRUE,main="POP analysis",sub="",
   
   n <- length(x$tim)
    if ( (class(x)[1]=="field") ) {
-    dims <- dim(X$dat)
-    dim(X$dat) <- c(dims[1],dims[2]*dims[3])
+    dims <- dim(x$dat)
+    dim(x$dat) <- c(dims[1],dims[2]*dims[3])
     X1 <- x$dat[2:n,]; X2 <- x$dat[1:(n-1),]
     C12 <- cov(X1,X2); C11<- cov(X1,X1)
-    A <- C12 %*% solve(C11)
+    A <- C12 %*% solve(C11)    # eq. 15.13
     e <- eigen(A)
-    maps <- abs(e$vectors)   
+    maps <- abs(e$vectors)
+    print(dim(maps)); print(dim(x$dat)); 
+    zt <- t(maps) %*% t(x$dat) /det( t(maps) %*% maps )  #eq. 15.17
   } else if ( (class(x)[1]=="eof") ) {
     X1 <- x$PC[2:n,i.eofs]; X2 <- x$PC[1:(n-1),i.eofs]
     C12 <- cov(X1,X2); C11<- cov(X1,X1)
@@ -334,11 +336,15 @@ POP <- function(x,plot=TRUE,main="POP analysis",sub="",
     e <- eigen(A)
     # TEST e$vectors <- diag(rep(1,length(i.eofs))); print(e$vectors)
     maps <- t(abs(e$vectors) %*% x$EOF[i.eofs,])
+    #print(dim(e$vectors)); print(dim(x$PC[,i.eofs]))
+    zt <- t(abs(e$vectors)) %*% t(x$PC[,i.eofs]) /
+        diag( t(abs(e$vectors)) %*% abs(e$vectors) )  #eq. 15.17
     #print(dim(maps))
     dim(maps) <- c(length(x$lat),length(x$lon),length(e$values))   
  }
  pop <- e
  pop$maps <- maps
+ pop$zt <- zt
  pop$lon <- x$lon; pop$lat <- x$lat
  pop$decay <- -1/log(abs(e$values))
  pop$period <- 2*pi/atan(Im(e$values)/Re(e$values))
@@ -785,10 +791,10 @@ Phixy <- ccf(x, y, lag.max = M, plot=FALSE,type = "covariance")
 Gamxy <- fft(Phixy$acf)
 
 Phixx <- ccf(x, x, lag.max = M, plot=FALSE,type = "covariance")
-Gamxx <- fft(Phixy$acf)
+Gamxx <- fft(Phixx$acf)
 
 Phiyy <- ccf(y, y, lag.max = M, plot=FALSE,type = "covariance")
-Gamyy <- fft(Phixy$acf)
+Gamyy <- fft(Phiyy$acf)
 
 Axy <- abs(Gamxy)
 

@@ -7,7 +7,7 @@
 
 EOF<-function(fields,l.wght=TRUE,lc180e=FALSE,direc="data/",
               lon=NULL,lat=NULL,l.stndrd=TRUE,las=1,
-              mon=NULL,plot=TRUE,neofs=20,l.rm.ac=TRUE,lsave=TRUE,
+              mon=NULL,plot=TRUE,neofs=20,l.rm.ac=TRUE,lsave=FALSE,
               LINPACK=TRUE,silent=FALSE) {
 
 #=========================================================================
@@ -242,7 +242,7 @@ for (i in 1:fields$n.fld) {
   ny <- length(lat.x)
   nx <- length(lon.x)
   nt <- length(yy)
-  stdv[i] <- sd(dat.x,na.rm=TRUE)
+  stdv[i] <- sd(c(dat.x),na.rm=TRUE)
 
   #print("summary(c(dat.x)) - 1:"); print(summary(c(dat.x)))
   if (!silent) print(paste("Remove mean values at each grid point",nx*ny))

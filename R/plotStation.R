@@ -104,13 +104,15 @@ if (!is.null(mon)) {
     #print(dim(obs$val))
     #print(length(rowMeans(obs$val[,mon])))
     #print(length(colMeans(obs$val[,mon])))
-    if ( (length(mon)==3) & (mon[1]==12) & (mon[2]==1) & (mon[3]==2)) {
+    if ( ((length(mon)==3) & (mon[1]==12) & (mon[2]==1) & (mon[3]==2)) |
+         ((length(mon)==4) & (mon[1]==12) & (mon[2]==1) & (mon[3]==2) & (mon[4]==3)) ) {
       obs$val[2:ny,12] <- obs$val[1:(ny-1),12]
       obs$val[1,12] <- NA
-    } else if ( (length(mon)==3) & (mon[1]==11) & (mon[2]==12) & (mon[3]==1)) {  # REB Fix 21.10.2005
+    } else if ( (length(mon)==3) & (mon[1]==11) & (mon[2]==12) & (mon[3]==1) ) {
+                                        # REB Fix 21.10.2005
       obs$val[2:ny,11:12] <- obs$val[1:(ny-1),11:12]
       obs$val[1,11:12] <- NA
-    } 
+    }
 
     # REB 10.04.2008
     if (length(mon)>1) value <- eval(parse(text=paste(method,"(obs$val[,mon])",sep=""))) else
@@ -130,7 +132,7 @@ if (!is.null(mon)) {
     clim <- mean(obs$val[1,mon] - obsa$val[1,mon],na.rm=TRUE)
 
   }
-  stdv <- sd(value,na.rm=TRUE)
+  stdv <- sd(c(value),na.rm=TRUE)
 
   # Polinomial trend
 
@@ -175,10 +177,10 @@ if (!is.null(mon)) {
       }
       if (trend) lines(yymm,pre.p.fit,col="red") 
       if (std.lev) lines(c(min(yymm),max(yymm)),rep(mean(value,na.rm=TRUE)+
-                                   1.96*sd(value,na.rm=TRUE),2),
+                                   1.96*sd(c(value),na.rm=TRUE),2),
                                    lty=2,col="grey")
       if (std.lev) lines(c(min(yymm),max(yymm)),rep(mean(value,na.rm=TRUE)-
-                                   1.96*sd(value,na.rm=TRUE),2),
+                                   1.96*sd(c(value),na.rm=TRUE),2),
                                    lty=2,col="grey")
       grid()
     }
@@ -194,8 +196,8 @@ if (!is.null(mon)) {
 
       x.dist <- seq(min(histo$mids),max(histo$mids),length=101)
       y.dist <- dnorm(x.dist,
-                      mean=mean(value,na.rm=TRUE),
-                      sd=sd(value,na.rm=TRUE))
+                      mean=mean(c(value),na.rm=TRUE),
+                      sd=sd(c(value),na.rm=TRUE))
       if (trend) lines(x.dist,y.dist,col="red")
 #      lines(x.dist,dgamma(x.dist-min(x.dist),
 #            shape=mean((value-min(x.dist))^2,na.rm=TRUE)/sd(value^2,na.rm=TRUE),
@@ -219,8 +221,8 @@ if (!is.null(mon)) {
       histo <- hist(value[!is.na(value)],breaks=15,lwd=3,plot=FALSE)
       x.dist <- seq(min(histo$mids),max(histo$mids),length=101)
       y.dist <- dnorm(x.dist,
-                      mean=mean(value,na.rm=TRUE),
-                      sd=sd(value,na.rm=TRUE))
+                      mean=mean(c(value),na.rm=TRUE),
+                      sd=sd(c(value),na.rm=TRUE))
     }
 
   } else  {
@@ -235,11 +237,11 @@ if (!is.null(mon)) {
          main=main,
          sub=sub.tit,xlab="Time",ylab=obs$unit,xlim=xlim,ylim=ylim)
     if (trend) lines(yymm[!is.na(y)],pre.p.fit,col="red")
-    lines(c(min(yymm),max(yymm)),rep(mean(value,na.rm=TRUE)+
-                                 1.96*sd(value,na.rm=TRUE),2),
+    lines(c(min(yymm),max(yymm)),rep(mean(c(value),na.rm=TRUE)+
+                                 1.96*sd(c(value),na.rm=TRUE),2),
           lty=2,col="grey")
-    lines(c(min(yymm),max(yymm)),rep(mean(value,na.rm=TRUE)-
-                                 1.96*sd(value,na.rm=TRUE),2),
+    lines(c(min(yymm),max(yymm)),rep(mean(c(value),na.rm=TRUE)-
+                                 1.96*sd(c(value),na.rm=TRUE),2),
           lty=2,col="grey")
     grid()
     dev.off()
@@ -253,13 +255,13 @@ if (!is.null(mon)) {
 
     x.dist <- seq(min(histo$mids),max(histo$mids),length=101)
     y.dist <- dnorm(x.dist,
-                       mean=mean(value,na.rm=TRUE),
-                       sd=sd(value,na.rm=TRUE))
+                       mean=mean(c(value),na.rm=TRUE),
+                       sd=sd(c(value),na.rm=TRUE))
     
     if (trend) lines(x.dist,y.dist,col="red")
     lines(x.dist,dgamma(x.dist-min(x.dist),
-          shape=mean((value-min(x.dist))^2,na.rm=TRUE)/sd(value^2,na.rm=TRUE),
-          scale=sd(value^2,na.rm=TRUE)/mean(value-min(x.dist),na.rm=TRUE)),
+          shape=mean((value-min(x.dist))^2,na.rm=TRUE)/sd(c(value)^2,na.rm=TRUE),
+          scale=sd(c(value)^2,na.rm=TRUE)/mean(value-min(x.dist),na.rm=TRUE)),
           col="blue",lty=3)
     grid()
     dev.off()

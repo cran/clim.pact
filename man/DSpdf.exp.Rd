@@ -1,6 +1,6 @@
 \name{DSpdf.exp}
 \alias{DSpdf.exp}
-\alias{exp.law1}
+\alias{exp.par}
 \alias{exp.par}
 \alias{CDFtransfer}
 \alias{empiricalRanking}
@@ -15,7 +15,7 @@
   10.3354/cr00693 (\url{http://www.int-res.com/articles/cr_oa/c034p195.pdf})
   Benestad, R.E., C. Achberger, &  E. Fernandez (2005) 'Empirical-statistical downscaling of distribution functions for
   daily precipitation', met-no report, 12-2005, Climate, pp.43
-  (\url{http://met.no/english/r_and_d_activities/publications/2005/12_2005/abstract_12_2005.html}). The dataset exp.law1 is used for this downscaling. 
+  (\url{http://met.no/english/r_and_d_activities/publications/2005/12_2005/abstract_12_2005.html}). The dataset exp.par is used for this downscaling. 
 
   CDFtransfer() is a function that facilitates local quantile
   transformation.
@@ -26,7 +26,7 @@
 }
 \usage{
 DSpdf.exp(obs=NULL,dT=0,dP=0,plot=TRUE,year=NULL,month=NULL,quadratic=TRUE)
-data(exp.law1)
+data(exp.par)
 CDFtransfer(Y,CDF.2,CDF.1=NULL,method="empiricalRanking",plot=FALSE,
             silent=FALSE,smooth=TRUE,xlab="x2",ylab="x1")
 empiricalRanking(x)
@@ -58,7 +58,7 @@ empiricalRanking(x)
 \author{R.E. Benestad}
 \examples{
 \dontrun{
-data(exp.law1)
+data(exp.par)
 data(oslo.dm)
 a<-DSpdf.exp(oslo.dm,dT=3,dP=1)
 F1<- list(x=a$x,P=a$Fx.obs)

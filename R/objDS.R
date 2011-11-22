@@ -7,11 +7,8 @@ if (class(result)!="objDS") {
 wd0 <- getwd()
 setwd(outdir)
 
-
-
 months<-c("Jan","Feb","Mar","Apr","May","Jun",
           "Jul","Aug","Sep","Oct","Nov","Dec")
-
 
 for (mon in months) {
    var.n <- paste("result$",mon,"$pre.gcm",sep="")
@@ -21,7 +18,6 @@ for (mon in months) {
    var.n <- paste("result$",mon,"$y.o",sep="")
    eval(parse(text=paste(var.n,"<-",var.n," - mean(",var.n,",na.rm=TRUE)",sep="")))
 }
-
 
 # Plotting and diagnostics:
 
@@ -49,7 +45,6 @@ for (mon in months) {
   yymm.gcm <-  as.vector(t(yymm.all.gcm))
   ibad <- c(1,diff(yymm.gcm)) < 0
   yymm.gcm[ibad] <- NA
-
 
   ds.all.cal <-cbind(
            result$Jan$pre.y,result$Feb$pre.y,result$Mar$pre.y,
@@ -99,7 +94,6 @@ if (!is.null(result$Jan$f.name)) {
   uscr<-instring("_",result$Jan$f.name)
   subtitle <- substr(result$Jan$f.name,slash+1,uscr[2]-1)
 } else subtitle <- " "
-
 
 if (sum(is.element(figs,1))>0) {newFig()
 par(cex.main=0.8)
@@ -388,7 +382,9 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
   print("catFields(field.obs) - select station interval")
   field.obs <- catFields(field.obs,interval.1=range(station$yy),silent=silent,
                          fastregrid=fastregrid,neofs=neofs)
-  if (is.null(field.obs)) return(NULL) # REB 15.03.2011
+  if (is.null(field.obs)) {
+    return(NULL) # REB 15.03.2011
+  }
   
   # Large-scale spatial structures: x-direction (REB, 12.11.2010)
   omega <- 1
@@ -575,7 +571,10 @@ objDS <- function(field.obs,field.gcm,station,plot=TRUE,positive=NULL,
                  field.2 <- catFields(field.obs,field.gcm,
                                       mon=imon,silent=silent,
                                       fastregrid=fastregrid,neofs=neofs)
-    if (is.null(field.2)) return(NULL) # REB 15.03.2011
+    if (is.null(field.2)) {
+      setwd(wd0)
+      return(NULL) # REB 15.03.2011
+    }
     
 #    print(field.gcm$lon); print(field.gcm$lat); print(summary(c(field.gcm$dat))); field.gcm$dat[!is.finite(field.gcm$dat)] <- 0
 #    map(meanField(field.obs)); print("OK1"); map(meanField(field.gcm)); stop("...HERE...") 

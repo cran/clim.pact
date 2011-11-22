@@ -1,0 +1,27 @@
+DNMI.slp: DNMI.slp eof
+DNMI.sst: DNMI.sst eof
+DNMI.t2m: DNMI.t2m eof
+addland1: lat.cont lon.cont
+addland2: lat.cont lon.cont
+bergen.dm
+bergen.t2m
+eof.c
+eof.dc
+eof.dmc
+eof.mc
+eof.slp
+eof_DNMI_slp: eof
+eof_DNMI_sst: eof
+eof_DNMI_t2m: eof
+exp.par
+helsinki.t2m
+koebenhavn.t2m
+meta.nacd
+nacd.meta
+narp.meta
+narp
+nordklim.meta: meta
+oslo.dm
+oslo.t2m
+stockholm.t2m
+tromsoe.t2m

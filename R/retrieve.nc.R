@@ -110,7 +110,8 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
   dt <- tim[2]-tim[1]
   Dt <- tim[length(tim)] - tim[1]
   if (round(length(tim)*dt) != Dt) {
-    print(paste("The chronology is not straight forward: dt=",dt,"interval span=",Dt,"data points=",length(tim)))
+    print(paste("The chronology is not straight forward: dt=",dt,"interval span=",
+                Dt,"data points=",length(tim),"for",filename))
     tim.srt <- order(tim) 
   } else tim.srt <- NULL
   
@@ -152,11 +153,13 @@ retrieve.nc <- function(filename=file.path("data","air.mon.mean.nc"),v.nam="AUTO
 
     if (force.chron) {
       if ( (length(dtims < 4)) & (is.null(tim.srt))) {
-        if (!silent) print(paste("Force correction: assume tim[1] is correct,",
+        if (!silent) print(paste("Force correction for",filename,
+                                 ": assume tim[1] is correct,",
                                   median(dtim),"is correct time step, and length=",nt))
         tim <- seq(tim[1],tim[1]+(nt-1)*dtim[1],by=median(dtim))
       } else {
-        dt <- readline("What is the correct time step? (0 leaves tim unchanged)")
+        dt <- readline(paste("What is the correct time step for ",filename,
+                       "? (0 leaves tim unchanged)"))
         if (dt != 0) tim <- seq(tim[1],tim[1]+nt-1,by=dt)
       }
     } 

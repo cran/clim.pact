@@ -38,29 +38,29 @@ getecsn <- function(location="prompt",param=c("TG","RR"),dataset="blended",
     print("please wait a little while - download takes some time")
     download.file(url.file,f.name,method="internal")
     
-  }
-  print("unzip file..."); print(getwd()); print(list.files(pattern=".zip")); 
-  print(f.name)
-  nc <- nchar(f.name)
+    print("unzip file..."); print(getwd()); print(list.files(pattern=".zip")); 
+    print(f.name)
+    nc <- nchar(f.name)
 #  zz <- unz(f.name,filename="location.txt",open="r") 
-  zz <- unz(f.name,filename="location.txt") 
-  system("unzip *.zip")
+    zz <- unz(f.name,filename="location.txt") 
+    system("unzip *.zip")
   
-  a <- readLines(zz)
-  close(zz)
-  print("metadata OK")
-  a <- a[20:length(a)]
-  for (i in 1:length(a)) {
-    while (length(instring(",",a[i])) < 5) { a[i] <- paste(a[i],",NA", sep="")}
-    bad.char <- instring("^",a[i])
-    if (length(bad.char)>0) {
+    a <- readLines(zz)
+    close(zz)
+    print("metadata OK")
+    a <- a[20:length(a)]
+    for (i in 1:length(a)) {
+      while (length(instring(",",a[i])) < 5) { a[i] <- paste(a[i],",NA", sep="")}
+      bad.char <- instring("^",a[i])
+      if (length(bad.char)>0) {
       #print(a[i])
-      a[i] <- paste(substr(a[i],1,bad.char-1),substr(a[i],bad.char+1,nchar(a[i])),sep="")
+        a[i] <- paste(substr(a[i],1,bad.char-1),substr(a[i],bad.char+1,nchar(a[i])),sep="")
       #print(a[i])
+      }
     }
+    #print("save in 'eca.loc.txt'")
+    writeLines(a,"eca.loc.txt")
   }
-  #print("save in 'eca.loc.txt'")
-  writeLines(a,"eca.loc.txt")
   #print("read as table")
   locs <- read.table("eca.loc.txt", sep =",",header=FALSE,
                      col.names=c("LOCID","LOCNAME","CN","LAT","LON","HGHT"))

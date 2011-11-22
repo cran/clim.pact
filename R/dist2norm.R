@@ -18,7 +18,7 @@ dist2norm <- function(x,plot=FALSE,exclude=NULL,
   edf.i <- spline(q,edf,n=100)
   cdf.i <- pnorm(q.i,mean=mean,sd=sd)
   if (plot) {
-    x11()
+    dev.new()
     plot(c(min(c(q.i,edf.i$x)),max(c(q.i,edf.i$x))),c(0,1),type="n",
          main="dist2normal",xlab="Value",ylab="Probability")
     grid()
@@ -52,7 +52,7 @@ norm2dist <- function(x,plot=FALSE,exclude=NULL,
     return()
   }
   if (plot) {
-    x11()
+    dev.new()
     plot(c(min(c(x$q.i,x$edf.i$x)),max(c(x$q.i,x$edf.i$x))),c(0,1),type="n",
          main="dist2normal",xlab="Value",ylab="Probability")
     grid()

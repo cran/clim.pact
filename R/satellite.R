@@ -119,7 +119,7 @@ map2sphere <- function(z,X=seq(-180,180,by=1),Y=seq(-90,90,by=1),pal="rainbow",n
     Z <- interp(x,y,z,X,Y)$z
     z <- Z
   }
-  x11()
+  dev.new()
   if (!add) plot(cos(seq(0,2*pi,length=360)),sin(seq(0,2*pi,length=360)),type="l",xlab="",ylab="")
   phi <- c(-80,-70,-60,-50,-40,40,50,60,70,80,90)
   steps <- c(6,5,4,3,2,1,2,3,4,5,6)

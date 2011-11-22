@@ -1,6 +1,6 @@
 
 
-load("eof_DNMI_sst.Rdata")
+load("eof_DNMI_sst.rda")
 
   xxx <-t(eof$EOF) %*% diag(eof$W) %*% t(eof$PC); xxx <- t(xxx)
   dim(xxx) <- eof$size

@@ -44,7 +44,7 @@ lagField <- function(fields,lag=1) {
 
 
 DSpdf.exp <- function(obs=NULL,dT=0,dP=0,plot=TRUE,year=NULL,month=NULL,quadratic=TRUE) {
-  data(exp.law1,envir = environment())
+  data(exp.par,envir = environment())
   data(addland1,envir = environment())
   dist <- min(distAB(obs$lon,obs$lat,lon.cont,lat.cont),na.rm=TRUE)/1000
   
@@ -189,7 +189,7 @@ CDFtransfer <-  function(Y,CDF.2,CDF.1=NULL,method="empiricalRanking",
 #    x11(); plot(F1,type="l"); points(CDF.1,col="red")
 #    x11(); plot(F2,type="l"); points(CDF.2,col="red")
 #    x11(); plot(F1$y,F2$y,type="l")
-    x11()
+    dev.new()
     plot(x2,x1,main="Local quantile transfer function",type="n",
          ylim=minmax,xlim=range(CDF.2$x,na.rm=TRUE),xlab=xlab,ylab=ylab)
     grid()
